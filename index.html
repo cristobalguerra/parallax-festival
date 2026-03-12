@@ -128,7 +128,7 @@
     }
     .laed-modal {
       position: relative;
-      overflow: hidden;
+      overflow: visible;
       background: rgba(255,255,255,0.06);
       backdrop-filter: blur(24px) saturate(1.4);
       -webkit-backdrop-filter: blur(24px) saturate(1.4);
@@ -173,7 +173,8 @@
       width: 65px; height: 65px;
       bottom: -28px; left: -22px;
       transform: rotate(-20deg);
-      opacity: 0.8;
+      opacity: 0.9;
+      z-index: 10;
     }
     .laed-modal__shape--3 {
       width: 45px; height: 45px;
