@@ -127,13 +127,65 @@
       pointer-events: auto;
     }
     .laed-modal {
-      background: #1a1a1a;
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 16px;
-      padding: 2rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(24px) saturate(1.4);
+      -webkit-backdrop-filter: blur(24px) saturate(1.4);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 2.2rem 1.6rem 1.8rem;
       max-width: 340px;
       width: 90%;
       text-align: left;
+      box-shadow:
+        0 8px 32px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.1),
+        inset 0 -1px 0 rgba(255,255,255,0.05);
+    }
+    /* Glass shine accent line */
+    .laed-modal::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(167,139,250,0.6) 30%, rgba(232,121,249,0.6) 50%, rgba(249,115,22,0.4) 70%, transparent 100%);
+    }
+    /* Decorative shapes inside the modal */
+    .laed-modal__shape {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+    .laed-modal__shape--1 {
+      width: 80px; height: 80px;
+      top: -30px; right: -20px;
+      background: radial-gradient(circle at 35% 35%, #a78bfa 0%, #7c3aed 60%, transparent 70%);
+      filter: blur(6px);
+    }
+    .laed-modal__shape--2 {
+      width: 50px; height: 50px;
+      bottom: -15px; left: -10px;
+      background: radial-gradient(circle at 40% 35%, #f97316 0%, #ea580c 60%, transparent 70%);
+      filter: blur(4px);
+    }
+    .laed-modal__shape--3 {
+      width: 35px; height: 35px;
+      top: 50%; right: -8px;
+      background: radial-gradient(circle at 38% 38%, #e879f9 0%, #c026d3 60%, transparent 70%);
+      filter: blur(5px);
+    }
+    .laed-modal__shape--4 {
+      width: 24px; height: 24px;
+      top: 20px; left: 10px;
+      background: radial-gradient(circle at 40% 35%, #38bdf8 0%, #0284c7 60%, transparent 70%);
+      filter: blur(3px);
+      opacity: 0.4;
+    }
+    .laed-modal__content {
+      position: relative;
+      z-index: 1;
     }
     .laed-modal__title {
       font-family: var(--font-display);
@@ -147,7 +199,7 @@
       font-family: var(--font-display);
       font-size: 0.8rem;
       font-weight: 300;
-      color: rgba(255,255,255,0.6);
+      color: rgba(255,255,255,0.65);
       line-height: 1.6;
       margin-bottom: 1.5rem;
     }
@@ -1375,12 +1427,18 @@
   <!-- LAED Modal -->
   <div class="laed-overlay" id="laedOverlay">
     <div class="laed-modal">
-      <div class="laed-modal__title">Licenciatura en Animación y Efectos Digitales</div>
-      <p class="laed-modal__text">
-        Este festival es desarrollado por el programa de Licenciatura en Animación y Efectos Digitales (LAED) de la Universidad de Monterrey, formando a la próxima generación de creadores en animación 2D, 3D y efectos visuales.
-      </p>
-      <a class="laed-modal__link" href="https://www.udem.edu.mx/es/arte-arquitectura-y-diseno/licenciatura-en-animacion-y-efectos-digitales" target="_blank" rel="noopener">Más información &#8599;</a>
-      <button class="laed-modal__close" id="laedClose">Cerrar</button>
+      <div class="laed-modal__shape laed-modal__shape--1"></div>
+      <div class="laed-modal__shape laed-modal__shape--2"></div>
+      <div class="laed-modal__shape laed-modal__shape--3"></div>
+      <div class="laed-modal__shape laed-modal__shape--4"></div>
+      <div class="laed-modal__content">
+        <div class="laed-modal__title">Licenciatura en Animación y Efectos Digitales</div>
+        <p class="laed-modal__text">
+          Este festival es desarrollado por el programa de Licenciatura en Animación y Efectos Digitales (LAED) de la Universidad de Monterrey, formando a la próxima generación de creadores en animación 2D, 3D y efectos visuales.
+        </p>
+        <a class="laed-modal__link" href="https://www.udem.edu.mx/es/arte-arquitectura-y-diseno/licenciatura-en-animacion-y-efectos-digitales" target="_blank" rel="noopener">Más información &#8599;</a>
+        <button class="laed-modal__close" id="laedClose">Cerrar</button>
+      </div>
     </div>
   </div>
 
