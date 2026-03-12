@@ -241,15 +241,43 @@
       box-shadow: 0 2px 12px rgba(167,139,250,0.2);
     }
     .laed-modal__close {
-      display: block;
-      margin-top: 1rem;
-      font-family: var(--font-display);
-      font-size: 0.7rem;
-      color: rgba(255,255,255,0.4);
-      background: none;
-      border: none;
+      position: absolute;
+      bottom: -16px;
+      right: -16px;
+      z-index: 11;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50%;
+      color: rgba(255,255,255,0.6);
+      font-size: 0;
       cursor: pointer;
-      padding: 0.5rem;
+      transition: all 0.2s ease;
+    }
+    .laed-modal__close::before,
+    .laed-modal__close::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 1.5px;
+      background: rgba(255,255,255,0.6);
+      border-radius: 1px;
+    }
+    .laed-modal__close::before { transform: rotate(45deg); }
+    .laed-modal__close::after { transform: rotate(-45deg); }
+    .laed-modal__close:hover {
+      background: rgba(255,255,255,0.18);
+      border-color: rgba(255,255,255,0.3);
+    }
+    .laed-modal__close:hover::before,
+    .laed-modal__close:hover::after {
+      background: #fff;
     }
     .nav__logo {
       display: block;
@@ -1455,8 +1483,8 @@
           Este festival es desarrollado por el programa de Licenciatura en Animación y Efectos Digitales (LAED) de la Universidad de Monterrey, formando a la próxima generación de creadores en animación 2D, 3D y efectos visuales.
         </p>
         <a class="laed-modal__link" href="https://www.udem.edu.mx/es/arte-arquitectura-y-diseno/licenciatura-en-animacion-y-efectos-digitales" target="_blank" rel="noopener">Conoce LAED <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></a>
-        <button class="laed-modal__close" id="laedClose">Cerrar</button>
       </div>
+      <button class="laed-modal__close" id="laedClose" aria-label="Cerrar"></button>
     </div>
   </div>
 
