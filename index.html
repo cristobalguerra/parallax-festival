@@ -111,39 +111,32 @@
       min-height: 100svh;
     }
 
-    .hero__bg {
+    .hero__pl {
       position: absolute;
-      inset: -20%;
-      background: url('hero-bg.jpg') center/cover no-repeat;
-      will-change: transform;
-    }
-
-    .hero__layer {
-      position: absolute;
-      inset: 0;
+      inset: -15%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
       will-change: transform;
       pointer-events: none;
     }
 
-    /* Top fade — sky blends into nav */
-    .hero__layer--1 {
-      background: linear-gradient(to bottom,
-        rgba(10,10,10,0.7) 0%,
-        transparent 35%);
-    }
+    #plSky       { background-image: url('pl-sky.jpg'); inset: -5%; }
+    #plMountains { background-image: url('pl-mountains.png'); }
+    #plClouds    { background-image: url('pl-clouds.png'); }
+    #plCity      { background-image: url('pl-city.png'); }
+    #plCrgs      { background-image: url('pl-crgs.png'); }
+    #plHorno     { background-image: url('pl-horno.png'); }
+    #plVeg       { background-image: url('pl-veg.png'); inset: -10%; }
 
-    /* Bottom fade — ground blends into content */
-    .hero__layer--2 {
-      background: linear-gradient(to top,
-        rgba(10,10,10,0.95) 0%,
-        rgba(10,10,10,0.5) 30%,
-        transparent 60%);
-    }
-
-    /* Subtle color tint */
-    .hero__layer--3 {
-      background: radial-gradient(ellipse at 30% 70%, rgba(232,67,42,0.08) 0%, transparent 50%),
-                  radial-gradient(ellipse at 70% 30%, rgba(201,168,76,0.05) 0%, transparent 45%);
+    .hero__fade {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(10,10,10,0.6) 0%, transparent 25%),
+        linear-gradient(to top, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.4) 25%, transparent 55%);
+      z-index: 1;
+      pointer-events: none;
     }
 
     .hero__content {
@@ -853,10 +846,14 @@
 
   <!-- HERO -->
   <section class="hero" id="hero">
-    <div class="hero__bg"></div>
-    <div class="hero__layer hero__layer--1"></div>
-    <div class="hero__layer hero__layer--2"></div>
-    <div class="hero__layer hero__layer--3"></div>
+    <div class="hero__pl" id="plSky"></div>
+    <div class="hero__pl" id="plMountains"></div>
+    <div class="hero__pl" id="plClouds"></div>
+    <div class="hero__pl" id="plCity"></div>
+    <div class="hero__pl" id="plCrgs"></div>
+    <div class="hero__pl" id="plHorno"></div>
+    <div class="hero__pl" id="plVeg"></div>
+    <div class="hero__fade"></div>
     <div class="hero__content">
       <div class="hero__label">Festival de cortometrajes</div>
       <p class="hero__subtitle">Entrando a nuevas dimensiones</p>
@@ -1290,10 +1287,17 @@ document.querySelectorAll('.bottom-bar__item').forEach(item => {
 const nav = document.querySelector('.nav');
 const hero = document.getElementById('hero');
 const heroContent = hero.querySelector('.hero__content');
-const heroBg = hero.querySelector('.hero__bg');
-const layer1 = hero.querySelector('.hero__layer--1');
-const layer2 = hero.querySelector('.hero__layer--2');
-const layer3 = hero.querySelector('.hero__layer--3');
+
+// Parallax layers — back to front, each faster than the last
+const plLayers = [
+  { el: document.getElementById('plSky'),       speed: 0.05 },  // Sky barely moves
+  { el: document.getElementById('plMountains'),  speed: 0.12 },  // Mountains slow
+  { el: document.getElementById('plClouds'),     speed: 0.08, x: 0.03 }, // Clouds drift sideways too
+  { el: document.getElementById('plCity'),       speed: 0.22 },  // City mid-ground
+  { el: document.getElementById('plCrgs'),       speed: 0.30 },  // CRGS closer
+  { el: document.getElementById('plHorno'),      speed: 0.35 },  // Horno even closer
+  { el: document.getElementById('plVeg'),        speed: 0.45 },  // Vegetation closest
+];
 let ticking = false;
 
 function onScroll() {
@@ -1301,16 +1305,15 @@ function onScroll() {
   const heroH = hero.offsetHeight;
   const progress = Math.min(scrollY / heroH, 1);
 
-  // Image moves slower than scroll (parallax depth)
-  heroBg.style.transform = `translateY(${scrollY * 0.3}px) scale(${1 + progress * 0.05})`;
+  // Each layer moves at its own speed — deeper = slower
+  for (const layer of plLayers) {
+    const y = scrollY * layer.speed;
+    const x = layer.x ? scrollY * layer.x : 0;
+    layer.el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+  }
 
-  // Overlay layers drift at different rates
-  layer1.style.transform = `translateY(${scrollY * 0.1}px)`;
-  layer2.style.transform = `translateY(${scrollY * 0.2}px)`;
-  layer3.style.transform = `translateY(${scrollY * 0.15}px)`;
-
-  // Hero content fades and drifts up faster
-  heroContent.style.transform = `translateY(${scrollY * 0.5}px)`;
+  // Hero content fades and drifts faster than all layers
+  heroContent.style.transform = `translateY(${scrollY * 0.55}px)`;
   heroContent.style.opacity = 1 - progress * 1.8;
 
   // Nav background
