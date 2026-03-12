@@ -629,6 +629,38 @@
       color: var(--gold);
     }
 
+    .film-card__tag--2d {
+      color: #a78bfa;
+      background: rgba(167,139,250,0.1);
+      border: 1px solid rgba(167,139,250,0.2);
+    }
+
+    .film-card__tag--3d {
+      color: #38bdf8;
+      background: rgba(56,189,248,0.1);
+      border: 1px solid rgba(56,189,248,0.2);
+    }
+
+    .film-card__tag--experimental {
+      color: #f472b6;
+      background: rgba(244,114,182,0.1);
+      border: 1px solid rgba(244,114,182,0.2);
+    }
+
+    .film-card__tag--videojuego {
+      color: #a3e635;
+      background: rgba(163,230,53,0.1);
+      border: 1px solid rgba(163,230,53,0.2);
+    }
+
+    .film-card[data-genre="2d"] .film-card__number {
+      color: rgba(167,139,250,0.4);
+    }
+
+    .film-card[data-genre="3d"] .film-card__number {
+      color: rgba(56,189,248,0.4);
+    }
+
     .film-card__right {
       display: flex;
       flex-direction: column;
@@ -923,17 +955,22 @@
 
     .about__stat-number {
       font-family: var(--font-display);
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text-primary);
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(140deg, #a78bfa 0%, #e879f9 50%, #f97316 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
     }
 
     .about__stat-label {
-      font-size: 0.6rem;
+      font-size: 0.65rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--text-muted);
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
     }
 
     .about__block {
@@ -1069,6 +1106,24 @@
     .about__digital-icon {
       font-size: 1.5rem;
       margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .about__digital-icon svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .about__digital-card--yt {
+      border-color: rgba(255,0,0,0.25);
+      background: linear-gradient(135deg, rgba(255,0,0,0.08) 0%, var(--bg-card) 100%);
+    }
+
+    .about__digital-card--ig {
+      border-color: rgba(225,48,108,0.25);
+      background: linear-gradient(135deg, rgba(131,58,180,0.08) 0%, rgba(253,29,29,0.06) 50%, rgba(252,176,69,0.04) 100%);
     }
 
     .about__digital-name {
@@ -1187,6 +1242,79 @@
       color: var(--text-muted);
       letter-spacing: 0.05em;
       padding-left: 1.1rem;
+    }
+
+    .mapa__card-map {
+      width: 100%;
+      height: 160px;
+      border: none;
+      border-radius: 8px;
+      margin-top: 0.75rem;
+      filter: grayscale(0.6) invert(0.92) contrast(1.1);
+    }
+
+    .mapa__card-events {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.75rem;
+      padding-left: 1.1rem;
+    }
+
+    .mapa__card-event-tag {
+      font-size: 0.6rem;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      background: rgba(232,67,42,0.1);
+      border: 1px solid rgba(232,67,42,0.2);
+      padding: 0.2rem 0.5rem;
+      border-radius: 12px;
+    }
+
+    .mapa__transport {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .mapa__transport-title {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 0.75rem;
+    }
+
+    .mapa__transport-item {
+      display: flex;
+      gap: 0.6rem;
+      align-items: flex-start;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(34,34,34,0.5);
+    }
+
+    .mapa__transport-item:last-child {
+      border-bottom: none;
+    }
+
+    .mapa__transport-icon {
+      font-size: 1rem;
+      min-width: 24px;
+      text-align: center;
+    }
+
+    .mapa__transport-text {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .mapa__transport-label {
+      font-weight: 600;
+      color: var(--text-primary);
     }
 
     /* ═══════════════════════════════════════════
@@ -1371,10 +1499,7 @@
       <div class="about__block">
         <h3 class="about__block-title">Visión</h3>
         <p class="about__body">
-          Parallax es la apuesta estratégica de la Universidad de Monterrey por convertirse en el referente regional de las industrias creativas digitales. Un espacio donde la animación, los videojuegos y el arte digital convergen para dar visibilidad al talento estudiantil frente a una audiencia académica y profesional internacional.
-        </p>
-        <p class="about__body" style="font-style:italic;opacity:0.7;">
-          El nombre Parallax — la percepción de profundidad desde perspectivas distintas — es también la filosofía del festival: reunir miradas diversas, técnicas en evolución y narrativas que definen la vanguardia de la producción digital contemporánea.
+          Donde la animación, los videojuegos y el arte digital convergen — reuniendo talento estudiantil y profesional de múltiples perspectivas.
         </p>
       </div>
 
@@ -1396,13 +1521,13 @@
       <div class="about__block">
         <h3 class="about__block-title">Conéctate</h3>
         <div class="about__digital">
-          <div class="about__digital-card">
-            <div class="about__digital-icon">▶</div>
+          <div class="about__digital-card about__digital-card--yt">
+            <div class="about__digital-icon"><svg viewBox="0 0 24 24" fill="#FF0000"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.9 31.9 0 0 0 0 12a31.9 31.9 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.9 31.9 0 0 0 24 12a31.9 31.9 0 0 0-.5-5.8zM9.5 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg></div>
             <div class="about__digital-name">YouTube</div>
             <div class="about__digital-desc">Transmisión en vivo y archivo permanente post-evento</div>
           </div>
-          <div class="about__digital-card">
-            <div class="about__digital-icon">◉</div>
+          <div class="about__digital-card about__digital-card--ig">
+            <div class="about__digital-icon"><svg viewBox="0 0 24 24" fill="none" stroke="url(#igGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><defs><linearGradient id="igGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ffc107"/><stop offset="50%" stop-color="#e1306c"/><stop offset="100%" stop-color="#833ab4"/></linearGradient></defs><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.2" fill="url(#igGrad)" stroke="none"/></svg></div>
             <div class="about__digital-name">Instagram Live</div>
             <div class="about__digital-desc">6 lives con panel estudiantil de presentadores y comentaristas</div>
           </div>
@@ -1452,6 +1577,13 @@
         </div>
         <div class="mapa__card-detail">Parque Fundidora, Monterrey</div>
         <div class="mapa__card-days">Días 1 y 2 — 13 y 14 de mayo</div>
+        <div class="mapa__card-events">
+          <span class="mapa__card-event-tag">Inauguración</span>
+          <span class="mapa__card-event-tag">Cortometrajes</span>
+          <span class="mapa__card-event-tag">Conferencias</span>
+          <span class="mapa__card-event-tag">Showcases</span>
+        </div>
+        <iframe class="mapa__card-map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3596.1!2d-100.286!3d25.687!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x866295e8e8c3b0e7%3A0x2e6a4e5c2f2c3d4e!2sCineteca+Nuevo+Le%C3%B3n!5e0!3m2!1ses!2smx!4v1" allowfullscreen="" loading="lazy"></iframe>
       </a>
       <a class="mapa__card" href="https://www.google.com/maps/search/?api=1&query=Universidad+de+Monterrey+UDEM,+San+Pedro+Garza+García" target="_blank" rel="noopener">
         <div class="mapa__card-header">
@@ -1461,7 +1593,29 @@
         </div>
         <div class="mapa__card-detail">San Pedro Garza García</div>
         <div class="mapa__card-days">Día 3 — 15 de mayo</div>
+        <div class="mapa__card-events">
+          <span class="mapa__card-event-tag">Proyecciones finales</span>
+          <span class="mapa__card-event-tag">Panel industria</span>
+          <span class="mapa__card-event-tag">Premiación</span>
+        </div>
+        <iframe class="mapa__card-map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3596.8!2d-100.310!3d25.660!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8662bdd1a9b3a5b3%3A0x6c0e6f3b3f2c3d4e!2sUniversidad+de+Monterrey!5e0!3m2!1ses!2smx!4v1" allowfullscreen="" loading="lazy"></iframe>
       </a>
+
+      <div class="mapa__transport">
+        <div class="mapa__transport-title">Cómo llegar</div>
+        <div class="mapa__transport-item">
+          <span class="mapa__transport-icon">&#128652;</span>
+          <div class="mapa__transport-text"><span class="mapa__transport-label">Metro</span> — Línea 1, estación Parque Fundidora (Cineteca) · Línea 2, estación Universidad (UDEM)</div>
+        </div>
+        <div class="mapa__transport-item">
+          <span class="mapa__transport-icon">&#128664;</span>
+          <div class="mapa__transport-text"><span class="mapa__transport-label">Auto</span> — Estacionamiento disponible en ambas sedes. Fundidora: $40/hr · UDEM: gratuito</div>
+        </div>
+        <div class="mapa__transport-item">
+          <span class="mapa__transport-icon">&#128661;</span>
+          <div class="mapa__transport-text"><span class="mapa__transport-label">Rideshare</span> — Uber/Didi recomendado. Punto de descenso en entradas principales</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1680,7 +1834,7 @@ function renderFilms(day = 1) {
           <div class="film-card__title">${film.title}</div>
           <div class="film-card__director">${film.director}</div>
           <div class="film-card__tags">
-            <span class="film-card__tag film-card__tag--genre">${film.genre}</span>
+            <span class="film-card__tag film-card__tag--genre film-card__tag--${film.genre}">${film.genre}</span>
             <span class="film-card__tag">${film.country}</span>
           </div>
         </div>
