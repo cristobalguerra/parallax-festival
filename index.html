@@ -148,7 +148,22 @@
     .section-shape {
       position: absolute;
       pointer-events: none;
-      z-index: 0;
+      z-index: -1;
+      opacity: 0;
+      transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.9s ease;
+    }
+
+    .section-shape--right {
+      transform: translateX(160px);
+    }
+
+    .section-shape--left {
+      transform: translateX(-160px);
+    }
+
+    .section-shape.visible {
+      transform: translateX(0);
+      opacity: 1;
     }
 
     .section-shape img {
@@ -156,6 +171,7 @@
       height: 100%;
       object-fit: contain;
       filter: drop-shadow(0 6px 16px rgba(0,0,0,0.35));
+      opacity: 0.5;
     }
 
     .shape3d-z1 { z-index: 1; }
@@ -342,16 +358,16 @@
     }
 
     .day-btn.active {
-      background: var(--text-primary);
-      border-color: var(--text-primary);
+      background: #7B2FF2;
+      border-color: #7B2FF2;
     }
 
     .day-btn.active .day-btn__day {
-      color: var(--bg-primary);
+      color: #fff;
     }
 
     .day-btn.active .day-btn__date {
-      color: rgba(10,10,10,0.6);
+      color: rgba(255,255,255,0.6);
     }
 
     .day-venue {
@@ -417,10 +433,16 @@
       border: 1px solid var(--border);
       border-radius: 3px;
       overflow: hidden;
-      transition: background 0.2s ease, border-color 0.2s ease;
+      transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
       cursor: pointer;
       position: relative;
       z-index: 1;
+    }
+
+    .film-card.is-expanded {
+      background: rgba(0, 200, 83, 0.1);
+      border-color: #00C853;
+      box-shadow: 0 0 12px rgba(0, 200, 83, 0.15);
     }
 
     .film-card:active {
@@ -626,36 +648,57 @@
       left: 0;
       right: 0;
       z-index: 100;
-      background: rgba(10,10,10,0.92);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-top: 1px solid var(--border);
-      padding: 0.75rem 1.25rem;
-      padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+      background: rgba(10,10,10,0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 0.5rem 0;
+      padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
       display: flex;
-      justify-content: space-around;
+      justify-content: stretch;
       align-items: center;
     }
 
     .bottom-bar__item {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.25rem;
+      gap: 0.3rem;
       background: none;
       border: none;
       color: var(--text-muted);
       font-family: var(--font-mono);
-      font-size: 0.55rem;
-      letter-spacing: 0.08em;
+      font-size: 0.5rem;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       cursor: pointer;
-      padding: 0.25rem 0.5rem;
-      transition: color 0.2s ease;
+      padding: 0.4rem 0;
+      transition: color 0.3s ease, transform 0.3s ease;
+      position: relative;
+    }
+
+    .bottom-bar__item::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 50%;
+      transform: translateX(-50%) scaleX(0);
+      width: 24px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 1px;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    .bottom-bar__item.active::before {
+      transform: translateX(-50%) scaleX(1);
     }
 
     .bottom-bar__item.active {
-      color: var(--text-primary);
+      color: var(--accent);
+      transform: translateY(-1px);
     }
 
     .bottom-bar__item svg {
@@ -664,6 +707,11 @@
       stroke: currentColor;
       fill: none;
       stroke-width: 1.5;
+      transition: filter 0.3s ease;
+    }
+
+    .bottom-bar__item.active svg {
+      filter: drop-shadow(0 0 4px var(--accent));
     }
 
     /* ═══════════════════════════════════════════
@@ -839,6 +887,76 @@
     }
 
     /* ═══════════════════════════════════════════
+       MAPA SECTION
+    ═══════════════════════════════════════════ */
+    .mapa {
+      padding: 0 1.25rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .mapa__card {
+      display: block;
+      text-decoration: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .mapa__card:active {
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(255,95,31,0.15);
+    }
+
+    .mapa__card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .mapa__card-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      box-shadow: 0 0 6px var(--accent);
+    }
+
+    .mapa__card-name {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      flex: 1;
+    }
+
+    .mapa__card-arrow {
+      font-size: 0.9rem;
+      color: var(--accent);
+      opacity: 0.7;
+    }
+
+    .mapa__card-detail {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.3rem;
+      padding-left: 1.1rem;
+    }
+
+    .mapa__card-days {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      padding-left: 1.1rem;
+    }
+
+    /* ═══════════════════════════════════════════
        ANIMATIONS
     ═══════════════════════════════════════════ */
     @keyframes fadeUp {
@@ -939,10 +1057,10 @@
   <!-- ═══ FILMS SECTION ═══ -->
   <div class="page-section active" id="section-films" style="position:relative;overflow:hidden;">
     <!-- Floating shapes behind film cards -->
-    <div class="section-shape" id="secSh1" style="top:15%;right:-40px;width:140px;height:120px;">
+    <div class="section-shape section-shape--right" id="secSh1" style="top:15%;right:-40px;width:140px;height:120px;">
       <img src="shapes/shape-3.png" alt="">
     </div>
-    <div class="section-shape" id="secSh2" style="top:55%;left:-35px;width:130px;height:145px;">
+    <div class="section-shape section-shape--left" id="secSh2" style="top:55%;left:-35px;width:130px;height:145px;">
       <img src="shapes/shape-6.png" alt="">
     </div>
 
@@ -976,8 +1094,8 @@
   </div>
 
   <!-- ═══ FESTIVAL SECTION ═══ -->
-  <div class="page-section" id="section-festival">
-    <div class="section-header">
+  <div class="page-section" id="section-festival" style="padding-top:4.5rem;">
+    <div class="section-header" style="padding-top:1rem;">
       <h2 class="section-header__title">EL FESTIVAL</h2>
     </div>
     <div class="about">
@@ -1044,15 +1162,46 @@
     </div>
   </div>
 
+  <!-- ═══ MAPA SECTION ═══ -->
+  <div class="page-section" id="section-mapa" style="padding-top:4.5rem;">
+    <div class="section-header" style="padding-top:1rem;">
+      <h2 class="section-header__title">SEDES</h2>
+    </div>
+    <div class="mapa">
+      <a class="mapa__card" href="https://www.google.com/maps/search/?api=1&query=Cineteca+Nuevo+León,+Parque+Fundidora,+Monterrey" target="_blank" rel="noopener">
+        <div class="mapa__card-header">
+          <span class="mapa__card-dot"></span>
+          <span class="mapa__card-name">Cineteca Nuevo León</span>
+          <span class="mapa__card-arrow">&#8599;</span>
+        </div>
+        <div class="mapa__card-detail">Parque Fundidora, Monterrey</div>
+        <div class="mapa__card-days">Días 1 y 2 — 18 y 19 de abril</div>
+      </a>
+      <a class="mapa__card" href="https://www.google.com/maps/search/?api=1&query=Centro+Roberto+Garza+Sada+UDEM,+San+Pedro+Garza+García" target="_blank" rel="noopener">
+        <div class="mapa__card-header">
+          <span class="mapa__card-dot"></span>
+          <span class="mapa__card-name">CRGS UDEM</span>
+          <span class="mapa__card-arrow">&#8599;</span>
+        </div>
+        <div class="mapa__card-detail">San Pedro Garza García</div>
+        <div class="mapa__card-days">Día 3 — 20 de abril</div>
+      </a>
+    </div>
+  </div>
+
   <!-- BOTTOM NAV -->
   <nav class="bottom-bar">
     <button class="bottom-bar__item active" data-section="section-films">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M4 8V4h16v4"/><path d="M4 14v-4h16v4"/><path d="M4 20v-4h16v4"/><circle cx="8" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="8" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="8" cy="18" r="1" fill="currentColor" stroke="none"/></svg>
       Programa
     </button>
     <button class="bottom-bar__item" data-section="section-festival">
-      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M12 3L2 8l10 5 10-5-10-5z"/><path d="M2 12l10 5 10-5" opacity="0.7"/><path d="M2 16l10 5 10-5" opacity="0.4"/></svg>
       Festival
+    </button>
+    <button class="bottom-bar__item" data-section="section-mapa">
+      <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
+      Mapa
     </button>
   </nav>
 
@@ -1344,7 +1493,17 @@ document.querySelectorAll('.bottom-bar__item').forEach(item => {
     document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
     document.getElementById(sectionId).classList.add('active');
 
-    window.scrollTo({ top: document.getElementById('hero').offsetHeight, behavior: 'smooth' });
+    // Hide hero on Festival/Mapa to avoid repetition
+    const heroEl = document.getElementById('hero');
+    if (sectionId === 'section-films') {
+      heroEl.style.display = '';
+      // Force layout recalc then scroll past hero
+      void heroEl.offsetHeight;
+      window.scrollTo(0, heroEl.offsetHeight);
+    } else {
+      heroEl.style.display = 'none';
+      window.scrollTo(0, 0);
+    }
   });
 });
 
@@ -1411,6 +1570,45 @@ window.addEventListener('scroll', () => {
     ticking = true;
   }
 }, { passive: true });
+
+// ═══════════════════════════════════════════
+// SECTION SHAPES — SLIDE IN ON SCROLL
+// ═══════════════════════════════════════════
+const sectionShapes = document.querySelectorAll('.section-shape');
+
+// On load: any shape already in view gets shown instantly (no animation)
+// Shapes below viewport will animate in when scrolled to
+const vh0 = window.innerHeight;
+sectionShapes.forEach(shape => {
+  const parent = shape.offsetParent;
+  if (!parent) return;
+  const shapeTop = parent.offsetTop + shape.offsetTop;
+  if (window.scrollY + vh0 > shapeTop + 80) {
+    // Already in view — show without transition
+    shape.style.transition = 'none';
+    shape.classList.add('visible');
+    // Re-enable transition after paint
+    requestAnimationFrame(() => { shape.style.transition = ''; });
+  }
+});
+
+function checkShapes() {
+  const vh = window.innerHeight;
+  const scrollY = window.scrollY;
+  sectionShapes.forEach(shape => {
+    const parent = shape.offsetParent;
+    if (!parent) return;
+    const shapeTop = parent.offsetTop + shape.offsetTop;
+    const inView = scrollY + vh > shapeTop + 80;
+    if (inView && !shape.classList.contains('visible')) {
+      shape.classList.add('visible');
+    } else if (!inView && shape.classList.contains('visible')) {
+      shape.classList.remove('visible');
+    }
+  });
+}
+
+window.addEventListener('scroll', checkShapes, { passive: true });
 </script>
 
 </body>
