@@ -162,7 +162,7 @@
     .hero__content {
       position: absolute;
       z-index: 3;
-      top: 28%;
+      top: 22%;
       left: 0;
       right: 0;
       padding: 0 1.25rem;
@@ -171,13 +171,13 @@
     }
 
     .hero__label {
-      font-family: var(--font-mono);
-      font-size: 0.95rem;
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 7vw, 3rem);
       font-weight: 700;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.08em;
       color: var(--accent);
       text-transform: uppercase;
-      margin-bottom: 1rem;
+      line-height: 1.15;
       display: block;
     }
 
@@ -193,13 +193,7 @@
     }
 
     .hero__subtitle {
-      font-family: var(--font-serif);
-      font-size: 1.6rem;
-      font-weight: 700;
-      font-style: italic;
-      color: var(--text-primary);
-      line-height: 1.3;
-      margin-bottom: 0;
+      display: none;
     }
 
     .hero__meta {
@@ -895,8 +889,7 @@
     </div>
 
     <div class="hero__content" id="heroContent">
-      <div class="hero__label">Festival de cortometrajes</div>
-      <p class="hero__subtitle">Entrando a nuevas dimensiones</p>
+      <div class="hero__label">Expanding into<br>new dimensions</div>
     </div>
 
     <div class="hero__pl" id="plCity"></div>
