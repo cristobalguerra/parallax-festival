@@ -160,10 +160,14 @@
     }
 
     .hero__content {
-      position: relative;
-      z-index: 2;
-      padding: 0 1.25rem 2.5rem;
+      position: absolute;
+      z-index: 3;
+      top: 28%;
+      left: 0;
+      right: 0;
+      padding: 0 1.25rem;
       will-change: transform, opacity;
+      text-align: center;
     }
 
     .hero__label {
@@ -173,16 +177,7 @@
       color: var(--accent);
       text-transform: uppercase;
       margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .hero__label::before {
-      content: '';
-      width: 24px;
-      height: 1px;
-      background: var(--accent);
+      display: block;
     }
 
     .hero__title {
@@ -203,8 +198,7 @@
       font-style: italic;
       color: var(--text-secondary);
       line-height: 1.3;
-      margin-bottom: 2rem;
-      max-width: 280px;
+      margin-bottom: 0;
     }
 
     .hero__meta {
@@ -899,6 +893,11 @@
       <img src="shapes/shape-1.png" alt="">
     </div>
 
+    <div class="hero__content" id="heroContent">
+      <div class="hero__label">Festival de cortometrajes</div>
+      <p class="hero__subtitle">Entrando a nuevas dimensiones</p>
+    </div>
+
     <div class="hero__pl" id="plCity"></div>
     <div class="hero__pl" id="plCrgs"></div>
     <div class="hero__pl" id="plHorno"></div>
@@ -921,24 +920,6 @@
     </div>
 
     <div class="hero__fade"></div>
-    <div class="hero__content">
-      <div class="hero__label">Festival de cortometrajes</div>
-      <p class="hero__subtitle">Entrando a nuevas dimensiones</p>
-      <div class="hero__meta">
-        <div class="hero__meta-item">
-          <span class="hero__meta-label">Fecha</span>
-          <span class="hero__meta-value">18–20 Abr 2026</span>
-        </div>
-        <div class="hero__meta-item">
-          <span class="hero__meta-label">Lugar</span>
-          <span class="hero__meta-value">CDMX</span>
-        </div>
-        <div class="hero__meta-item">
-          <span class="hero__meta-label">Cortos</span>
-          <span class="hero__meta-value">16 films</span>
-        </div>
-      </div>
-    </div>
   </section>
 
   <!-- ═══ FILMS SECTION ═══ -->
@@ -1350,7 +1331,7 @@ document.querySelectorAll('.bottom-bar__item').forEach(item => {
 // ═══════════════════════════════════════════
 const nav = document.querySelector('.nav');
 const hero = document.getElementById('hero');
-const heroContent = hero.querySelector('.hero__content');
+const heroContent = document.getElementById('heroContent');
 
 // Parallax layers — back to front, each faster than the last
 // rot = rotation multiplier (degrees per scroll pixel), axis = [x,y,z]
@@ -1360,6 +1341,7 @@ const plLayers = [
   { el: document.getElementById('plMountains'),  speed: 0.12 },
   { el: document.getElementById('plClouds'),     speed: 0.08, x: 0.03 },
   { el: document.getElementById('sh2'),         speed: 0.15, x: 0.04 },
+  { el: heroContent,                             speed: 0.18 },
   { el: document.getElementById('plCity'),       speed: 0.22 },
   { el: document.getElementById('plCrgs'),       speed: 0.30 },
   { el: document.getElementById('plHorno'),      speed: 0.35 },
@@ -1388,9 +1370,8 @@ function onScroll() {
     }
   }
 
-  // Hero content fades and drifts faster than all layers
-  heroContent.style.transform = `translateY(${scrollY * 0.55}px)`;
-  heroContent.style.opacity = 1 - progress * 1.8;
+  // Hero content fades out as it scrolls behind buildings
+  heroContent.style.opacity = 1 - progress * 2.5;
 
   // Nav background
   if (scrollY > 100) {
