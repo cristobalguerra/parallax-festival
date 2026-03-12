@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PARALLAX — Festival de Cortometrajes</title>
+  <title>PARALLAX — International Animation Festival</title>
   <!-- Helvetica system font stack -->
   <style>
     /* ═══════════════════════════════════════════
@@ -309,9 +309,9 @@
 
     .hero__label {
       font-family: var(--font-display);
-      font-size: clamp(1.45rem, 5.6vw, 2.4rem);
+      font-size: clamp(0.7rem, 2.8vw, 1.1rem);
       font-weight: 400;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.18em;
       color: var(--accent);
       text-transform: uppercase;
       line-height: 1.15;
@@ -993,6 +993,118 @@
       margin-bottom: 1rem;
     }
 
+    /* Pillar cards */
+    .about__pillars {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .about__pillar {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.15rem;
+    }
+
+    .about__pillar-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .about__pillar-icon {
+      font-size: 1.1rem;
+      color: var(--accent);
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .about__pillar-name {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .about__pillar-desc {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      padding-left: 1.7rem;
+    }
+
+    /* Digital section */
+    .about__digital {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .about__digital-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .about__digital-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .about__digital-name {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.3rem;
+    }
+
+    .about__digital-desc {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Category cards grid */
+    .about__cat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .about__cat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 0.85rem;
+    }
+
+    .about__cat-name {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 0.25rem;
+    }
+
+    .about__cat-detail {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .about__cat-card--full {
+      grid-column: 1 / -1;
+    }
+
     /* ═══════════════════════════════════════════
        MAPA SECTION
     ═══════════════════════════════════════════ */
@@ -1112,7 +1224,7 @@
     <div>
       <div class="nav__brand">
         <img class="nav__logo" src="parallax_logo.png" alt="PARALLAX">
-        <span class="nav__tagline">Short Film<br>Festival</span>
+        <span class="nav__tagline">International<br>Animation Festival</span>
       </div>
     </div>
     <button class="nav__laed-btn" id="laedBtn">by LAED</button>
@@ -1148,7 +1260,7 @@
     </div>
 
     <div class="hero__content" id="heroContent">
-      <div class="hero__label">Expanding into<br><strong>new dimensions</strong></div>
+      <div class="hero__label">Animation&ensp;•&ensp;Video Games&ensp;•&ensp;Digital Art</div>
     </div>
 
     <div class="hero__pl" id="plCity"></div>
@@ -1192,15 +1304,15 @@
     <div class="day-selector">
       <button class="day-btn active" data-day="1">
         <span class="day-btn__day">DÍA 1</span>
-        <span class="day-btn__date">18 ABR</span>
+        <span class="day-btn__date">13 MAY</span>
       </button>
       <button class="day-btn" data-day="2">
         <span class="day-btn__day">DÍA 2</span>
-        <span class="day-btn__date">19 ABR</span>
+        <span class="day-btn__date">14 MAY</span>
       </button>
       <button class="day-btn" data-day="3">
         <span class="day-btn__day">DÍA 3</span>
-        <span class="day-btn__date">20 ABR</span>
+        <span class="day-btn__date">15 MAY</span>
       </button>
     </div>
 
@@ -1220,63 +1332,120 @@
       <h2 class="section-header__title">EL FESTIVAL</h2>
     </div>
     <div class="about">
-      <p class="about__text">
-        Parallax es un festival dedicado a la animación de cortometraje en sus formas 2D y 3D. En su segunda edición, reúne 16 obras de creadores emergentes y consolidados que exploran los límites de la narrativa visual <em style="opacity:0.5;font-size:0.75em;">(texto prueba, en revisión)</em>.
-      </p>
-
-      <div class="about__stats">
-        <div class="about__stat">
-          <div class="about__stat-number">16</div>
-          <div class="about__stat-label">Cortos</div>
-        </div>
-        <div class="about__stat">
-          <div class="about__stat-number">9</div>
-          <div class="about__stat-label">Países</div>
-        </div>
+      <!-- Counters -->
+      <div class="about__stats" style="grid-template-columns:repeat(4,1fr);">
         <div class="about__stat">
           <div class="about__stat-number">3</div>
           <div class="about__stat-label">Días</div>
         </div>
+        <div class="about__stat">
+          <div class="about__stat-number">4+</div>
+          <div class="about__stat-label">Universidades</div>
+        </div>
+        <div class="about__stat">
+          <div class="about__stat-number">300+</div>
+          <div class="about__stat-label">Asistentes</div>
+        </div>
+        <div class="about__stat">
+          <div class="about__stat-number">14</div>
+          <div class="about__stat-label">Categorías</div>
+        </div>
       </div>
 
+      <!-- Vision -->
       <div class="about__block">
-        <h3 class="about__block-title">Sedes</h3>
-        <a class="about__venue" href="https://www.google.com/maps/search/?api=1&query=Cineteca+Nuevo+León,+Parque+Fundidora,+Monterrey" target="_blank" rel="noopener">
-          <span class="about__venue-name">Cineteca <span class="day-venue__arrow">&#8599;</span></span>
-          <span class="about__venue-detail">Días 1 y 2 — 18 y 19 de abril</span>
-        </a>
-        <a class="about__venue" href="https://www.google.com/maps/search/?api=1&query=Centro+Roberto+Garza+Sada+UDEM,+San+Pedro+Garza+García" target="_blank" rel="noopener">
-          <span class="about__venue-name">CRGS UDEM <span class="day-venue__arrow">&#8599;</span></span>
-          <span class="about__venue-detail">Día 3 — 20 de abril</span>
-        </a>
+        <h3 class="about__block-title">Visión</h3>
+        <p class="about__body">
+          Parallax es la apuesta estratégica de la Universidad de Monterrey por convertirse en el referente regional de las industrias creativas digitales. Un espacio donde la animación, los videojuegos y el arte digital convergen para dar visibilidad al talento estudiantil frente a una audiencia académica y profesional internacional.
+        </p>
+        <p class="about__body" style="font-style:italic;opacity:0.7;">
+          El nombre Parallax — la percepción de profundidad desde perspectivas distintas — es también la filosofía del festival: reunir miradas diversas, técnicas en evolución y narrativas que definen la vanguardia de la producción digital contemporánea.
+        </p>
       </div>
 
+      <!-- 3 Pillars -->
       <div class="about__block">
-        <h3 class="about__block-title">Categorías</h3>
-        <div class="about__categories">
-          <div class="about__category">
-            <span class="about__category-label">2D</span>
-            <span class="about__category-desc">Animación tradicional, motion graphics, ilustración animada</span>
+        <h3 class="about__block-title">Fundamento</h3>
+        <div class="about__pillars">
+          <div class="about__pillar">
+            <div class="about__pillar-header">
+              <span class="about__pillar-icon">◈</span>
+              <span class="about__pillar-name">Ambición Institucional</span>
+            </div>
+            <p class="about__pillar-desc">Posicionar a la UDEM como líder en formación creativa digital ante universidades nacionales e internacionales, medios especializados y la industria.</p>
           </div>
-          <div class="about__category">
-            <span class="about__category-label">3D</span>
-            <span class="about__category-desc">CGI, modelado, entornos virtuales, animación por computadora</span>
+          <div class="about__pillar">
+            <div class="about__pillar-header">
+              <span class="about__pillar-icon">◇</span>
+              <span class="about__pillar-name">Innovación y Vanguardia</span>
+            </div>
+            <p class="about__pillar-desc">Un programa que integra transmisión en YouTube, lives en Instagram con panel estudiantil y curaduría internacional.</p>
+          </div>
+          <div class="about__pillar">
+            <div class="about__pillar-header">
+              <span class="about__pillar-icon">◎</span>
+              <span class="about__pillar-name">Comunidad y Legado</span>
+            </div>
+            <p class="about__pillar-desc">Evento anual que genera identidad de carrera, redes profesionales para los estudiantes y evidencia tangible para procesos de acreditación.</p>
           </div>
         </div>
       </div>
 
+      <!-- Sedes -->
       <div class="about__block">
-        <h3 class="about__block-title">Sobre Parallax</h3>
-        <p class="about__body">
-          El nombre Parallax hace referencia al cambio de perspectiva que ocurre
-          al observar un mismo objeto desde distintos puntos de vista. Así como
-          en óptica, cada cortometraje ofrece un ángulo único sobre temas universales.
-        </p>
-        <p class="about__body">
-          El festival busca ser un punto de encuentro para la comunidad de animación
-          en Latinoamérica, promoviendo el diálogo entre técnicas tradicionales y
-          digitales, entre lo local y lo internacional.
-        </p>
+        <h3 class="about__block-title">Estructura</h3>
+        <a class="about__venue" href="https://www.google.com/maps/search/?api=1&query=Cineteca+Nuevo+León,+Parque+Fundidora,+Monterrey" target="_blank" rel="noopener">
+          <span class="about__venue-name">Cineteca Nuevo León &#8599;</span>
+          <span class="about__venue-detail">Días 1 y 2 — 13 y 14 de mayo · Inauguración, cortometrajes, conferencias, showcases</span>
+        </a>
+        <a class="about__venue" href="https://www.google.com/maps/search/?api=1&query=Universidad+de+Monterrey+UDEM,+San+Pedro+Garza+García" target="_blank" rel="noopener">
+          <span class="about__venue-name">Campus UDEM &#8599;</span>
+          <span class="about__venue-detail">Día 3 — 15 de mayo · Proyecciones finales, panel de industria, ceremonia de reconocimientos</span>
+        </a>
+      </div>
+
+      <!-- Digital -->
+      <div class="about__block">
+        <h3 class="about__block-title">Dimensión Digital</h3>
+        <div class="about__digital">
+          <div class="about__digital-card">
+            <div class="about__digital-icon">▶</div>
+            <div class="about__digital-name">YouTube</div>
+            <div class="about__digital-desc">Transmisión en vivo y archivo permanente post-evento</div>
+          </div>
+          <div class="about__digital-card">
+            <div class="about__digital-icon">◉</div>
+            <div class="about__digital-name">Instagram Live</div>
+            <div class="about__digital-desc">6 lives con panel estudiantil de presentadores y comentaristas</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="about__block">
+        <h3 class="about__block-title">Categorías de Participación</h3>
+        <div class="about__cat-grid">
+          <div class="about__cat-card">
+            <div class="about__cat-name">Animación 2D</div>
+            <div class="about__cat-detail">Hasta 2 cortometrajes por universidad</div>
+          </div>
+          <div class="about__cat-card">
+            <div class="about__cat-name">Animación 3D</div>
+            <div class="about__cat-detail">Hasta 2 cortometrajes por universidad</div>
+          </div>
+          <div class="about__cat-card">
+            <div class="about__cat-name">Experimental</div>
+            <div class="about__cat-detail">Hasta 1 pieza por universidad</div>
+          </div>
+          <div class="about__cat-card">
+            <div class="about__cat-name">Videojuego</div>
+            <div class="about__cat-detail">1 proyecto jugable por universidad</div>
+          </div>
+          <div class="about__cat-card about__cat-card--full">
+            <div class="about__cat-name">Arte Digital</div>
+            <div class="about__cat-detail">Hasta 3 piezas por universidad</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1294,16 +1463,16 @@
           <span class="mapa__card-arrow">&#8599;</span>
         </div>
         <div class="mapa__card-detail">Parque Fundidora, Monterrey</div>
-        <div class="mapa__card-days">Días 1 y 2 — 18 y 19 de abril</div>
+        <div class="mapa__card-days">Días 1 y 2 — 13 y 14 de mayo</div>
       </a>
-      <a class="mapa__card" href="https://www.google.com/maps/search/?api=1&query=Centro+Roberto+Garza+Sada+UDEM,+San+Pedro+Garza+García" target="_blank" rel="noopener">
+      <a class="mapa__card" href="https://www.google.com/maps/search/?api=1&query=Universidad+de+Monterrey+UDEM,+San+Pedro+Garza+García" target="_blank" rel="noopener">
         <div class="mapa__card-header">
           <span class="mapa__card-dot"></span>
-          <span class="mapa__card-name">CRGS UDEM</span>
+          <span class="mapa__card-name">Campus UDEM</span>
           <span class="mapa__card-arrow">&#8599;</span>
         </div>
         <div class="mapa__card-detail">San Pedro Garza García</div>
-        <div class="mapa__card-days">Día 3 — 20 de abril</div>
+        <div class="mapa__card-days">Día 3 — 15 de mayo</div>
       </a>
     </div>
   </div>
@@ -1578,7 +1747,7 @@ function renderFilms(day = 1) {
 const venues = {
   1: { name: 'Cineteca', url: 'https://www.google.com/maps/search/?api=1&query=Cineteca+Nuevo+León,+Parque+Fundidora,+Monterrey' },
   2: { name: 'Cineteca', url: 'https://www.google.com/maps/search/?api=1&query=Cineteca+Nuevo+León,+Parque+Fundidora,+Monterrey' },
-  3: { name: 'CRGS UDEM', url: 'https://www.google.com/maps/search/?api=1&query=Centro+Roberto+Garza+Sada+UDEM,+San+Pedro+Garza+García' }
+  3: { name: 'Campus UDEM', url: 'https://www.google.com/maps/search/?api=1&query=Universidad+de+Monterrey+UDEM,+San+Pedro+Garza+García' }
 };
 
 renderFilms(1);
