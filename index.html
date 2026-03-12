@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PARALLAX — Festival de Cortometrajes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════
+       RESET & BASE
+    ═══════════════════════════════════════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-card: #111111;
+      --bg-card-hover: #1a1a1a;
+      --text-primary: #f0ece4;
+      --text-secondary: #8a8680;
+      --text-muted: #5a5650;
+      --accent: #e8432a;
+      --accent-dim: #c4361f;
+      --gold: #c9a84c;
+      --border: #222;
+      --border-light: #333;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-serif: 'Instrument Serif', serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ═══════════════════════════════════════════
+       GRAIN OVERLAY
+    ═══════════════════════════════════════════ */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ═══════════════════════════════════════════
+       HEADER / NAV
+    ═══════════════════════════════════════════ */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(to bottom, rgba(10,10,10,0.95) 60%, transparent);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .nav__logo {
+      display: block;
+      height: 28px;
+      width: auto;
+    }
+
+    .nav__edition {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+    }
+
+    .nav__count {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 0.3rem 0.6rem;
+      border-radius: 2px;
+    }
+
+    /* ═══════════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════════ */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 5rem 1.25rem 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero__bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 80%, rgba(232,67,42,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(201,168,76,0.05) 0%, transparent 50%),
+        linear-gradient(to bottom, var(--bg-primary) 0%, #0d0b08 100%);
+    }
+
+    .hero__content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero__label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .hero__label::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    .hero__title {
+      font-family: var(--font-display);
+      font-size: clamp(4rem, 15vw, 7rem);
+      line-height: 0.85;
+      letter-spacing: 0.02em;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero__subtitle {
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      font-style: italic;
+      color: var(--text-secondary);
+      line-height: 1.3;
+      margin-bottom: 2rem;
+      max-width: 280px;
+    }
+
+    .hero__meta {
+      display: flex;
+      gap: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .hero__meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .hero__meta-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .hero__meta-value {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* ═══════════════════════════════════════════
+       SECTION HEADERS
+    ═══════════════════════════════════════════ */
+    .section-header {
+      padding: 3rem 1.25rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .section-header__title {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      letter-spacing: 0.08em;
+    }
+
+    .section-header__count {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* ═══════════════════════════════════════════
+       FILTER TABS
+    ═══════════════════════════════════════════ */
+    .filters {
+      padding: 0 1.25rem;
+      margin-bottom: 1rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .filters::-webkit-scrollbar { display: none; }
+
+    .filters__track {
+      display: flex;
+      gap: 0.5rem;
+      width: max-content;
+    }
+
+    .filter-btn {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:active,
+    .filter-btn.active {
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      border-color: var(--text-primary);
+    }
+
+    /* ═══════════════════════════════════════════
+       DAY SELECTOR
+    ═══════════════════════════════════════════ */
+    .day-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      padding: 0 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .day-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      padding: 0.85rem 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .day-btn__day {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      color: var(--text-secondary);
+      transition: color 0.2s ease;
+    }
+
+    .day-btn__date {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      transition: color 0.2s ease;
+    }
+
+    .day-btn.active {
+      background: var(--text-primary);
+      border-color: var(--text-primary);
+    }
+
+    .day-btn.active .day-btn__day {
+      color: var(--bg-primary);
+    }
+
+    .day-btn.active .day-btn__date {
+      color: rgba(10,10,10,0.6);
+    }
+
+    .day-venue {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.25rem;
+      margin: 0 1.25rem 1rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+
+    .day-venue:active {
+      border-color: var(--accent);
+    }
+
+    .day-venue__icon {
+      color: var(--accent);
+      font-size: 0.6rem;
+    }
+
+    .day-venue__name {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.05em;
+      flex: 1;
+    }
+
+    .day-venue__maps {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--accent);
+      margin-left: auto;
+      opacity: 0.7;
+    }
+
+    .day-venue__arrow {
+      font-size: 0.75rem;
+      color: var(--accent);
+      opacity: 0.7;
+    }
+
+    /* ═══════════════════════════════════════════
+       FILM CARDS
+    ═══════════════════════════════════════════ */
+    .films {
+      padding: 0 1.25rem 6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .film-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      transition: background 0.2s ease, border-color 0.2s ease;
+      cursor: pointer;
+    }
+
+    .film-card:active {
+      background: var(--bg-card-hover);
+      border-color: var(--border-light);
+    }
+
+    .film-card__inner {
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 1rem;
+    }
+
+    .film-card__number {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1;
+    }
+
+    .film-card__info {
+      min-width: 0;
+    }
+
+    .film-card__title {
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      line-height: 1.2;
+      margin-bottom: 0.3rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .film-card__director {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.2rem;
+    }
+
+    .film-card__tags {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .film-card__tag {
+      font-size: 0.55rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.03);
+      padding: 0.15rem 0.4rem;
+      border-radius: 1px;
+    }
+
+    .film-card__tag--genre {
+      color: var(--gold);
+    }
+
+    .film-card__right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.4rem;
+    }
+
+    .film-card__duration {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+
+    .film-card__play {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .film-card__play svg {
+      width: 10px;
+      height: 10px;
+      fill: var(--text-secondary);
+      margin-left: 2px;
+    }
+
+    .film-card:active .film-card__play {
+      border-color: var(--accent);
+    }
+
+    .film-card:active .film-card__play svg {
+      fill: var(--accent);
+    }
+
+    /* ═══════════════════════════════════════════
+       EXPANDED CARD STATE
+    ═══════════════════════════════════════════ */
+    .film-card__expanded {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+    }
+
+    .film-card.is-expanded .film-card__expanded {
+      max-height: 400px;
+    }
+
+    .film-card__expanded-inner {
+      padding: 0 1rem 1rem;
+      border-top: 1px solid var(--border);
+      margin-top: 0;
+    }
+
+    .film-card__synopsis {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      padding-top: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .film-card__details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .film-card__detail {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .film-card__detail-label {
+      font-size: 0.55rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .film-card__detail-value {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .film-card__cta {
+      display: block;
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.85rem;
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      letter-spacing: 0.15em;
+      text-align: center;
+      background: var(--accent);
+      color: var(--text-primary);
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .film-card__cta:active {
+      background: var(--accent-dim);
+    }
+
+    /* ═══════════════════════════════════════════
+       FILM POSTER PLACEHOLDER
+    ═══════════════════════════════════════════ */
+    .film-card__poster {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .film-card__poster::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(45deg, transparent 48%, var(--border) 48%, var(--border) 52%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, var(--border) 48%, var(--border) 52%, transparent 52%);
+      opacity: 0.3;
+    }
+
+    /* ═══════════════════════════════════════════
+       BOTTOM BAR
+    ═══════════════════════════════════════════ */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+      padding: 0.75rem 1.25rem;
+      padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .bottom-bar__item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 0.25rem 0.5rem;
+      transition: color 0.2s ease;
+    }
+
+    .bottom-bar__item.active {
+      color: var(--text-primary);
+    }
+
+    .bottom-bar__item svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.5;
+    }
+
+    /* ═══════════════════════════════════════════
+       SCHEDULE SECTION
+    ═══════════════════════════════════════════ */
+    .schedule {
+      padding: 0 1.25rem 2rem;
+    }
+
+    .schedule__day {
+      margin-bottom: 1.5rem;
+    }
+
+    .schedule__day-header {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      color: var(--text-secondary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .schedule__day-date {
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.05em;
+    }
+
+    .schedule__slot {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(34,34,34,0.5);
+    }
+
+    .schedule__time {
+      font-size: 0.7rem;
+      color: var(--accent);
+      min-width: 48px;
+      padding-top: 0.1rem;
+    }
+
+    .schedule__slot-title {
+      font-family: var(--font-serif);
+      font-size: 0.9rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .schedule__slot-info {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    /* ═══════════════════════════════════════════
+       ABOUT SECTION
+    ═══════════════════════════════════════════ */
+    .about {
+      padding: 0 1.25rem 6rem;
+    }
+
+    .about__text {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .about__stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .about__stat {
+      text-align: center;
+    }
+
+    .about__stat-number {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--text-primary);
+    }
+
+    .about__stat-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .about__block {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .about__block-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      letter-spacing: 0.08em;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    .about__venue {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(34,34,34,0.5);
+      text-decoration: none;
+    }
+
+    .about__venue-name {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      color: var(--text-primary);
+    }
+
+    .about__venue-detail {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .about__categories {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .about__category {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+
+    .about__category-label {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      color: var(--gold);
+      min-width: 32px;
+    }
+
+    .about__category-desc {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      padding-top: 0.15rem;
+    }
+
+    .about__body {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    /* ═══════════════════════════════════════════
+       ANIMATIONS
+    ═══════════════════════════════════════════ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero__content > * {
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .hero__label { animation-delay: 0.1s; }
+    .hero__title { animation-delay: 0.2s; }
+    .hero__subtitle { animation-delay: 0.35s; }
+    .hero__meta { animation-delay: 0.5s; }
+
+    .film-card {
+      animation: fadeUp 0.4s ease both;
+    }
+
+    /* ═══════════════════════════════════════════
+       SECTIONS VISIBILITY
+    ═══════════════════════════════════════════ */
+    .page-section {
+      display: none;
+    }
+
+    .page-section.active {
+      display: block;
+    }
+
+    /* ═══════════════════════════════════════════
+       SCROLL TOP
+    ═══════════════════════════════════════════ */
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border-light), transparent);
+      margin: 0 1.25rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div>
+      <img class="nav__logo" src="logo.svg" alt="PARALLAX">
+      <div class="nav__edition">2da edición — 2026</div>
+    </div>
+    <div class="nav__count" id="filmCounter">16 cortos</div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero__bg"></div>
+    <div class="hero__content">
+      <div class="hero__label">Festival de cortometrajes</div>
+      <p class="hero__subtitle">Entrando a nuevas dimensiones</p>
+      <div class="hero__meta">
+        <div class="hero__meta-item">
+          <span class="hero__meta-label">Fecha</span>
+          <span class="hero__meta-value">18–20 Abr 2026</span>
+        </div>
+        <div class="hero__meta-item">
+          <span class="hero__meta-label">Lugar</span>
+          <span class="hero__meta-value">CDMX</span>
+        </div>
+        <div class="hero__meta-item">
+          <span class="hero__meta-label">Cortos</span>
+          <span class="hero__meta-value">16 films</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FILMS SECTION ═══ -->
+  <div class="page-section active" id="section-films">
+    <div class="section-header">
+      <h2 class="section-header__title">PROGRAMA</h2>
+    </div>
+
+    <div class="day-selector">
+      <button class="day-btn active" data-day="1">
+        <span class="day-btn__day">DÍA 1</span>
+        <span class="day-btn__date">18 ABR</span>
+      </button>
+      <button class="day-btn" data-day="2">
+        <span class="day-btn__day">DÍA 2</span>
+        <span class="day-btn__date">19 ABR</span>
+      </button>
+      <button class="day-btn" data-day="3">
+        <span class="day-btn__day">DÍA 3</span>
+        <span class="day-btn__date">20 ABR</span>
+      </button>
+    </div>
+
+    <a class="day-venue" id="dayVenue" href="https://www.google.com/maps/search/?api=1&query=Cineteca+Nuevo+León,+Parque+Fundidora,+Monterrey" target="_blank" rel="noopener">
+      <span class="day-venue__icon">&#9673;</span>
+      <span class="day-venue__name">Cineteca</span>
+      <span class="day-venue__maps">Ver en Google Maps</span>
+      <span class="day-venue__arrow">&#8599;</span>
+    </a>
+
+    <div class="films" id="filmsContainer"></div>
+  </div>
+
+  <!-- ═══ FESTIVAL SECTION ═══ -->
+  <div class="page-section" id="section-festival">
+    <div class="section-header">
+      <h2 class="section-header__title">EL FESTIVAL</h2>
+    </div>
+    <div class="about">
+      <p class="about__text">
+        Parallax es un festival dedicado a la animación de cortometraje en sus formas 2D y 3D.
+        En su segunda edición, reúne 16 obras de creadores emergentes y consolidados
+        que exploran los límites de la narrativa visual.
+      </p>
+
+      <div class="about__stats">
+        <div class="about__stat">
+          <div class="about__stat-number">16</div>
+          <div class="about__stat-label">Cortos</div>
+        </div>
+        <div class="about__stat">
+          <div class="about__stat-number">9</div>
+          <div class="about__stat-label">Países</div>
+        </div>
+        <div class="about__stat">
+          <div class="about__stat-number">3</div>
+          <div class="about__stat-label">Días</div>
+        </div>
+      </div>
+
+      <div class="about__block">
+        <h3 class="about__block-title">Sedes</h3>
+        <a class="about__venue" href="https://www.google.com/maps/search/?api=1&query=Cineteca+Nuevo+León,+Parque+Fundidora,+Monterrey" target="_blank" rel="noopener">
+          <span class="about__venue-name">Cineteca <span class="day-venue__arrow">&#8599;</span></span>
+          <span class="about__venue-detail">Días 1 y 2 — 18 y 19 de abril</span>
+        </a>
+        <a class="about__venue" href="https://www.google.com/maps/search/?api=1&query=Centro+Roberto+Garza+Sada+UDEM,+San+Pedro+Garza+García" target="_blank" rel="noopener">
+          <span class="about__venue-name">CRGS UDEM <span class="day-venue__arrow">&#8599;</span></span>
+          <span class="about__venue-detail">Día 3 — 20 de abril</span>
+        </a>
+      </div>
+
+      <div class="about__block">
+        <h3 class="about__block-title">Categorías</h3>
+        <div class="about__categories">
+          <div class="about__category">
+            <span class="about__category-label">2D</span>
+            <span class="about__category-desc">Animación tradicional, motion graphics, ilustración animada</span>
+          </div>
+          <div class="about__category">
+            <span class="about__category-label">3D</span>
+            <span class="about__category-desc">CGI, modelado, entornos virtuales, animación por computadora</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="about__block">
+        <h3 class="about__block-title">Sobre Parallax</h3>
+        <p class="about__body">
+          El nombre Parallax hace referencia al cambio de perspectiva que ocurre
+          al observar un mismo objeto desde distintos puntos de vista. Así como
+          en óptica, cada cortometraje ofrece un ángulo único sobre temas universales.
+        </p>
+        <p class="about__body">
+          El festival busca ser un punto de encuentro para la comunidad de animación
+          en Latinoamérica, promoviendo el diálogo entre técnicas tradicionales y
+          digitales, entre lo local y lo internacional.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-bar">
+    <button class="bottom-bar__item active" data-section="section-films">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Programa
+    </button>
+    <button class="bottom-bar__item" data-section="section-festival">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Festival
+    </button>
+  </nav>
+
+<script>
+// ═══════════════════════════════════════════
+// FILM DATA — 16 CORTOMETRAJES
+// ═══════════════════════════════════════════
+const films = [
+  {
+    id: 1, day: 1,
+    title: "El Peso del Silencio",
+    director: "Mariana Vega",
+    duration: "12:30",
+    genre: "2d",
+    country: "México",
+    year: 2026,
+    synopsis: "Una madre enfrenta la decisión de revelar un secreto familiar que ha cargado durante décadas.",
+    language: "Español"
+  },
+  {
+    id: 2, day: 1,
+    title: "Neon Dust",
+    director: "Takeshi Mori",
+    duration: "8:45",
+    genre: "3d",
+    country: "Japón",
+    year: 2025,
+    synopsis: "Fragmentos de memoria se disuelven en paisajes urbanos generados por luz artificial.",
+    language: "Japonés"
+  },
+  {
+    id: 3, day: 1,
+    title: "Raíces de Papel",
+    director: "Ana Lucía Torres",
+    duration: "15:00",
+    genre: "2d",
+    country: "Colombia",
+    year: 2026,
+    synopsis: "Artesanos preservan técnicas ancestrales de fabricación de papel en un pueblo remoto.",
+    language: "Español"
+  },
+  {
+    id: 4, day: 1,
+    title: "The Fold",
+    director: "Sarah Mitchell",
+    duration: "10:20",
+    genre: "3d",
+    country: "Reino Unido",
+    year: 2026,
+    synopsis: "Un origamista descubre que sus creaciones predicen eventos futuros.",
+    language: "Inglés"
+  },
+  {
+    id: 5, day: 1,
+    title: "Hilo Rojo",
+    director: "Carmen Solís",
+    duration: "6:15",
+    genre: "2d",
+    country: "España",
+    year: 2025,
+    synopsis: "Dos almas conectadas por un hilo invisible buscan encontrarse en una ciudad infinita.",
+    language: "Sin diálogos"
+  },
+  {
+    id: 6, day: 1,
+    title: "Beira Mar",
+    director: "Lucas Ferreira",
+    duration: "14:00",
+    genre: "3d",
+    country: "Brasil",
+    year: 2026,
+    synopsis: "Un pescador y su nieta comparten un último día juntos frente al mar cambiante.",
+    language: "Portugués"
+  },
+  {
+    id: 7, day: 2,
+    title: "Pixel Dreams",
+    director: "Yuki Tanaka",
+    duration: "7:30",
+    genre: "3d",
+    country: "Japón",
+    year: 2026,
+    synopsis: "Un avatar digital cobra consciencia y cuestiona la naturaleza de su existencia virtual.",
+    language: "Japonés"
+  },
+  {
+    id: 8, day: 2,
+    title: "Las Horas Vacías",
+    director: "Roberto Mendoza",
+    duration: "11:45",
+    genre: "2d",
+    country: "Argentina",
+    year: 2025,
+    synopsis: "Un relojero obsesionado intenta detener el tiempo para revivir un momento perfecto.",
+    language: "Español"
+  },
+  {
+    id: 9, day: 2,
+    title: "Concrete Bloom",
+    director: "Aisha Osei",
+    duration: "9:00",
+    genre: "2d",
+    country: "Ghana",
+    year: 2026,
+    synopsis: "Jardines comunitarios transforman barrios olvidados en centros de vida y resistencia.",
+    language: "Inglés"
+  },
+  {
+    id: 10, day: 2,
+    title: "Umbra",
+    director: "Pavel Novák",
+    duration: "13:20",
+    genre: "3d",
+    country: "Chequia",
+    year: 2026,
+    synopsis: "Sombras proyectadas cobran autonomía en un edificio abandonado de Praga.",
+    language: "Checo"
+  },
+  {
+    id: 11, day: 2,
+    title: "Marea Interior",
+    director: "Valentina Ruiz",
+    duration: "16:00",
+    genre: "2d",
+    country: "Chile",
+    year: 2026,
+    synopsis: "Una nadadora profesional lucha contra sus propios miedos antes de la competencia definitiva.",
+    language: "Español"
+  },
+  {
+    id: 12, day: 2,
+    title: "Kintsugi",
+    director: "Hana Sato",
+    duration: "5:40",
+    genre: "2d",
+    country: "Japón",
+    year: 2025,
+    synopsis: "Objetos rotos se reconstruyen con oro, revelando la belleza de la imperfección.",
+    language: "Sin diálogos"
+  },
+  {
+    id: 13, day: 3,
+    title: "El Cartógrafo",
+    director: "Diego Morales",
+    duration: "10:50",
+    genre: "3d",
+    country: "México",
+    year: 2026,
+    synopsis: "Un cartógrafo jubilado descubre que los mapas que dibujó en su juventud ocultan un mensaje.",
+    language: "Español"
+  },
+  {
+    id: 14, day: 3,
+    title: "Still Life",
+    director: "Emma Larsson",
+    duration: "8:15",
+    genre: "2d",
+    country: "Suecia",
+    year: 2026,
+    synopsis: "La rutina diaria de un pueblo pesquero nórdico revela belleza en la repetición.",
+    language: "Sueco"
+  },
+  {
+    id: 15, day: 3,
+    title: "Frequências",
+    director: "Rafael Costa",
+    duration: "11:00",
+    genre: "3d",
+    country: "Brasil",
+    year: 2025,
+    synopsis: "Ondas sonoras de una ciudad se convierten en paisajes visuales abstractos y envolventes.",
+    language: "Sin diálogos"
+  },
+  {
+    id: 16, day: 3,
+    title: "La Última Función",
+    director: "Isabel Guerrero",
+    duration: "18:00",
+    genre: "2d",
+    country: "México",
+    year: 2026,
+    synopsis: "Una proyeccionista da la última función en un cine de barrio antes de su demolición.",
+    language: "Español"
+  }
+];
+
+// ═══════════════════════════════════════════
+// RENDER FILMS
+// ═══════════════════════════════════════════
+const container = document.getElementById('filmsContainer');
+
+function renderFilms(day = 1) {
+  const filtered = films.filter(f => f.day === day);
+
+  container.innerHTML = filtered.map((film, i) => `
+    <article class="film-card" data-id="${film.id}" data-genre="${film.genre}" style="animation-delay: ${i * 0.04}s">
+      <div class="film-card__inner">
+        <div class="film-card__number">${String(film.id).padStart(2, '0')}</div>
+        <div class="film-card__info">
+          <div class="film-card__title">${film.title}</div>
+          <div class="film-card__director">${film.director}</div>
+          <div class="film-card__tags">
+            <span class="film-card__tag film-card__tag--genre">${film.genre}</span>
+            <span class="film-card__tag">${film.country}</span>
+          </div>
+        </div>
+        <div class="film-card__right">
+          <span class="film-card__duration">${film.duration}</span>
+          <div class="film-card__play">
+            <svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="film-card__expanded">
+        <div class="film-card__expanded-inner">
+          <div class="film-card__poster"></div>
+          <p class="film-card__synopsis">${film.synopsis}</p>
+          <div class="film-card__details">
+            <div class="film-card__detail">
+              <span class="film-card__detail-label">Idioma</span>
+              <span class="film-card__detail-value">${film.language}</span>
+            </div>
+            <div class="film-card__detail">
+              <span class="film-card__detail-label">Año</span>
+              <span class="film-card__detail-value">${film.year}</span>
+            </div>
+            <div class="film-card__detail">
+              <span class="film-card__detail-label">País</span>
+              <span class="film-card__detail-value">${film.country}</span>
+            </div>
+            <div class="film-card__detail">
+              <span class="film-card__detail-label">Duración</span>
+              <span class="film-card__detail-value">${film.duration}</span>
+            </div>
+          </div>
+          <button class="film-card__cta">VER TRAILER</button>
+        </div>
+      </div>
+    </article>
+  `).join('');
+
+  // Day rendering complete
+
+  // Re-attach card click events
+  document.querySelectorAll('.film-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.film-card__cta')) return;
+      const wasExpanded = card.classList.contains('is-expanded');
+      document.querySelectorAll('.film-card.is-expanded').forEach(c => c.classList.remove('is-expanded'));
+      if (!wasExpanded) card.classList.add('is-expanded');
+    });
+  });
+}
+
+// ═══════════════════════════════════════════
+// VENUES & DAY CONFIG
+// ═══════════════════════════════════════════
+const venues = {
+  1: { name: 'Cineteca', url: 'https://www.google.com/maps/search/?api=1&query=Cineteca+Nuevo+León,+Parque+Fundidora,+Monterrey' },
+  2: { name: 'Cineteca', url: 'https://www.google.com/maps/search/?api=1&query=Cineteca+Nuevo+León,+Parque+Fundidora,+Monterrey' },
+  3: { name: 'CRGS UDEM', url: 'https://www.google.com/maps/search/?api=1&query=Centro+Roberto+Garza+Sada+UDEM,+San+Pedro+Garza+García' }
+};
+
+renderFilms(1);
+
+// ═══════════════════════════════════════════
+// DAY SELECTOR
+// ═══════════════════════════════════════════
+const venueEl = document.getElementById('dayVenue');
+
+function selectDay(day) {
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.day-btn[data-day="${day}"]`).classList.add('active');
+  venueEl.querySelector('.day-venue__name').textContent = venues[day].name;
+  venueEl.href = venues[day].url;
+  renderFilms(day);
+}
+
+document.querySelectorAll('.day-btn').forEach(btn => {
+  btn.addEventListener('click', () => selectDay(parseInt(btn.dataset.day)));
+});
+
+// ═══════════════════════════════════════════
+// BOTTOM NAV
+// ═══════════════════════════════════════════
+document.querySelectorAll('.bottom-bar__item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.bottom-bar__item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+
+    const sectionId = item.dataset.section;
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+    document.getElementById(sectionId).classList.add('active');
+
+    window.scrollTo({ top: document.getElementById('hero').offsetHeight, behavior: 'smooth' });
+  });
+});
+
+// ═══════════════════════════════════════════
+// NAV SCROLL EFFECT
+// ═══════════════════════════════════════════
+let lastScroll = 0;
+const nav = document.querySelector('.nav');
+window.addEventListener('scroll', () => {
+  const currentScroll = window.scrollY;
+  if (currentScroll > 100) {
+    nav.style.background = 'rgba(10,10,10,0.98)';
+  } else {
+    nav.style.background = 'linear-gradient(to bottom, rgba(10,10,10,0.95) 60%, transparent)';
+  }
+  lastScroll = currentScroll;
+}, { passive: true });
+</script>
+
+</body>
+</html>
