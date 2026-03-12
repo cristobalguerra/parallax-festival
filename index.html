@@ -399,6 +399,16 @@
       pointer-events: none;
     }
 
+    .hero__darken {
+      position: absolute;
+      inset: 0;
+      background: #0a0a0a;
+      opacity: 0;
+      z-index: 4;
+      pointer-events: none;
+      will-change: opacity;
+    }
+
     .hero__content {
       position: absolute;
       z-index: 2;
@@ -1540,6 +1550,7 @@
     </div>
 
     <div class="hero__fade"></div>
+    <div class="hero__darken" id="heroDarken"></div>
   </section>
 
   <!-- ═══ FILMS SECTION ═══ -->
@@ -2061,6 +2072,11 @@ const heroContent = document.getElementById('heroContent');
 
 // Parallax layers — back to front, each faster than the last
 // rot = rotation multiplier (degrees per scroll pixel), axis = [x,y,z]
+const heroDarken = document.getElementById('heroDarken');
+const plCrgsEl = document.getElementById('plCrgs');
+const plHornoEl = document.getElementById('plHorno');
+const plCityEl = document.getElementById('plCity');
+
 const plLayers = [
   { el: document.getElementById('plSky'),       speed: 0.05 },
   { el: document.getElementById('sh1'),         speed: 0.03, x: -0.02 },
@@ -2068,12 +2084,12 @@ const plLayers = [
   { el: document.getElementById('plClouds'),     speed: 0.08, x: 0.03 },
   { el: document.getElementById('sh2'),         speed: 0.15, x: 0.04 },
   { el: heroContent,                             speed: 0.18 },
-  { el: document.getElementById('plCity'),       speed: 0.22 },
-  { el: document.getElementById('plCrgs'),       speed: 0.30 },
-  { el: document.getElementById('plHorno'),      speed: 0.35 },
+  { el: plCityEl,                                speed: 0.22, zoom: true },
+  { el: plCrgsEl,                                speed: 0.30, zoom: true },
+  { el: plHornoEl,                               speed: 0.35, zoom: true },
   { el: document.getElementById('sh3'),         speed: 0.28, x: -0.05 },
   { el: document.getElementById('sh4'),         speed: 0.42, x: 0.06 },
-  { el: document.getElementById('plVeg'),        speed: 0.45 },
+  { el: document.getElementById('plVeg'),        speed: 0.45, zoom: true },
   { el: document.getElementById('sh5'),         speed: 0.60, x: -0.07 },
 ];
 let ticking = false;
@@ -2083,21 +2099,27 @@ function onScroll() {
   const heroH = hero.offsetHeight;
   const progress = Math.min(scrollY / heroH, 1);
 
-  // Each layer moves at its own speed — shapes also rotate in 3D
+  // Each layer moves at its own speed — foreground layers also zoom in
+  const zoomScale = 1 + progress * 0.35;
   for (const layer of plLayers) {
     const y = scrollY * layer.speed;
     const x = layer.x ? scrollY * layer.x : 0;
+    const scale = layer.zoom ? zoomScale : 1;
     if (layer.rot) {
       const deg = scrollY * layer.rot;
       const [ax, ay, az] = layer.axis;
-      layer.el.style.transform = `translate3d(${x}px, ${y}px, 0) rotate3d(${ax},${ay},${az},${deg}deg)`;
+      layer.el.style.transform = `translate3d(${x}px, ${y}px, 0) rotate3d(${ax},${ay},${az},${deg}deg) scale(${scale})`;
     } else {
-      layer.el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      layer.el.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
     }
   }
 
   // Hero content fades out as it scrolls behind buildings
   heroContent.style.opacity = 1 - progress * 2.5;
+
+  // Darken overlay — kicks in after 50% scroll, fully black by 100%
+  const darkenProgress = Math.max(0, (progress - 0.4) / 0.6);
+  heroDarken.style.opacity = darkenProgress;
 
   // Nav background
   if (scrollY > 100) {
