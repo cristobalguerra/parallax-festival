@@ -113,15 +113,34 @@
     .hero__bg {
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(ellipse at 20% 80%, rgba(232,67,42,0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(201,168,76,0.05) 0%, transparent 50%),
-        linear-gradient(to bottom, var(--bg-primary) 0%, #0d0b08 100%);
+      background: linear-gradient(to bottom, var(--bg-primary) 0%, #0d0b08 100%);
+      will-change: transform;
+    }
+
+    .hero__layer {
+      position: absolute;
+      inset: -50%;
+      will-change: transform;
+      pointer-events: none;
+    }
+
+    .hero__layer--1 {
+      background: radial-gradient(ellipse at 30% 70%, rgba(232,67,42,0.12) 0%, transparent 50%);
+    }
+
+    .hero__layer--2 {
+      background: radial-gradient(ellipse at 70% 30%, rgba(201,168,76,0.08) 0%, transparent 45%);
+    }
+
+    .hero__layer--3 {
+      background: radial-gradient(circle at 50% 50%, rgba(232,67,42,0.04) 0%, transparent 40%),
+                  radial-gradient(circle at 20% 20%, rgba(255,255,255,0.02) 0%, transparent 30%);
     }
 
     .hero__content {
       position: relative;
       z-index: 2;
+      will-change: transform, opacity;
     }
 
     .hero__label {
@@ -825,6 +844,9 @@
   <!-- HERO -->
   <section class="hero" id="hero">
     <div class="hero__bg"></div>
+    <div class="hero__layer hero__layer--1"></div>
+    <div class="hero__layer hero__layer--2"></div>
+    <div class="hero__layer hero__layer--3"></div>
     <div class="hero__content">
       <div class="hero__label">Festival de cortometrajes</div>
       <p class="hero__subtitle">Entrando a nuevas dimensiones</p>
@@ -1253,18 +1275,47 @@ document.querySelectorAll('.bottom-bar__item').forEach(item => {
 });
 
 // ═══════════════════════════════════════════
-// NAV SCROLL EFFECT
+// PARALLAX & NAV SCROLL EFFECT
 // ═══════════════════════════════════════════
-let lastScroll = 0;
 const nav = document.querySelector('.nav');
-window.addEventListener('scroll', () => {
-  const currentScroll = window.scrollY;
-  if (currentScroll > 100) {
+const hero = document.getElementById('hero');
+const heroContent = hero.querySelector('.hero__content');
+const heroBg = hero.querySelector('.hero__bg');
+const layer1 = hero.querySelector('.hero__layer--1');
+const layer2 = hero.querySelector('.hero__layer--2');
+const layer3 = hero.querySelector('.hero__layer--3');
+let ticking = false;
+
+function onScroll() {
+  const scrollY = window.scrollY;
+  const heroH = hero.offsetHeight;
+  const progress = Math.min(scrollY / heroH, 1);
+
+  // Parallax layers — each moves at different speed
+  layer1.style.transform = `translateY(${scrollY * 0.15}px)`;
+  layer2.style.transform = `translateY(${scrollY * 0.25}px) scale(${1 + progress * 0.1})`;
+  layer3.style.transform = `translateY(${scrollY * 0.35}px)`;
+  heroBg.style.transform = `translateY(${scrollY * 0.08}px)`;
+
+  // Hero content fades and moves up as you scroll
+  heroContent.style.transform = `translateY(${scrollY * 0.4}px)`;
+  heroContent.style.opacity = 1 - progress * 1.5;
+
+  // Nav background
+  if (scrollY > 100) {
     nav.style.background = 'rgba(10,10,10,0.98)';
   } else {
     nav.style.background = 'linear-gradient(to bottom, rgba(10,10,10,0.95) 60%, transparent)';
   }
-  lastScroll = currentScroll;
+
+  ticking = false;
+}
+
+window.addEventListener('scroll', () => {
+  if (!ticking) {
+    requestAnimationFrame(onScroll);
+    ticking = true;
+  }
 }, { passive: true });
 </script>
 
