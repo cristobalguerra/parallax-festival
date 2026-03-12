@@ -105,41 +105,51 @@
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      padding: 5rem 1.25rem 2.5rem;
+      padding: 0;
       position: relative;
       overflow: hidden;
+      min-height: 100svh;
     }
 
     .hero__bg {
       position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom, var(--bg-primary) 0%, #0d0b08 100%);
+      inset: -20%;
+      background: url('hero-bg.jpg') center/cover no-repeat;
       will-change: transform;
     }
 
     .hero__layer {
       position: absolute;
-      inset: -50%;
+      inset: 0;
       will-change: transform;
       pointer-events: none;
     }
 
+    /* Top fade — sky blends into nav */
     .hero__layer--1 {
-      background: radial-gradient(ellipse at 30% 70%, rgba(232,67,42,0.12) 0%, transparent 50%);
+      background: linear-gradient(to bottom,
+        rgba(10,10,10,0.7) 0%,
+        transparent 35%);
     }
 
+    /* Bottom fade — ground blends into content */
     .hero__layer--2 {
-      background: radial-gradient(ellipse at 70% 30%, rgba(201,168,76,0.08) 0%, transparent 45%);
+      background: linear-gradient(to top,
+        rgba(10,10,10,0.95) 0%,
+        rgba(10,10,10,0.5) 30%,
+        transparent 60%);
     }
 
+    /* Subtle color tint */
     .hero__layer--3 {
-      background: radial-gradient(circle at 50% 50%, rgba(232,67,42,0.04) 0%, transparent 40%),
-                  radial-gradient(circle at 20% 20%, rgba(255,255,255,0.02) 0%, transparent 30%);
+      background: radial-gradient(ellipse at 30% 70%, rgba(232,67,42,0.08) 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 30%, rgba(201,168,76,0.05) 0%, transparent 45%);
     }
 
     .hero__content {
       position: relative;
       z-index: 2;
+      padding: 0 1.25rem 2.5rem;
       will-change: transform, opacity;
     }
 
@@ -1291,21 +1301,23 @@ function onScroll() {
   const heroH = hero.offsetHeight;
   const progress = Math.min(scrollY / heroH, 1);
 
-  // Parallax layers — each moves at different speed
-  layer1.style.transform = `translateY(${scrollY * 0.15}px)`;
-  layer2.style.transform = `translateY(${scrollY * 0.25}px) scale(${1 + progress * 0.1})`;
-  layer3.style.transform = `translateY(${scrollY * 0.35}px)`;
-  heroBg.style.transform = `translateY(${scrollY * 0.08}px)`;
+  // Image moves slower than scroll (parallax depth)
+  heroBg.style.transform = `translateY(${scrollY * 0.3}px) scale(${1 + progress * 0.05})`;
 
-  // Hero content fades and moves up as you scroll
-  heroContent.style.transform = `translateY(${scrollY * 0.4}px)`;
-  heroContent.style.opacity = 1 - progress * 1.5;
+  // Overlay layers drift at different rates
+  layer1.style.transform = `translateY(${scrollY * 0.1}px)`;
+  layer2.style.transform = `translateY(${scrollY * 0.2}px)`;
+  layer3.style.transform = `translateY(${scrollY * 0.15}px)`;
+
+  // Hero content fades and drifts up faster
+  heroContent.style.transform = `translateY(${scrollY * 0.5}px)`;
+  heroContent.style.opacity = 1 - progress * 1.8;
 
   // Nav background
   if (scrollY > 100) {
     nav.style.background = 'rgba(10,10,10,0.98)';
   } else {
-    nav.style.background = 'linear-gradient(to bottom, rgba(10,10,10,0.95) 60%, transparent)';
+    nav.style.background = 'linear-gradient(to bottom, rgba(10,10,10,0.7) 60%, transparent)';
   }
 
   ticking = false;
