@@ -144,6 +144,20 @@
       filter: drop-shadow(0 6px 16px rgba(0,0,0,0.35));
     }
 
+    /* Section floating shapes */
+    .section-shape {
+      position: absolute;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .section-shape img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 16px rgba(0,0,0,0.35));
+    }
+
     .shape3d-z1 { z-index: 1; }
     .shape3d-z3 { z-index: 3; }
     .shape3d-z5 { z-index: 5; }
@@ -392,15 +406,21 @@
       display: flex;
       flex-direction: column;
       gap: 1px;
+      position: relative;
+      z-index: 1;
     }
 
     .film-card {
-      background: var(--bg-card);
+      background: rgba(17, 17, 17, 0.5);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--border);
       border-radius: 3px;
       overflow: hidden;
       transition: background 0.2s ease, border-color 0.2s ease;
       cursor: pointer;
+      position: relative;
+      z-index: 1;
     }
 
     .film-card:active {
@@ -917,7 +937,15 @@
   </section>
 
   <!-- ═══ FILMS SECTION ═══ -->
-  <div class="page-section active" id="section-films">
+  <div class="page-section active" id="section-films" style="position:relative;overflow:hidden;">
+    <!-- Floating shapes behind film cards -->
+    <div class="section-shape" id="secSh1" style="top:15%;right:-40px;width:140px;height:120px;">
+      <img src="shapes/shape-3.png" alt="">
+    </div>
+    <div class="section-shape" id="secSh2" style="top:55%;left:-35px;width:130px;height:145px;">
+      <img src="shapes/shape-6.png" alt="">
+    </div>
+
     <div class="section-header">
       <h2 class="section-header__title">PROGRAMA</h2>
     </div>
