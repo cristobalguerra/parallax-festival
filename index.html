@@ -1474,6 +1474,58 @@
       background: linear-gradient(to right, transparent, var(--border-light), transparent);
       margin: 0 1.25rem;
     }
+    /* ═══════════════════════════════════════════
+       RESPONSIVE — TABLET (≥600px)
+    ═══════════════════════════════════════════ */
+    @media (min-width: 600px) {
+      .page-section { max-width: 640px; margin: 0 auto; }
+      .nav { padding: 1rem 2rem; }
+      .hero__content { padding: 0 2rem; }
+      .hero__title { font-size: clamp(4rem, 10vw, 6rem); }
+      .about__categories { display: grid; grid-template-columns: 1fr 1fr; }
+      .film-card__title { font-size: 1.1rem; }
+      .film-card__number { font-size: 1.6rem; }
+      .about__stat-number { font-size: 3.2rem; }
+      .site-footer { max-width: 500px; margin: 0 auto; }
+    }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE — DESKTOP (≥960px)
+    ═══════════════════════════════════════════ */
+    @media (min-width: 960px) {
+      .page-section { max-width: 800px; overflow: visible; }
+      .section-shape { display: none; }
+      .nav { padding: 1.2rem 3rem; max-width: 900px; margin: 0 auto; }
+      .nav__logo-text { font-size: clamp(1.8rem, 3vw, 2.4rem); }
+      .section-header__title { font-size: 2rem; }
+      .hero__content { max-width: 900px; margin: 0 auto; left: 0; right: 0; padding: 0 3rem; }
+      .hero__title { font-size: clamp(5rem, 8vw, 7rem); }
+      .hero__label { font-size: clamp(3.5rem, 6vw, 5rem); }
+      .film-card__inner { padding: 1.2rem 1.5rem; }
+      .film-card__title { font-size: 1.2rem; }
+      .film-card__number { font-size: 1.8rem; }
+      .about__stat-number { font-size: 3.6rem; }
+      .about__stats { gap: 2rem; }
+      .about__digital { gap: 1.2rem; }
+      .about__categories { grid-template-columns: repeat(3, 1fr); }
+      .mapa { flex-direction: row; flex-wrap: wrap; }
+      .mapa .mapa__card { flex: 1 1 45%; }
+      .bottom-bar { max-width: 500px; left: 50%; transform: translateX(-50%); border-radius: 16px 16px 0 0; }
+      .laed-modal { max-width: 420px; padding: 2.5rem 2rem; }
+      .site-footer { max-width: 600px; }
+      .site-footer p { font-size: 0.7rem; max-width: 450px; }
+    }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE — LARGE DESKTOP (≥1280px)
+    ═══════════════════════════════════════════ */
+    @media (min-width: 1280px) {
+      .page-section { max-width: 960px; }
+      .nav { max-width: 1060px; }
+      .hero__content { max-width: 1060px; }
+      .about__categories { grid-template-columns: repeat(5, 1fr); }
+      .bottom-bar { max-width: 420px; border-radius: 20px 20px 0 0; }
+    }
   </style>
 </head>
 <body>
@@ -1554,7 +1606,7 @@
   </section>
 
   <!-- ═══ FILMS SECTION ═══ -->
-  <div class="page-section active" id="section-films" style="position:relative;overflow:hidden;">
+  <div class="page-section active" id="section-films" style="position:relative;">
     <!-- Floating shapes behind film cards -->
     <div class="section-shape section-shape--right" id="secSh1" style="top:15%;right:-40px;width:140px;height:120px;">
       <img src="shapes/shape-3.png" alt="">
