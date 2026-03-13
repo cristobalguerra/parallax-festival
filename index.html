@@ -3,8 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Parallax International Animation Festival — 13 al 15 de mayo 2026. Animación, videojuegos y arte digital en Monterrey. Un proyecto de LAED, Universidad de Monterrey.">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" type="image/png" href="parallax_logo.png">
+  <link rel="apple-touch-icon" href="parallax_logo.png">
+  <!-- Open Graph -->
+  <meta property="og:title" content="Parallax — International Animation Festival 2026">
+  <meta property="og:description" content="Animación, videojuegos y arte digital. 13–15 mayo, Monterrey. Un proyecto de LAED, Universidad de Monterrey.">
+  <meta property="og:image" content="https://parallaxfestival.com/og-image.png">
+  <meta property="og:url" content="https://parallaxfestival.com">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_MX">
   <title>PARALLAX — International Animation Festival</title>
-  <!-- Helvetica system font stack -->
   <style>
     /* ═══════════════════════════════════════════
        RESET & BASE
@@ -22,8 +32,8 @@
 
       /* ── Colors: Text ── */
       --text-primary: #f0ece4;
-      --text-secondary: #8a8680;
-      --text-muted: #5a5650;
+      --text-secondary: #9e9a94;
+      --text-muted: #777068;
 
       /* ── Colors: Brand ── */
       --accent: #e8432a;
@@ -75,6 +85,7 @@
       color: var(--text-primary);
       font-family: var(--font-display);
       font-weight: 300;
+      line-height: 1.5;
       min-height: 100vh;
       overflow-x: hidden;
     }
@@ -284,11 +295,11 @@
     }
     .laed-modal__close {
       position: absolute;
-      bottom: -16px;
-      right: -16px;
+      bottom: -22px;
+      right: -22px;
       z-index: 11;
-      width: 32px;
-      height: 32px;
+      width: 44px;
+      height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1393,6 +1404,45 @@
       .about__cat-grid { grid-template-columns: repeat(5, 1fr); }
       .bottom-bar { max-width: 420px; border-radius: var(--radius-pill) var(--radius-pill) 0 0; }
     }
+
+    /* ═══════════════════════════════════════════
+       ACCESSIBILITY: FOCUS STYLES
+    ═══════════════════════════════════════════ */
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .bottom-bar__item:focus-visible,
+    .day-btn:focus-visible,
+    .nav__laed-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
+    }
+    .film-card:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+      border-color: var(--accent);
+    }
+    .laed-modal__close:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+
+    /* ═══════════════════════════════════════════
+       ACCESSIBILITY: REDUCED MOTION
+    ═══════════════════════════════════════════ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .hero__pl, .shape3d, .section-shape {
+        transform: none !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1405,15 +1455,15 @@
         <span class="nav__tagline">International<br>Animation Festival</span>
       </div>
     </div>
-    <button class="nav__laed-btn" id="laedBtn">by LAED</button>
+    <button class="nav__laed-btn" id="laedBtn" aria-label="Conoce la Licenciatura en Animación y Efectos Digitales">by LAED</button>
   </nav>
 
   <!-- LAED Modal -->
-  <div class="laed-overlay" id="laedOverlay">
+  <div class="laed-overlay" id="laedOverlay" role="dialog" aria-modal="true" aria-label="Licenciatura en Animación y Efectos Digitales">
     <div class="laed-modal">
-      <div class="laed-modal__shape laed-modal__shape--1"><img src="shapes/shape-4.png" alt=""></div>
-      <div class="laed-modal__shape laed-modal__shape--2"><img src="shapes/shape-1.png" alt=""></div>
-      <div class="laed-modal__shape laed-modal__shape--3"><img src="shapes/shape-6.png" alt=""></div>
+      <div class="laed-modal__shape laed-modal__shape--1"><img src="shapes/shape-4.png" alt="" loading="lazy"></div>
+      <div class="laed-modal__shape laed-modal__shape--2"><img src="shapes/shape-1.png" alt="" loading="lazy"></div>
+      <div class="laed-modal__shape laed-modal__shape--3"><img src="shapes/shape-6.png" alt="" loading="lazy"></div>
       <div class="laed-modal__content">
         <div class="laed-modal__title">Licenciatura en Animación y Efectos Digitales</div>
         <p class="laed-modal__text">
@@ -1502,10 +1552,10 @@
     </div>
 
     <a class="day-venue" id="dayVenue" href="https://www.google.com/maps/search/?api=1&query=Cineteca+Nuevo+León,+Parque+Fundidora,+Monterrey" target="_blank" rel="noopener">
-      <span class="day-venue__icon">&#9673;</span>
+      <span class="day-venue__icon"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.5" stroke="currentColor" stroke-width="1"/><circle cx="4" cy="4" r="1.5" fill="currentColor"/></svg></span>
       <span class="day-venue__name">Cineteca</span>
       <span class="day-venue__maps">Ver en Google Maps</span>
-      <span class="day-venue__arrow">&#8599;</span>
+      <span class="day-venue__arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></span>
     </a>
 
     <div class="films" id="filmsContainer"></div>
@@ -1550,11 +1600,11 @@
       <div class="about__block">
         <h3 class="about__block-title">Sedes</h3>
         <a class="about__venue" href="https://www.google.com/maps/search/?api=1&query=Cineteca+Nuevo+León,+Parque+Fundidora,+Monterrey" target="_blank" rel="noopener">
-          <span class="about__venue-name">Cineteca Nuevo León &#8599;</span>
+          <span class="about__venue-name">Cineteca Nuevo León <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></span>
           <span class="about__venue-detail">Días 1 y 2 — 13 y 14 de mayo · Inauguración, cortometrajes, conferencias, showcases</span>
         </a>
         <a class="about__venue" href="https://www.google.com/maps/search/?api=1&query=Universidad+de+Monterrey+UDEM,+San+Pedro+Garza+García" target="_blank" rel="noopener">
-          <span class="about__venue-name">Campus UDEM &#8599;</span>
+          <span class="about__venue-name">Campus UDEM <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></span>
           <span class="about__venue-detail">Día 3 — 15 de mayo · Proyecciones finales, panel de industria, ceremonia de reconocimientos</span>
         </a>
       </div>
@@ -1608,35 +1658,35 @@
         <h3 class="about__block-title">Equipo Organizador</h3>
         <div class="team-grid">
           <div class="team-card team-card--featured">
-            <div class="team-card__photo">&#9679;</div>
+            <div class="team-card__photo"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></div>
             <div class="team-card__info">
               <div class="team-card__name">Persona 1</div>
               <div class="team-card__role">Dirección General</div>
             </div>
           </div>
           <div class="team-card">
-            <div class="team-card__photo">&#9679;</div>
+            <div class="team-card__photo"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></div>
             <div class="team-card__info">
               <div class="team-card__name">Persona 2</div>
               <div class="team-card__role">Producción</div>
             </div>
           </div>
           <div class="team-card">
-            <div class="team-card__photo">&#9679;</div>
+            <div class="team-card__photo"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></div>
             <div class="team-card__info">
               <div class="team-card__name">Persona 3</div>
               <div class="team-card__role">Diseño y Comunicación</div>
             </div>
           </div>
           <div class="team-card">
-            <div class="team-card__photo">&#9679;</div>
+            <div class="team-card__photo"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></div>
             <div class="team-card__info">
               <div class="team-card__name">Persona 4</div>
               <div class="team-card__role">Logística y Sedes</div>
             </div>
           </div>
           <div class="team-card">
-            <div class="team-card__photo">&#9679;</div>
+            <div class="team-card__photo"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></div>
             <div class="team-card__info">
               <div class="team-card__name">Persona 5</div>
               <div class="team-card__role">Curaduría y Selección</div>
@@ -1657,7 +1707,7 @@
         <div class="mapa__card-header">
           <span class="mapa__card-dot"></span>
           <span class="mapa__card-name">Cineteca Nuevo León</span>
-          <span class="mapa__card-arrow">&#8599;</span>
+          <span class="mapa__card-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></span>
         </div>
         <div class="mapa__card-detail">Parque Fundidora, Monterrey</div>
         <div class="mapa__card-days">Días 1 y 2 — 13 y 14 de mayo</div>
@@ -1673,7 +1723,7 @@
         <div class="mapa__card-header">
           <span class="mapa__card-dot"></span>
           <span class="mapa__card-name">Campus UDEM</span>
-          <span class="mapa__card-arrow">&#8599;</span>
+          <span class="mapa__card-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></span>
         </div>
         <div class="mapa__card-detail">San Pedro Garza García</div>
         <div class="mapa__card-days">Día 3 — 15 de mayo</div>
@@ -1696,16 +1746,16 @@
 
   <!-- BOTTOM NAV -->
   <nav class="bottom-bar">
-    <button class="bottom-bar__item active" data-section="section-films">
-      <svg viewBox="0 0 24 24"><path d="M4 8V4h16v4"/><path d="M4 14v-4h16v4"/><path d="M4 20v-4h16v4"/><circle cx="8" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="8" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="8" cy="18" r="1" fill="currentColor" stroke="none"/></svg>
+    <button class="bottom-bar__item active" data-section="section-films" aria-label="Ver programa de cortometrajes" aria-current="true">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V4h16v4"/><path d="M4 14v-4h16v4"/><path d="M4 20v-4h16v4"/><circle cx="8" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="8" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="8" cy="18" r="1" fill="currentColor" stroke="none"/></svg>
       Programa
     </button>
-    <button class="bottom-bar__item" data-section="section-festival">
-      <svg viewBox="0 0 24 24"><path d="M12 3L2 8l10 5 10-5-10-5z"/><path d="M2 12l10 5 10-5" opacity="0.7"/><path d="M2 16l10 5 10-5" opacity="0.4"/></svg>
+    <button class="bottom-bar__item" data-section="section-festival" aria-label="Ver información del festival">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L2 8l10 5 10-5-10-5z"/><path d="M2 12l10 5 10-5" opacity="0.7"/><path d="M2 16l10 5 10-5" opacity="0.4"/></svg>
       Festival
     </button>
-    <button class="bottom-bar__item" data-section="section-mapa">
-      <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
+    <button class="bottom-bar__item" data-section="section-mapa" aria-label="Ver sedes y mapa">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>
       Mapa
     </button>
   </nav>
@@ -1902,7 +1952,7 @@ function renderFilms(day = 1) {
   const filtered = films.filter(f => f.day === day);
 
   container.innerHTML = filtered.map((film, i) => `
-    <article class="film-card" data-id="${film.id}" data-genre="${film.genre}" data-idx="${i + 1}" style="animation-delay: ${i * 0.04}s">
+    <article class="film-card" data-id="${film.id}" data-genre="${film.genre}" data-idx="${i + 1}" style="animation-delay: ${i * 0.04}s" tabindex="0" role="button" aria-expanded="false" aria-label="${film.title} — ${film.director}">
       <div class="film-card__inner">
         <div class="film-card__number">${String(film.id).padStart(2, '0')}</div>
         <div class="film-card__info">
@@ -1947,13 +1997,23 @@ function renderFilms(day = 1) {
 
   // Day rendering complete
 
-  // Re-attach card click events
+  // Re-attach card click/key events
   document.querySelectorAll('.film-card').forEach(card => {
-    card.addEventListener('click', (e) => {
+    function toggleCard(e) {
       if (e.target.closest('.film-card__cta')) return;
       const wasExpanded = card.classList.contains('is-expanded');
-      document.querySelectorAll('.film-card.is-expanded').forEach(c => c.classList.remove('is-expanded'));
-      if (!wasExpanded) card.classList.add('is-expanded');
+      document.querySelectorAll('.film-card.is-expanded').forEach(c => {
+        c.classList.remove('is-expanded');
+        c.setAttribute('aria-expanded', 'false');
+      });
+      if (!wasExpanded) {
+        card.classList.add('is-expanded');
+        card.setAttribute('aria-expanded', 'true');
+      }
+    }
+    card.addEventListener('click', toggleCard);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCard(e); }
     });
   });
 }
@@ -1991,8 +2051,9 @@ document.querySelectorAll('.day-btn').forEach(btn => {
 // ═══════════════════════════════════════════
 document.querySelectorAll('.bottom-bar__item').forEach(item => {
   item.addEventListener('click', () => {
-    document.querySelectorAll('.bottom-bar__item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.bottom-bar__item').forEach(i => { i.classList.remove('active'); i.removeAttribute('aria-current'); });
     item.classList.add('active');
+    item.setAttribute('aria-current', 'true');
 
     const sectionId = item.dataset.section;
     document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
@@ -2020,9 +2081,33 @@ document.querySelectorAll('.bottom-bar__item').forEach(item => {
 // LAED MODAL
 // ═══════════════════════════════════════════
 const laedOverlay = document.getElementById('laedOverlay');
-document.getElementById('laedBtn').addEventListener('click', () => laedOverlay.classList.add('active'));
-document.getElementById('laedClose').addEventListener('click', () => laedOverlay.classList.remove('active'));
-laedOverlay.addEventListener('click', (e) => { if (e.target === laedOverlay) laedOverlay.classList.remove('active'); });
+const laedBtn = document.getElementById('laedBtn');
+const laedClose = document.getElementById('laedClose');
+const laedLink = laedOverlay.querySelector('.laed-modal__link');
+
+function openLaedModal() {
+  laedOverlay.classList.add('active');
+  laedClose.focus();
+}
+function closeLaedModal() {
+  laedOverlay.classList.remove('active');
+  laedBtn.focus();
+}
+laedBtn.addEventListener('click', openLaedModal);
+laedClose.addEventListener('click', closeLaedModal);
+laedOverlay.addEventListener('click', (e) => { if (e.target === laedOverlay) closeLaedModal(); });
+// Escape key closes modal
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && laedOverlay.classList.contains('active')) closeLaedModal();
+});
+// Focus trap inside modal
+laedOverlay.addEventListener('keydown', (e) => {
+  if (e.key !== 'Tab' || !laedOverlay.classList.contains('active')) return;
+  const focusable = [laedLink, laedClose];
+  const first = focusable[0], last = focusable[focusable.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
 
 // ═══════════════════════════════════════════
 // PARALLAX & NAV SCROLL EFFECT
@@ -2054,8 +2139,10 @@ const plLayers = [
   { el: document.getElementById('sh5'),         speed: 0.60, x: -0.07 },
 ];
 let ticking = false;
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function onScroll() {
+  if (prefersReducedMotion) return;
   const scrollY = window.scrollY;
   const heroH = hero.offsetHeight;
   const progress = Math.min(scrollY / heroH, 1);
