@@ -1298,6 +1298,77 @@
     }
 
     /* ═══════════════════════════════════════════
+       TEAM GRID
+    ═══════════════════════════════════════════ */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .team-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.3s ease;
+    }
+
+    .team-card:active {
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    .team-card__photo {
+      width: 100%;
+      aspect-ratio: 1;
+      background: rgba(255,255,255,0.03);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: rgba(255,255,255,0.08);
+    }
+
+    .team-card__info {
+      padding: 0.75rem;
+    }
+
+    .team-card__name {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.2rem;
+    }
+
+    .team-card__role {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 0.03em;
+    }
+
+    .team-card--featured {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .team-card--featured .team-card__info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .team-card--featured .team-card__name {
+      font-size: 1rem;
+    }
+
+    .team-card--featured .team-card__role {
+      font-size: 0.7rem;
+    }
+
+    /* ═══════════════════════════════════════════
        MAPA SECTION
     ═══════════════════════════════════════════ */
     .mapa {
@@ -1738,6 +1809,48 @@
           <div class="about__cat-card about__cat-card--full">
             <div class="about__cat-name">Arte Digital</div>
             <div class="about__cat-detail">Hasta 3 piezas por universidad</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team -->
+      <div class="about__block">
+        <h3 class="about__block-title">Equipo Organizador</h3>
+        <div class="team-grid">
+          <div class="team-card team-card--featured">
+            <div class="team-card__photo">&#9679;</div>
+            <div class="team-card__info">
+              <div class="team-card__name">Persona 1</div>
+              <div class="team-card__role">Dirección General</div>
+            </div>
+          </div>
+          <div class="team-card">
+            <div class="team-card__photo">&#9679;</div>
+            <div class="team-card__info">
+              <div class="team-card__name">Persona 2</div>
+              <div class="team-card__role">Producción</div>
+            </div>
+          </div>
+          <div class="team-card">
+            <div class="team-card__photo">&#9679;</div>
+            <div class="team-card__info">
+              <div class="team-card__name">Persona 3</div>
+              <div class="team-card__role">Diseño y Comunicación</div>
+            </div>
+          </div>
+          <div class="team-card">
+            <div class="team-card__photo">&#9679;</div>
+            <div class="team-card__info">
+              <div class="team-card__name">Persona 4</div>
+              <div class="team-card__role">Logística y Sedes</div>
+            </div>
+          </div>
+          <div class="team-card">
+            <div class="team-card__photo">&#9679;</div>
+            <div class="team-card__info">
+              <div class="team-card__name">Persona 5</div>
+              <div class="team-card__role">Curaduría y Selección</div>
+            </div>
           </div>
         </div>
       </div>
