@@ -1443,9 +1443,158 @@
         transform: none !important;
       }
     }
+
+    /* ═══════════════════════════════════════════
+       SPLASH
+    ═══════════════════════════════════════════ */
+    .splash {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--bg-primary);
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: opacity 0.6s ease;
+    }
+    .splash.done {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .splash__prompt {
+      position: absolute;
+      bottom: var(--space-10);
+      left: 0;
+      right: 0;
+      z-index: 3;
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      animation: promptPulse 2s ease-in-out infinite;
+    }
+    @keyframes promptPulse {
+      0%, 100% { opacity: 0.5; }
+      50%      { opacity: 1; }
+    }
+    .splash__canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+    .splash__shape {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      will-change: transform;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+      pointer-events: none;
+    }
+    .splash__logo {
+      position: absolute;
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      cursor: pointer;
+      will-change: transform;
+      filter: drop-shadow(0 4px 16px rgba(232,67,42,0.3));
+      z-index: 2;
+      transition: filter 0.2s ease;
+    }
+    .splash__logo:active {
+      filter: drop-shadow(0 0 24px rgba(232,67,42,0.7)) brightness(1.2);
+    }
+    .splash__reveal {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-4);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+    .splash__reveal.active { opacity: 1; }
+    .splash__reveal-logo {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      animation: logoReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    .splash__reveal-title {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      animation: logoReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+    }
+    .splash__reveal-sub {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: var(--text-secondary);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      animation: logoReveal 0.8s ease 0.3s both;
+    }
+    @keyframes logoReveal {
+      0%   { opacity: 0; transform: scale(0.6) translateY(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .splash__burst {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232,67,42,0.15) 0%, transparent 70%);
+      animation: burstPulse 1.2s ease-out both;
+      pointer-events: none;
+    }
+    @keyframes burstPulse {
+      0%   { transform: scale(0); opacity: 1; }
+      100% { transform: scale(3); opacity: 0; }
+    }
+    .splash__skip {
+      position: absolute;
+      top: var(--space-4);
+      right: var(--space-5);
+      z-index: 5;
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: var(--space-2) var(--space-3);
+      transition: color var(--ease-fast);
+    }
+    .splash__skip:hover { color: var(--text-secondary); }
   </style>
 </head>
 <body>
+
+  <!-- SPLASH -->
+  <div class="splash" id="splash">
+    <div class="splash__canvas" id="splashCanvas"></div>
+    <p class="splash__prompt" id="splashPrompt">Encuentra el logo de Parallax</p>
+    <div class="splash__reveal" id="splashReveal">
+      <img class="splash__reveal-logo" src="parallax_logo.png" alt="PARALLAX">
+      <div class="splash__reveal-title">PARALLAX</div>
+      <div class="splash__reveal-sub">International Animation Festival 2026</div>
+    </div>
+    <button class="splash__skip" id="splashSkip">Saltar</button>
+  </div>
 
   <!-- NAV -->
   <nav class="nav">
@@ -1761,6 +1910,127 @@
   </nav>
 
 <script>
+// ═══════════════════════════════════════════
+// SPLASH — FIND THE LOGO
+// ═══════════════════════════════════════════
+(function() {
+  const splash = document.getElementById('splash');
+  const canvas = document.getElementById('splashCanvas');
+  const prompt = document.getElementById('splashPrompt');
+  const reveal = document.getElementById('splashReveal');
+  const skipBtn = document.getElementById('splashSkip');
+
+  let items = [];
+  let animId = null;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  const shapeFiles = [
+    'shapes/shape-1.png', 'shapes/shape-2.png', 'shapes/shape-3.png',
+    'shapes/shape-4.png', 'shapes/shape-5.png', 'shapes/shape-6.png',
+    'shapes/shape-7.png', 'shapes/shape-8.png', 'shapes/shape-9.png',
+    'shapes/shape-10.png', 'shapes/shape-11.png'
+  ];
+
+  // Shuffle and pick 6 decorative shapes
+  const shuffled = shapeFiles.sort(() => Math.random() - 0.5).slice(0, 6);
+
+  // Create decorative shapes
+  shuffled.forEach(src => {
+    const el = document.createElement('img');
+    el.className = 'splash__shape';
+    el.src = src;
+    el.alt = '';
+    el.draggable = false;
+    const size = 45 + Math.random() * 35;
+    el.style.width = size + 'px';
+    el.style.height = size + 'px';
+    canvas.appendChild(el);
+    items.push(makeFloater(el, size));
+  });
+
+  // Create the logo (the one to catch)
+  const logo = document.createElement('img');
+  logo.className = 'splash__logo';
+  logo.src = 'parallax_logo.png';
+  logo.alt = 'Parallax Logo';
+  logo.draggable = false;
+  canvas.appendChild(logo);
+  const logoItem = makeFloater(logo, 64);
+  items.push(logoItem);
+
+  function makeFloater(el, size) {
+    const margin = 30;
+    return {
+      el,
+      x: margin + Math.random() * (vw - size - margin * 2),
+      y: margin + 40 + Math.random() * (vh - size - margin * 2 - 80),
+      vx: (0.4 + Math.random() * 0.6) * (Math.random() > 0.5 ? 1 : -1),
+      vy: (0.4 + Math.random() * 0.6) * (Math.random() > 0.5 ? 1 : -1),
+      rot: Math.random() * 360,
+      rotV: (0.15 + Math.random() * 0.4) * (Math.random() > 0.5 ? 1 : -1),
+      size
+    };
+  }
+
+  function tick() {
+    items.forEach(s => {
+      s.x += s.vx;
+      s.y += s.vy;
+      s.rot += s.rotV;
+      if (s.x <= 0 || s.x >= vw - s.size) s.vx *= -1;
+      if (s.y <= 40 || s.y >= vh - s.size - 60) s.vy *= -1;
+      s.x = Math.max(0, Math.min(vw - s.size, s.x));
+      s.y = Math.max(40, Math.min(vh - s.size - 60, s.y));
+      s.el.style.transform = 'translate(' + s.x + 'px,' + s.y + 'px) rotate(' + s.rot + 'deg)';
+    });
+    animId = requestAnimationFrame(tick);
+  }
+  tick();
+
+  // Catch the logo
+  function onLogoCatch(e) {
+    e.preventDefault();
+    logo.removeEventListener('click', onLogoCatch);
+    logo.removeEventListener('touchstart', onLogoCatch);
+    cancelAnimationFrame(animId);
+
+    // Hide decorative elements
+    prompt.style.display = 'none';
+    skipBtn.style.display = 'none';
+    items.forEach(s => { s.el.style.transition = 'opacity 0.4s ease'; s.el.style.opacity = '0'; });
+
+    // Burst
+    const burst = document.createElement('div');
+    burst.className = 'splash__burst';
+    burst.style.left = (logoItem.x + logoItem.size / 2 - 150) + 'px';
+    burst.style.top = (logoItem.y + logoItem.size / 2 - 150) + 'px';
+    splash.appendChild(burst);
+
+    // Reveal
+    setTimeout(() => reveal.classList.add('active'), 250);
+
+    // Dismiss
+    setTimeout(() => {
+      splash.classList.add('done');
+      setTimeout(() => splash.remove(), 700);
+    }, 2000);
+  }
+  logo.addEventListener('click', onLogoCatch);
+  logo.addEventListener('touchstart', onLogoCatch, { passive: false });
+
+  // Skip
+  function dismissSplash() {
+    cancelAnimationFrame(animId);
+    splash.classList.add('done');
+    setTimeout(() => splash.remove(), 700);
+  }
+  skipBtn.addEventListener('click', dismissSplash);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && splash.parentNode) dismissSplash();
+  });
+})();
+
 // ═══════════════════════════════════════════
 // FILM DATA — 16 CORTOMETRAJES
 // ═══════════════════════════════════════════
