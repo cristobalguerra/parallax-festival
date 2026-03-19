@@ -370,6 +370,46 @@
     #plVeg       { background-image: url('pl-veg.png'); inset: -10%; z-index: 3; filter: saturate(0.9) brightness(0.92); }
 
     /* ═══════════════════════════════════════════
+       EDITION LOGO ORBIT
+    ═══════════════════════════════════════════ */
+    .logo-orbit {
+      position: absolute;
+      top: 55%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      z-index: 4;
+      pointer-events: none;
+      perspective: 800px;
+      will-change: transform;
+    }
+    .logo-orbit__ring {
+      position: absolute;
+      width: 0;
+      height: 0;
+      transform-style: preserve-3d;
+      animation: orbitSpin 18s linear infinite;
+    }
+    @keyframes orbitSpin {
+      from { transform: rotateY(0deg); }
+      to   { transform: rotateY(360deg); }
+    }
+    .logo-orbit__item {
+      position: absolute;
+      width: 240px;
+      height: auto;
+      left: -120px;
+      top: -50px;
+      backface-visibility: hidden;
+      filter: drop-shadow(0 0 16px rgba(232,67,42,0.12));
+    }
+    .logo-orbit__item img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* ═══════════════════════════════════════════
        3D FLOATING SHAPES
     ═══════════════════════════════════════════ */
     .shape3d {
@@ -1646,6 +1686,9 @@
     </div>
 
     <div class="hero__pl" id="plCity"></div>
+    <div class="logo-orbit" id="logoOrbit">
+      <div class="logo-orbit__ring" id="logoRing"></div>
+    </div>
     <div class="hero__pl" id="plCrgs"></div>
     <div class="hero__pl" id="plHorno"></div>
 
@@ -2401,6 +2444,7 @@ const heroDarken = document.getElementById('heroDarken');
 const plCrgsEl = document.getElementById('plCrgs');
 const plHornoEl = document.getElementById('plHorno');
 const plCityEl = document.getElementById('plCity');
+const logoOrbitEl = document.getElementById('logoOrbit');
 
 const plLayers = [
   { el: document.getElementById('plSky'),       speed: 0.05 },
@@ -2410,6 +2454,7 @@ const plLayers = [
   { el: document.getElementById('sh2'),         speed: 0.15, x: 0.04 },
   { el: heroContent,                             speed: 0.18 },
   { el: plCityEl,                                speed: 0.22, zoom: true },
+  { el: logoOrbitEl,                             speed: 0.20 },
   { el: plCrgsEl,                                speed: 0.30, zoom: true },
   { el: plHornoEl,                               speed: 0.35, zoom: true },
   { el: document.getElementById('sh3'),         speed: 0.28, x: -0.05 },
@@ -2417,6 +2462,144 @@ const plLayers = [
   { el: document.getElementById('plVeg'),        speed: 0.45, zoom: true },
   { el: document.getElementById('sh5'),         speed: 0.60, x: -0.07 },
 ];
+
+// ═══════════════════════════════════════════
+// EDITION LOGO — 3D ORBIT + GRAIN DISINTEGRATION
+// ═══════════════════════════════════════════
+(function() {
+  const ring = document.getElementById('logoRing');
+  const LOGO_COUNT = 6;
+  const ORBIT_RADIUS = 280; // px — how far from center
+  const CANVAS_W = 240;
+  const CANVAS_H = 100;
+
+  // Create logo instances around the ring
+  for (let i = 0; i < LOGO_COUNT; i++) {
+    const angle = (360 / LOGO_COUNT) * i;
+    const item = document.createElement('div');
+    item.className = 'logo-orbit__item';
+    item.style.transform = `rotateY(${angle}deg) translateZ(${ORBIT_RADIUS}px)`;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = CANVAS_W;
+    canvas.height = CANVAS_H;
+    canvas.style.width = '100%';
+    canvas.style.height = 'auto';
+    item.appendChild(canvas);
+    ring.appendChild(item);
+  }
+
+  // Load logo and draw to all canvases + prepare particle data
+  const logoImg = new Image();
+  let basePixels = null;
+
+  logoImg.onload = function() {
+    const items = ring.querySelectorAll('.logo-orbit__item canvas');
+    items.forEach(c => {
+      const ctx = c.getContext('2d');
+      const scale = Math.min(CANVAS_W / logoImg.width, CANVAS_H / logoImg.height);
+      const w = logoImg.width * scale;
+      const h = logoImg.height * scale;
+      const ox = (CANVAS_W - w) / 2;
+      const oy = (CANVAS_H - h) / 2;
+      ctx.drawImage(logoImg, ox, oy, w, h);
+    });
+
+    // Extract pixel data once for particle system
+    const tmpCtx = items[0].getContext('2d');
+    const imgData = tmpCtx.getImageData(0, 0, CANVAS_W, CANVAS_H);
+    const data = imgData.data;
+    const step = 2;
+    basePixels = [];
+    for (let y = 0; y < CANVAS_H; y += step) {
+      for (let x = 0; x < CANVAS_W; x += step) {
+        const idx = (y * CANVAS_W + x) * 4;
+        if (data[idx + 3] < 20) continue;
+        basePixels.push({
+          ox: x, oy: y,
+          r: data[idx], g: data[idx+1], b: data[idx+2], a: data[idx+3] / 255,
+          size: step
+        });
+      }
+    }
+
+    // Start the disintegration render loop
+    requestAnimationFrame(renderLoop);
+  };
+  logoImg.src = 'parallax_logo.png';
+
+  // Render loop: each canvas shows either solid logo or partially disintegrated
+  // based on its current angle facing the viewer
+  function renderLoop(now) {
+    if (!basePixels) { requestAnimationFrame(renderLoop); return; }
+
+    const items = ring.querySelectorAll('.logo-orbit__item');
+    // Get current rotation angle from the animation
+    const style = getComputedStyle(ring);
+    const matrix = style.transform;
+    let currentAngle = 0;
+    if (matrix && matrix !== 'none') {
+      // Extract rotateY from matrix3d
+      const m = matrix.match(/matrix3d\((.+)\)/);
+      if (m) {
+        const vals = m[1].split(',').map(Number);
+        currentAngle = Math.atan2(vals[8], vals[0]) * (180 / Math.PI);
+        if (currentAngle < 0) currentAngle += 360;
+      }
+    }
+
+    items.forEach((item, i) => {
+      const canvas = item.querySelector('canvas');
+      const ctx = canvas.getContext('2d');
+      const itemAngle = (360 / LOGO_COUNT) * i;
+      // How much this item faces the viewer (0 = facing, 180 = away)
+      let facing = ((itemAngle + currentAngle) % 360 + 360) % 360;
+      if (facing > 180) facing = 360 - facing;
+
+      ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+
+      if (facing < 40) {
+        // Fully solid — facing viewer
+        const scale = Math.min(CANVAS_W / logoImg.width, CANVAS_H / logoImg.height);
+        const w = logoImg.width * scale;
+        const h = logoImg.height * scale;
+        ctx.drawImage(logoImg, (CANVAS_W - w) / 2, (CANVAS_H - h) / 2, w, h);
+      } else if (facing < 120) {
+        // Disintegrating — particles scatter based on angle
+        const t = (facing - 40) / 80; // 0 to 1
+        const seed = i * 1000;
+        for (let j = 0; j < basePixels.length; j++) {
+          const p = basePixels[j];
+          // Deterministic random per pixel
+          const hash = ((j * 2654435761 + seed) >>> 0) / 4294967296;
+          const hash2 = ((j * 2246822519 + seed) >>> 0) / 4294967296;
+          const delay = hash * 0.5;
+          const pt = Math.max(0, (t - delay) / (1 - delay));
+
+          if (pt <= 0) {
+            ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${p.a})`;
+            ctx.fillRect(p.ox, p.oy, p.size, p.size);
+          } else {
+            const ease = pt * pt;
+            const vx = (hash - 0.5) * 6;
+            const vy = (hash2 - 0.5) * 6 - 1.5;
+            const px = p.ox + vx * ease * 50;
+            const py = p.oy + vy * ease * 50;
+            const alpha = p.a * (1 - pt);
+            const sz = p.size * (1 - ease * 0.5);
+            if (alpha > 0.01 && sz > 0.3) {
+              ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${alpha.toFixed(3)})`;
+              ctx.fillRect(px, py, sz, sz);
+            }
+          }
+        }
+      }
+      // facing >= 120: fully invisible (backface-visibility handles most of this)
+    });
+
+    requestAnimationFrame(renderLoop);
+  }
+})();
 let ticking = false;
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -2443,6 +2626,7 @@ function onScroll() {
 
   // Hero content fades out as it scrolls behind buildings
   heroContent.style.opacity = 1 - progress * 2.5;
+
 
   // Darken overlay — kicks in after 25% scroll, fully black by 75%
   const darkenProgress = Math.max(0, (progress - 0.25) / 0.5);
