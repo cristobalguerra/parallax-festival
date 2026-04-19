@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Parallax · Admin</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --void: #000000;
+      --void-elev: #0d0d10;
+      --frost: rgba(255,255,255,0.06);
+      --frost-strong: rgba(255,255,255,0.12);
+      --frost-line: rgba(255,255,255,0.10);
+      --silver: #b8bcc4;
+      --pink: #ff4b6b;
+      --purple: #a855f7;
+      --purple-glow: rgba(168,85,247,0.35);
+      --green: #6ee85a;
+      --radius-md: 14px;
+      --radius-pill: 999px;
+      --font-display: 'Archivo Black', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--void); color: #fff; font-family: var(--font-body); min-height: 100%; }
+    body { padding-bottom: 4rem; }
+    a { color: var(--purple); text-decoration: none; }
+    button { font: inherit; border: none; cursor: pointer; color: inherit; background: none; }
+    input, textarea, select { font: inherit; color: inherit; }
+
+    /* ─── HEADER ─── */
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: blur(20px) saturate(1.4);
+      -webkit-backdrop-filter: blur(20px) saturate(1.4);
+      background: rgba(0,0,0,0.7);
+      border-bottom: 1px solid var(--frost-line);
+      padding: 1rem 1.4rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .topbar__brand {
+      display: flex; align-items: center; gap: 0.7rem;
+      font-family: var(--font-mono); font-size: 0.78rem;
+      letter-spacing: 0.06em; text-transform: uppercase; color: var(--silver);
+    }
+    .topbar__brand strong { color: #fff; font-family: var(--font-display); font-weight: normal; letter-spacing: 0; font-size: 1rem; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px rgba(110,232,90,0.25); }
+    .topbar__user { font-size: 0.82rem; color: var(--silver); display: flex; align-items: center; gap: 0.8rem; }
+    .topbar__user .signout { color: var(--purple); font-weight: 500; }
+    .topbar__user .signout:hover { color: #fff; }
+
+    /* ─── LOGIN ─── */
+    .login-wrap {
+      min-height: 100vh; display: grid; place-items: center; padding: 2rem 1.4rem;
+    }
+    .login {
+      width: 100%; max-width: 380px;
+      background: var(--void-elev); border: 1px solid var(--frost-line);
+      border-radius: var(--radius-md); padding: 2rem 1.8rem;
+    }
+    .login__title { font-family: var(--font-display); font-size: 1.6rem; margin-bottom: 0.4rem; letter-spacing: -0.02em; }
+    .login__sub { color: var(--silver); font-size: 0.88rem; margin-bottom: 1.6rem; }
+    .field { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+    .field label { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--silver); }
+    .field input, .field textarea, .field select {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--frost-line);
+      border-radius: 10px; padding: 0.7rem 0.9rem; color: #fff;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      outline: none; border-color: var(--purple); background: rgba(168,85,247,0.06);
+    }
+    .field textarea { min-height: 96px; resize: vertical; line-height: 1.5; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      background: var(--purple); color: #fff; border-radius: 10px;
+      padding: 0.7rem 1.1rem; font-weight: 600; font-size: 0.92rem;
+      transition: background 0.18s, transform 0.18s;
+    }
+    .btn:hover { background: #b97df8; transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn--ghost { background: transparent; border: 1px solid var(--frost-line); color: #fff; }
+    .btn--ghost:hover { background: var(--frost); border-color: var(--frost-strong); }
+    .btn--danger { background: rgba(255,75,107,0.12); color: var(--pink); border: 1px solid rgba(255,75,107,0.35); }
+    .btn--danger:hover { background: rgba(255,75,107,0.25); }
+    .btn--block { width: 100%; }
+    .toast {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      background: var(--void-elev); border: 1px solid var(--frost-line);
+      border-radius: 12px; padding: 0.8rem 1.2rem; font-size: 0.9rem;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6); z-index: 100;
+      display: none;
+    }
+    .toast.show { display: block; }
+    .toast--ok { border-color: rgba(110,232,90,0.45); }
+    .toast--err { border-color: rgba(255,75,107,0.45); color: var(--pink); }
+
+    /* ─── ADMIN APP ─── */
+    .app { padding: 2rem 1.4rem; max-width: 980px; margin: 0 auto; }
+    .app__head { margin-bottom: 1.8rem; }
+    .app__eyebrow { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--purple); }
+    .app__title { font-family: var(--font-display); font-size: 2.4rem; letter-spacing: -0.02em; margin-top: 0.4rem; }
+    .app__sub { color: var(--silver); font-size: 0.95rem; margin-top: 0.5rem; max-width: 60ch; }
+
+    /* track tabs */
+    .tracks { display: flex; gap: 0.5rem; margin-bottom: 1.4rem; flex-wrap: wrap; }
+    .track-tab {
+      padding: 0.55rem 1rem; border-radius: var(--radius-pill);
+      background: var(--void-elev); border: 1px solid var(--frost-line);
+      color: var(--silver); font-size: 0.85rem; font-weight: 500;
+      transition: all 0.18s;
+    }
+    .track-tab:hover { color: #fff; border-color: var(--frost-strong); }
+    .track-tab.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+    .track-tab__count { font-family: var(--font-mono); font-size: 0.7rem; opacity: 0.75; margin-left: 0.4rem; }
+
+    /* shorts list */
+    .shorts-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.9rem; }
+    .short-row {
+      background: var(--void-elev); border: 1px solid var(--frost-line);
+      border-radius: 14px; padding: 1rem;
+      display: grid; grid-template-columns: 60px 1fr auto; gap: 0.9rem; align-items: center;
+      cursor: pointer; transition: border-color 0.18s, transform 0.18s;
+    }
+    .short-row:hover { border-color: var(--purple); transform: translateY(-2px); }
+    .short-row__poster {
+      width: 60px; height: 90px; border-radius: 8px; overflow: hidden;
+      background: linear-gradient(135deg, #5a3a8a 0%, #2a1547 100%);
+      display: grid; place-items: center;
+      font-family: var(--font-display); font-size: 1.5rem; color: rgba(255,255,255,0.25);
+    }
+    .short-row__poster img { width: 100%; height: 100%; object-fit: cover; }
+    .short-row__main { min-width: 0; }
+    .short-row__num { font-family: var(--font-mono); font-size: 0.7rem; color: var(--purple); text-transform: uppercase; }
+    .short-row__title { font-weight: 600; font-size: 1rem; margin-top: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .short-row__crew { font-size: 0.75rem; color: var(--silver); margin-top: 0.25rem; }
+    .short-row__status {
+      font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 0.3rem 0.6rem; border-radius: 999px;
+      border: 1px solid var(--frost-line);
+    }
+    .short-row__status--draft { color: var(--silver); }
+    .short-row__status--live { color: var(--green); border-color: rgba(110,232,90,0.35); background: rgba(110,232,90,0.08); }
+
+    /* ─── EDIT MODAL ─── */
+    .modal {
+      position: fixed; inset: 0; z-index: 90; display: none;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      align-items: center; justify-content: center; padding: 2rem 1rem;
+      overflow-y: auto;
+    }
+    .modal.open { display: flex; }
+    .modal__panel {
+      background: var(--void-elev); border: 1px solid var(--frost-line);
+      border-radius: 16px; padding: 1.8rem; max-width: 720px; width: 100%;
+      max-height: calc(100vh - 4rem); overflow-y: auto;
+    }
+    .modal__head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.4rem; gap: 1rem; }
+    .modal__close { color: var(--silver); font-size: 1.6rem; line-height: 1; padding: 0.2rem 0.5rem; border-radius: 8px; }
+    .modal__close:hover { color: #fff; background: var(--frost); }
+    .modal__num { font-family: var(--font-mono); font-size: 0.72rem; color: var(--purple); letter-spacing: 0.06em; text-transform: uppercase; }
+    .modal__title { font-family: var(--font-display); font-size: 1.7rem; letter-spacing: -0.02em; margin-top: 0.3rem; }
+
+    /* poster upload */
+    .poster-uploader {
+      display: grid; grid-template-columns: 140px 1fr; gap: 1rem; align-items: start;
+      margin-bottom: 1.4rem;
+    }
+    .poster-preview {
+      aspect-ratio: 2/3; width: 140px; border-radius: 12px;
+      background: linear-gradient(135deg, #5a3a8a 0%, #2a1547 100%);
+      display: grid; place-items: center;
+      overflow: hidden; position: relative;
+      font-family: var(--font-display); font-size: 2.5rem; color: rgba(255,255,255,0.2);
+      border: 1px solid var(--frost-line);
+    }
+    .poster-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .poster-actions { display: flex; flex-direction: column; gap: 0.5rem; padding-top: 0.3rem; }
+    .poster-actions small { color: var(--silver); font-size: 0.78rem; line-height: 1.4; }
+
+    /* crew */
+    .crew-section { margin-top: 1.6rem; padding-top: 1.4rem; border-top: 1px solid var(--frost-line); }
+    .crew-section__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.9rem; }
+    .crew-section__title { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--silver); }
+    .crew-list { display: flex; flex-direction: column; gap: 0.7rem; }
+    .crew-row {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--frost-line);
+      border-radius: 12px; padding: 0.8rem;
+      display: grid; grid-template-columns: 48px 1fr 1fr 30px; gap: 0.7rem; align-items: center;
+    }
+    .crew-avatar {
+      width: 48px; height: 48px; border-radius: 50%; overflow: hidden;
+      background: var(--frost); display: grid; place-items: center;
+      cursor: pointer; position: relative;
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--silver);
+    }
+    .crew-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .crew-avatar:hover::after { content: '↑'; position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: grid; place-items: center; color: #fff; font-size: 1.2rem; }
+    .crew-row input, .crew-row select {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--frost-line);
+      border-radius: 8px; padding: 0.5rem 0.7rem; font-size: 0.88rem; color: #fff;
+    }
+    .crew-row input:focus, .crew-row select:focus {
+      outline: none; border-color: var(--purple);
+    }
+    .crew-row .crew-remove {
+      color: var(--pink); font-size: 1.2rem; padding: 0.3rem; border-radius: 6px;
+    }
+    .crew-row .crew-remove:hover { background: rgba(255,75,107,0.12); }
+    .crew-add { margin-top: 0.7rem; }
+
+    /* footer actions */
+    .modal__footer {
+      margin-top: 1.8rem; padding-top: 1.4rem; border-top: 1px solid var(--frost-line);
+      display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    }
+    .modal__footer-left, .modal__footer-right { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+
+    .toggle {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      cursor: pointer; user-select: none;
+    }
+    .toggle input { display: none; }
+    .toggle__track {
+      width: 38px; height: 22px; background: var(--frost); border-radius: 999px;
+      position: relative; transition: background 0.2s;
+    }
+    .toggle__track::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 18px; height: 18px; border-radius: 50%; background: #fff;
+      transition: transform 0.2s;
+    }
+    .toggle input:checked + .toggle__track { background: var(--green); }
+    .toggle input:checked + .toggle__track::after { transform: translateX(16px); }
+    .toggle__label { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; }
+
+    /* loader */
+    .spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 540px) {
+      .poster-uploader { grid-template-columns: 1fr; }
+      .crew-row { grid-template-columns: 48px 1fr 30px; }
+      .crew-row .crew-role { grid-column: 2; }
+      .modal__panel { padding: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- LOGIN VIEW -->
+  <div class="login-wrap" id="loginView">
+    <form class="login" id="loginForm">
+      <div class="app__eyebrow">Admin</div>
+      <h1 class="login__title">Parallax · Acceso</h1>
+      <p class="login__sub">Ingresa con tu cuenta para administrar los cortometrajes.</p>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" required autocomplete="current-password">
+      </div>
+
+      <button type="submit" class="btn btn--block" id="loginBtn">Entrar</button>
+      <button type="button" class="btn btn--ghost btn--block" id="signupBtn" style="margin-top: 0.6rem;">Crear cuenta nueva</button>
+    </form>
+  </div>
+
+  <!-- ADMIN VIEW -->
+  <div id="adminView" style="display:none;">
+    <header class="topbar">
+      <div class="topbar__brand">
+        <span class="dot"></span>
+        <strong>PARALLAX</strong> · admin
+      </div>
+      <div class="topbar__user">
+        <span id="userEmail"></span>
+        <button class="signout" id="signoutBtn">Salir</button>
+      </div>
+    </header>
+
+    <div class="app">
+      <div class="app__head">
+        <div class="app__eyebrow">Cortometrajes</div>
+        <h1 class="app__title">Selección Oficial 2026.</h1>
+        <p class="app__sub">Edita los datos de cada corto: poster, sinopsis, equipo y estado de publicación. Los cambios marcados como "Publicado" aparecen en la página principal.</p>
+      </div>
+
+      <div class="tracks">
+        <button class="track-tab active" data-track="all">Todos<span class="track-tab__count" id="countAll">0</span></button>
+        <button class="track-tab" data-track="2D">Animación 2D<span class="track-tab__count" id="count2D">0</span></button>
+        <button class="track-tab" data-track="3D">Animación 3D<span class="track-tab__count" id="count3D">0</span></button>
+      </div>
+
+      <div class="shorts-list" id="shortsList"></div>
+    </div>
+  </div>
+
+  <!-- EDIT MODAL -->
+  <div class="modal" id="editModal">
+    <div class="modal__panel">
+      <div class="modal__head">
+        <div>
+          <div class="modal__num" id="modalNum"></div>
+          <h2 class="modal__title" id="modalTitle"></h2>
+        </div>
+        <button class="modal__close" id="modalClose">×</button>
+      </div>
+
+      <!-- Poster -->
+      <div class="poster-uploader">
+        <div class="poster-preview" id="posterPreview"></div>
+        <div class="poster-actions">
+          <input type="file" id="posterFile" accept="image/jpeg,image/png,image/webp" style="display:none;">
+          <button class="btn" id="posterUploadBtn" type="button">Subir poster</button>
+          <button class="btn btn--ghost" id="posterRemoveBtn" type="button" style="display:none;">Quitar poster</button>
+          <small>JPG / PNG / WEBP · proporción 2:3 recomendada · máximo 5 MB</small>
+        </div>
+      </div>
+
+      <!-- Title (editable) -->
+      <div class="field">
+        <label for="fldTitle">Título del corto</label>
+        <input type="text" id="fldTitle">
+      </div>
+
+      <!-- Synopsis -->
+      <div class="field">
+        <label for="fldSynopsis">Sinopsis</label>
+        <textarea id="fldSynopsis" placeholder="Una breve descripción del cortometraje (2-4 líneas)."></textarea>
+      </div>
+
+      <!-- Duration / Year / Language -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.7rem;">
+        <div class="field"><label for="fldDuration">Duración</label><input type="text" id="fldDuration" placeholder="4:32"></div>
+        <div class="field"><label for="fldYear">Año</label><input type="number" id="fldYear" placeholder="2026"></div>
+        <div class="field"><label for="fldLang">Idioma</label><input type="text" id="fldLang" placeholder="Español"></div>
+      </div>
+
+      <!-- CREW -->
+      <div class="crew-section">
+        <div class="crew-section__head">
+          <span class="crew-section__title">Equipo creativo</span>
+        </div>
+        <div class="crew-list" id="crewList"></div>
+        <button class="btn btn--ghost crew-add" id="crewAddBtn" type="button">+ Agregar persona</button>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="modal__footer">
+        <div class="modal__footer-left">
+          <label class="toggle">
+            <input type="checkbox" id="fldPublished">
+            <span class="toggle__track"></span>
+            <span class="toggle__label" id="publishedLabel">Borrador</span>
+          </label>
+        </div>
+        <div class="modal__footer-right">
+          <button class="btn btn--ghost" id="cancelBtn" type="button">Cancelar</button>
+          <button class="btn" id="saveBtn" type="button">Guardar cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden file input for crew avatars -->
+  <input type="file" id="avatarFile" accept="image/jpeg,image/png,image/webp" style="display:none;">
+
+  <!-- ─── SUPABASE CLIENT (CDN) ─── -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
+
+  <script>
+    // ════════════════════════════════════════════════════════════
+    // CONFIG
+    // ════════════════════════════════════════════════════════════
+    const SUPABASE_URL = 'https://finmxfaqitgglyprgxxt.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_dn1MIc9sd51qsyBVfFaRVQ_U0ncAG-0';
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ════════════════════════════════════════════════════════════
+    // STATE
+    // ════════════════════════════════════════════════════════════
+    let currentUser = null;
+    let allShorts = [];
+    let currentFilter = 'all';
+    let editingShort = null;
+    let editingCrew = []; // array of {id, name, role, avatar_url, _file (pending), _toDelete}
+    let pendingPosterFile = null;
+    let pendingPosterRemoval = false;
+    let activeAvatarTarget = null; // index in editingCrew currently uploading
+
+    const ROLES = ['Dirección','Animación','Guion','Sonido','Música','Producción','Arte','Edición','Modelado','Rigging','Iluminación'];
+
+    // ════════════════════════════════════════════════════════════
+    // UTILS
+    // ════════════════════════════════════════════════════════════
+    const $ = (id) => document.getElementById(id);
+
+    function toast(msg, type = 'ok') {
+      const t = $('toast');
+      t.textContent = msg;
+      t.className = `toast show toast--${type}`;
+      setTimeout(() => { t.className = 'toast'; }, 3500);
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // AUTH
+    // ════════════════════════════════════════════════════════════
+    async function checkAuth() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) {
+        currentUser = session.user;
+        showAdmin();
+      } else {
+        showLogin();
+      }
+    }
+
+    function showLogin() {
+      $('loginView').style.display = '';
+      $('adminView').style.display = 'none';
+    }
+
+    async function showAdmin() {
+      $('loginView').style.display = 'none';
+      $('adminView').style.display = '';
+      $('userEmail').textContent = currentUser.email;
+      await loadShorts();
+    }
+
+    $('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = $('loginBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Entrando…';
+      const email = $('email').value.trim();
+      const password = $('password').value;
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      btn.disabled = false; btn.textContent = 'Entrar';
+      if (error) {
+        toast('Error: ' + error.message, 'err');
+        return;
+      }
+      currentUser = data.user;
+      showAdmin();
+    });
+
+    $('signupBtn').addEventListener('click', async () => {
+      const email = $('email').value.trim();
+      const password = $('password').value;
+      if (!email || !password) { toast('Email y contraseña requeridos', 'err'); return; }
+      if (password.length < 6) { toast('La contraseña debe tener mínimo 6 caracteres', 'err'); return; }
+      const { error } = await sb.auth.signUp({ email, password });
+      if (error) { toast('Error: ' + error.message, 'err'); return; }
+      toast('Cuenta creada. Revisa tu correo y luego inicia sesión.', 'ok');
+    });
+
+    $('signoutBtn').addEventListener('click', async () => {
+      await sb.auth.signOut();
+      currentUser = null;
+      showLogin();
+    });
+
+    // ════════════════════════════════════════════════════════════
+    // LOAD SHORTS
+    // ════════════════════════════════════════════════════════════
+    async function loadShorts() {
+      const { data: shorts, error } = await sb
+        .from('shorts')
+        .select('*, crew_members(*)')
+        .order('track', { ascending: true })
+        .order('order_num', { ascending: true });
+
+      if (error) { toast('Error cargando: ' + error.message, 'err'); return; }
+      allShorts = shorts;
+      renderShorts();
+      updateCounts();
+    }
+
+    function updateCounts() {
+      $('countAll').textContent = allShorts.length;
+      $('count2D').textContent = allShorts.filter(s => s.track === '2D').length;
+      $('count3D').textContent = allShorts.filter(s => s.track === '3D').length;
+    }
+
+    function renderShorts() {
+      const list = $('shortsList');
+      const filtered = currentFilter === 'all' ? allShorts : allShorts.filter(s => s.track === currentFilter);
+      list.innerHTML = filtered.map(s => {
+        const crewLine = s.crew_members && s.crew_members.length
+          ? s.crew_members.slice(0, 2).map(c => c.name).join(', ') + (s.crew_members.length > 2 ? ` +${s.crew_members.length-2}` : '')
+          : 'Sin equipo';
+        const initial = s.title.charAt(0).toUpperCase();
+        return `
+          <article class="short-row" data-id="${s.id}">
+            <div class="short-row__poster">
+              ${s.poster_url ? `<img src="${escapeHtml(s.poster_url)}" alt="">` : initial}
+            </div>
+            <div class="short-row__main">
+              <div class="short-row__num">${s.track} · ${String(s.order_num).padStart(2,'0')}</div>
+              <div class="short-row__title">${escapeHtml(s.title)}</div>
+              <div class="short-row__crew">${escapeHtml(crewLine)}</div>
+            </div>
+            <span class="short-row__status short-row__status--${s.published ? 'live' : 'draft'}">
+              ${s.published ? '● en vivo' : '○ borrador'}
+            </span>
+          </article>`;
+      }).join('') || '<p style="color: var(--silver); padding: 2rem; text-align: center;">No hay cortos en este filtro.</p>';
+
+      list.querySelectorAll('.short-row').forEach(row => {
+        row.addEventListener('click', () => openEdit(row.dataset.id));
+      });
+    }
+
+    document.querySelectorAll('.track-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.track-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentFilter = tab.dataset.track;
+        renderShorts();
+      });
+    });
+
+    // ════════════════════════════════════════════════════════════
+    // EDIT MODAL
+    // ════════════════════════════════════════════════════════════
+    function openEdit(shortId) {
+      editingShort = allShorts.find(s => s.id === shortId);
+      if (!editingShort) return;
+
+      pendingPosterFile = null;
+      pendingPosterRemoval = false;
+
+      $('modalNum').textContent = `${editingShort.track} · ${String(editingShort.order_num).padStart(2,'0')}`;
+      $('modalTitle').textContent = editingShort.title;
+      $('fldTitle').value = editingShort.title;
+      $('fldSynopsis').value = editingShort.synopsis ?? '';
+      $('fldDuration').value = editingShort.duration ?? '';
+      $('fldYear').value = editingShort.year ?? '';
+      $('fldLang').value = editingShort.language ?? '';
+      $('fldPublished').checked = !!editingShort.published;
+      $('publishedLabel').textContent = editingShort.published ? 'Publicado' : 'Borrador';
+
+      renderPoster(editingShort.poster_url);
+
+      editingCrew = (editingShort.crew_members || []).map(c => ({ ...c })).sort((a,b) => a.order_num - b.order_num);
+      renderCrew();
+
+      $('editModal').classList.add('open');
+    }
+
+    function closeEdit() {
+      $('editModal').classList.remove('open');
+      editingShort = null;
+      editingCrew = [];
+      pendingPosterFile = null;
+      pendingPosterRemoval = false;
+    }
+
+    $('modalClose').addEventListener('click', closeEdit);
+    $('cancelBtn').addEventListener('click', closeEdit);
+    $('editModal').addEventListener('click', (e) => {
+      if (e.target.id === 'editModal') closeEdit();
+    });
+
+    $('fldPublished').addEventListener('change', (e) => {
+      $('publishedLabel').textContent = e.target.checked ? 'Publicado' : 'Borrador';
+    });
+
+    // ─── POSTER UPLOAD ───
+    $('posterUploadBtn').addEventListener('click', () => $('posterFile').click());
+    $('posterFile').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      pendingPosterFile = file;
+      pendingPosterRemoval = false;
+      const reader = new FileReader();
+      reader.onload = () => renderPoster(reader.result);
+      reader.readAsDataURL(file);
+    });
+    $('posterRemoveBtn').addEventListener('click', () => {
+      pendingPosterFile = null;
+      pendingPosterRemoval = true;
+      renderPoster(null);
+    });
+
+    function renderPoster(url) {
+      const el = $('posterPreview');
+      if (url) {
+        el.innerHTML = `<img src="${url}" alt="">`;
+        $('posterRemoveBtn').style.display = '';
+      } else {
+        el.innerHTML = editingShort?.title.charAt(0).toUpperCase() ?? '?';
+        $('posterRemoveBtn').style.display = 'none';
+      }
+    }
+
+    // ─── CREW UI ───
+    function renderCrew() {
+      const list = $('crewList');
+      list.innerHTML = editingCrew.filter(c => !c._toDelete).map((c, idx) => {
+        const realIdx = editingCrew.indexOf(c);
+        const initials = (c.name || '?').split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+        return `
+          <div class="crew-row" data-idx="${realIdx}">
+            <div class="crew-avatar" data-action="avatar">
+              ${c.avatar_url || c._avatarPreview ? `<img src="${c._avatarPreview || c.avatar_url}" alt="">` : initials}
+            </div>
+            <input type="text" class="crew-name" placeholder="Nombre" value="${escapeHtml(c.name || '')}">
+            <select class="crew-role">
+              ${ROLES.map(r => `<option value="${r}" ${r === c.role ? 'selected' : ''}>${r}</option>`).join('')}
+            </select>
+            <button class="crew-remove" data-action="remove" title="Quitar">×</button>
+          </div>`;
+      }).join('');
+
+      list.querySelectorAll('.crew-row').forEach(row => {
+        const idx = parseInt(row.dataset.idx);
+        row.querySelector('.crew-name').addEventListener('input', (e) => { editingCrew[idx].name = e.target.value; });
+        row.querySelector('.crew-role').addEventListener('change', (e) => { editingCrew[idx].role = e.target.value; });
+        row.querySelector('[data-action="remove"]').addEventListener('click', () => {
+          if (editingCrew[idx].id) editingCrew[idx]._toDelete = true;
+          else editingCrew.splice(idx, 1);
+          renderCrew();
+        });
+        row.querySelector('[data-action="avatar"]').addEventListener('click', () => {
+          activeAvatarTarget = idx;
+          $('avatarFile').click();
+        });
+      });
+    }
+
+    $('avatarFile').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file || activeAvatarTarget === null) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        editingCrew[activeAvatarTarget]._file = file;
+        editingCrew[activeAvatarTarget]._avatarPreview = reader.result;
+        renderCrew();
+      };
+      reader.readAsDataURL(file);
+      e.target.value = '';
+    });
+
+    $('crewAddBtn').addEventListener('click', () => {
+      editingCrew.push({ name: '', role: 'Dirección', avatar_url: null, order_num: editingCrew.length });
+      renderCrew();
+    });
+
+    // ─── SAVE ───
+    $('saveBtn').addEventListener('click', async () => {
+      if (!editingShort) return;
+      const btn = $('saveBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Guardando…';
+
+      try {
+        // 1) upload poster if pending
+        let posterUrl = editingShort.poster_url;
+        if (pendingPosterRemoval) posterUrl = null;
+        if (pendingPosterFile) {
+          const ext = pendingPosterFile.name.split('.').pop().toLowerCase();
+          const path = `${editingShort.slug}.${ext}`;
+          const { error: upErr } = await sb.storage.from('posters').upload(path, pendingPosterFile, { upsert: true, contentType: pendingPosterFile.type });
+          if (upErr) throw upErr;
+          const { data } = sb.storage.from('posters').getPublicUrl(path);
+          posterUrl = data.publicUrl + `?v=${Date.now()}`;
+        }
+
+        // 2) update shorts row
+        const { error: updErr } = await sb.from('shorts').update({
+          title:     $('fldTitle').value.trim(),
+          synopsis:  $('fldSynopsis').value.trim() || null,
+          duration:  $('fldDuration').value.trim() || null,
+          year:      $('fldYear').value ? parseInt($('fldYear').value) : null,
+          language:  $('fldLang').value.trim() || null,
+          published: $('fldPublished').checked,
+          poster_url: posterUrl
+        }).eq('id', editingShort.id);
+        if (updErr) throw updErr;
+
+        // 3) handle crew (upload avatars, upsert/delete)
+        for (let i = 0; i < editingCrew.length; i++) {
+          const c = editingCrew[i];
+          // delete
+          if (c._toDelete && c.id) {
+            await sb.from('crew_members').delete().eq('id', c.id);
+            continue;
+          }
+          if (c._toDelete) continue;
+          // upload avatar
+          let avatarUrl = c.avatar_url;
+          if (c._file) {
+            const ext = c._file.name.split('.').pop().toLowerCase();
+            const safeName = (c.name || 'unnamed').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0, 30);
+            const path = `${editingShort.slug}/${safeName}-${Date.now()}.${ext}`;
+            const { error: avErr } = await sb.storage.from('avatars').upload(path, c._file, { upsert: true, contentType: c._file.type });
+            if (avErr) throw avErr;
+            const { data } = sb.storage.from('avatars').getPublicUrl(path);
+            avatarUrl = data.publicUrl;
+          }
+          // upsert
+          const payload = {
+            short_id:   editingShort.id,
+            name:       c.name.trim(),
+            role:       c.role,
+            avatar_url: avatarUrl,
+            order_num:  i
+          };
+          if (!payload.name) continue;
+
+          if (c.id) {
+            const { error } = await sb.from('crew_members').update(payload).eq('id', c.id);
+            if (error) throw error;
+          } else {
+            const { error } = await sb.from('crew_members').insert(payload);
+            if (error) throw error;
+          }
+        }
+
+        toast('Cambios guardados ✓', 'ok');
+        closeEdit();
+        await loadShorts();
+      } catch (err) {
+        console.error(err);
+        toast('Error guardando: ' + err.message, 'err');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Guardar cambios';
+      }
+    });
+
+    // ════════════════════════════════════════════════════════════
+    // INIT
+    // ════════════════════════════════════════════════════════════
+    checkAuth();
+  </script>
+</body>
+</html>

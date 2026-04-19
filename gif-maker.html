@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parallax GIF Maker — 9:16</title>
+  <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #111;
+      color: #f0ece4;
+      font-family: 'Helvetica Neue', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    h1 { font-size: 1.2rem; margin-bottom: 8px; font-weight: 300; letter-spacing: 2px; text-transform: uppercase; }
+    .controls {
+      display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; justify-content: center;
+    }
+    .controls button {
+      background: #e8432a; color: #fff; border: none; padding: 10px 24px;
+      border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;
+      transition: 0.2s;
+    }
+    .controls button:hover { background: #c4361f; }
+    .controls button:disabled { background: #555; cursor: not-allowed; }
+    .controls button.secondary { background: #333; }
+    .controls button.secondary:hover { background: #444; }
+    #progress {
+      margin-bottom: 12px; font-size: 13px; color: #9e9a94; min-height: 20px;
+    }
+    .canvas-wrap {
+      border: 1px solid #333; border-radius: 8px; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    canvas { display: block; }
+    #result { margin-top: 16px; text-align: center; }
+    #result img { border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    #result a {
+      display: inline-block; margin-top: 10px; color: #e8432a;
+      text-decoration: none; font-weight: 600;
+    }
+    .settings {
+      display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;
+      justify-content: center; align-items: center;
+    }
+    .settings label { font-size: 13px; color: #9e9a94; }
+    .settings select, .settings input {
+      background: #222; color: #f0ece4; border: 1px solid #444;
+      padding: 4px 8px; border-radius: 4px; font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Parallax GIF Maker</h1>
+
+<div class="settings">
+  <label>Duracion: <select id="duration">
+    <option value="3">3s</option>
+    <option value="4" selected>4s</option>
+    <option value="6">6s</option>
+    <option value="8">8s</option>
+  </select></label>
+  <label>FPS: <select id="fps">
+    <option value="12">12</option>
+    <option value="15" selected>15</option>
+    <option value="20">20</option>
+  </select></label>
+  <label>Calidad GIF: <select id="quality">
+    <option value="5">Alta (lento)</option>
+    <option value="10" selected>Media</option>
+    <option value="15">Baja (rapido)</option>
+  </select></label>
+  <label>Escala: <select id="scale">
+    <option value="0.5">270x480</option>
+    <option value="0.75">405x720</option>
+    <option value="1" selected>540x960</option>
+  </select></label>
+</div>
+
+<div class="controls">
+  <button id="btnPreview" class="secondary">Preview Animacion</button>
+  <button id="btnExport">Exportar GIF</button>
+  <button id="btnStop" class="secondary" disabled>Detener</button>
+</div>
+
+<div id="progress"></div>
+
+<div class="canvas-wrap">
+  <canvas id="canvas" width="540" height="960"></canvas>
+</div>
+
+<div id="result"></div>
+
+<script>
+// ── Config ──
+const W = 540, H = 960;
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+// Layer definitions: [filename, parallax speed multiplier, vertical offset]
+// Speed: higher = moves more (foreground), lower = moves less (background)
+const LAYER_DEFS = [
+  { src: 'layers/layer-0-6.png', speed: 0.0, yOff: 0 },      // Sky (static)
+  { src: 'layers/layer-2-7.png', speed: 0.15, yOff: 0 },     // Clouds (slow drift)
+  { src: 'layers/layer-1-5.png', speed: 0.08, yOff: 0 },     // Mountains + city
+  { src: 'layers/layer-3-4.png', speed: 0.12, yOff: 0 },     // Industrial
+  { src: 'layers/layer-4-3.png', speed: 0.18, yOff: 0 },     // Main building
+  { src: 'layers/layer-5-2.png', speed: 0.25, yOff: 0 },     // Building + water
+  { src: 'layers/layer-6-1.png', speed: 0.35, yOff: 0 },     // Foreground veg
+];
+
+let layers = [];
+let logoImg = null;
+let imagesLoaded = 0;
+const totalImages = LAYER_DEFS.length + 1; // +1 for logo
+
+// ── Load images ──
+function loadImages() {
+  return new Promise((resolve) => {
+    let loaded = 0;
+    const total = LAYER_DEFS.length + 1;
+
+    LAYER_DEFS.forEach((def, i) => {
+      const img = new Image();
+      img.onload = () => {
+        layers[i] = { img, speed: def.speed, yOff: def.yOff };
+        loaded++;
+        if (loaded === total) resolve();
+      };
+      img.onerror = () => {
+        console.warn('Failed to load:', def.src);
+        layers[i] = null;
+        loaded++;
+        if (loaded === total) resolve();
+      };
+      img.src = def.src;
+    });
+
+    // Load logo
+    const logo = new Image();
+    logo.onload = () => {
+      logoImg = logo;
+      loaded++;
+      if (loaded === total) resolve();
+    };
+    logo.onerror = () => {
+      loaded++;
+      if (loaded === total) resolve();
+    };
+    logo.src = 'parallax_logo_2026.png';
+  });
+}
+
+// ── Draw a single frame ──
+// t: normalized time 0..1 (one full cycle)
+function drawFrame(t) {
+  ctx.clearRect(0, 0, W, H);
+
+  // Smooth sine wave for parallax oscillation (back and forth)
+  const wave = Math.sin(t * Math.PI * 2);
+
+  const maxShift = 30; // max px shift for parallax
+
+  layers.forEach((layer) => {
+    if (!layer) return;
+    const { img, speed, yOff } = layer;
+
+    const xShift = wave * maxShift * speed;
+
+    // Scale image to cover canvas
+    const imgAspect = img.width / img.height;
+    const canvasAspect = W / H;
+
+    let dw, dh, dx, dy;
+    if (imgAspect > canvasAspect) {
+      // Image is wider — fit height, center horizontally
+      dh = H + 20; // slight oversize for parallax room
+      dw = dh * imgAspect;
+      dx = (W - dw) / 2 + xShift;
+      dy = yOff - 10;
+    } else {
+      // Image is taller — fit width, center vertically
+      dw = W + 20;
+      dh = dw / imgAspect;
+      dx = (W - dw) / 2 + xShift;
+      dy = (H - dh) / 2 + yOff;
+    }
+
+    ctx.drawImage(img, dx, dy, dw, dh);
+  });
+
+  // Draw logo centered in upper area
+  if (logoImg) {
+    const logoW = W * 0.6;
+    const logoH = logoW * (logoImg.height / logoImg.width);
+    const logoX = (W - logoW) / 2;
+    const logoY = H * 0.06;
+    ctx.globalAlpha = 0.95;
+    ctx.drawImage(logoImg, logoX, logoY, logoW, logoH);
+    ctx.globalAlpha = 1.0;
+  }
+
+  // Draw text overlay
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#f0ece4';
+  ctx.shadowColor = 'rgba(0,0,0,0.7)';
+  ctx.shadowBlur = 8;
+
+  // Festival dates
+  ctx.font = '600 16px "Helvetica Neue", Helvetica, sans-serif';
+  ctx.letterSpacing = '3px';
+  ctx.fillText('INTERNATIONAL ANIMATION FESTIVAL', W / 2, H * 0.2);
+
+  ctx.font = '300 22px "Helvetica Neue", Helvetica, sans-serif';
+  ctx.fillText('13 — 15 MAYO 2026', W / 2, H * 0.24);
+
+  ctx.font = '300 13px "Helvetica Neue", Helvetica, sans-serif';
+  ctx.fillStyle = '#c9a84c';
+  ctx.fillText('MONTERREY, MEXICO', W / 2, H * 0.275);
+
+  // Bottom tagline
+  ctx.fillStyle = '#9e9a94';
+  ctx.font = '300 11px "Helvetica Neue", Helvetica, sans-serif';
+  ctx.fillText('ANIMACION  ·  VIDEOJUEGOS  ·  ARTE DIGITAL', W / 2, H * 0.94);
+
+  ctx.fillStyle = '#e8432a';
+  ctx.font = '600 12px "Helvetica Neue", Helvetica, sans-serif';
+  ctx.fillText('parallaxfestival.com', W / 2, H * 0.965);
+
+  ctx.restore();
+}
+
+// ── Preview animation ──
+let animating = false;
+let animFrame = null;
+
+function startPreview() {
+  if (animating) return;
+  animating = true;
+  const startTime = performance.now();
+  const dur = parseFloat(document.getElementById('duration').value) * 1000;
+
+  btnPreview.disabled = true;
+  btnStop.disabled = false;
+
+  function loop(now) {
+    if (!animating) return;
+    const elapsed = (now - startTime) % dur;
+    const t = elapsed / dur;
+    drawFrame(t);
+    animFrame = requestAnimationFrame(loop);
+  }
+  animFrame = requestAnimationFrame(loop);
+}
+
+function stopPreview() {
+  animating = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  btnPreview.disabled = false;
+  btnStop.disabled = true;
+}
+
+// ── Export GIF ──
+async function exportGif() {
+  stopPreview();
+  const duration = parseFloat(document.getElementById('duration').value);
+  const fps = parseInt(document.getElementById('fps').value);
+  const quality = parseInt(document.getElementById('quality').value);
+  const scale = parseFloat(document.getElementById('scale').value);
+
+  const outW = Math.round(W * scale);
+  const outH = Math.round(H * scale);
+
+  const totalFrames = Math.round(duration * fps);
+  const delay = Math.round(1000 / fps);
+
+  const progress = document.getElementById('progress');
+  progress.textContent = 'Creando GIF... preparando frames';
+
+  // Create offscreen canvas at output size
+  const offCanvas = document.createElement('canvas');
+  offCanvas.width = outW;
+  offCanvas.height = outH;
+  const offCtx = offCanvas.getContext('2d');
+
+  // Save original canvas size and swap context
+  const origW = canvas.width;
+  const origH = canvas.height;
+
+  btnExport.disabled = true;
+  btnPreview.disabled = true;
+
+  const gif = new GIF({
+    workers: 2,
+    quality: quality,
+    width: outW,
+    height: outH,
+    workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js',
+  });
+
+  // Generate frames
+  for (let i = 0; i < totalFrames; i++) {
+    const t = i / totalFrames;
+    drawFrame(t);
+
+    // Scale to output canvas
+    offCtx.clearRect(0, 0, outW, outH);
+    offCtx.drawImage(canvas, 0, 0, W, H, 0, 0, outW, outH);
+
+    gif.addFrame(offCtx, { copy: true, delay: delay });
+    progress.textContent = `Generando frames: ${i + 1}/${totalFrames}`;
+
+    // Yield to UI
+    await new Promise(r => setTimeout(r, 0));
+  }
+
+  progress.textContent = 'Codificando GIF... esto puede tardar unos segundos';
+
+  gif.on('finished', (blob) => {
+    const url = URL.createObjectURL(blob);
+    const sizeMB = (blob.size / 1024 / 1024).toFixed(2);
+
+    progress.textContent = `GIF listo. ${sizeMB} MB — ${outW}x${outH}px — ${totalFrames} frames`;
+
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+      <img src="${url}" width="${outW}" style="max-width:100%; max-height: 500px;" alt="Parallax GIF">
+      <br>
+      <a href="${url}" download="parallax-festival-9x16.gif">Descargar GIF (${sizeMB} MB)</a>
+    `;
+
+    btnExport.disabled = false;
+    btnPreview.disabled = false;
+  });
+
+  gif.on('progress', (p) => {
+    progress.textContent = `Codificando GIF... ${Math.round(p * 100)}%`;
+  });
+
+  gif.render();
+}
+
+// ── Init ──
+const btnPreview = document.getElementById('btnPreview');
+const btnExport = document.getElementById('btnExport');
+const btnStop = document.getElementById('btnStop');
+
+btnPreview.addEventListener('click', startPreview);
+btnStop.addEventListener('click', stopPreview);
+btnExport.addEventListener('click', exportGif);
+
+document.getElementById('scale').addEventListener('change', (e) => {
+  const s = parseFloat(e.target.value);
+  canvas.width = Math.round(W * s);
+  canvas.height = Math.round(H * s);
+  canvas.style.width = `${Math.min(W * s, 400)}px`;
+  drawFrame(0);
+});
+
+loadImages().then(() => {
+  document.getElementById('progress').textContent = 'Imagenes cargadas. Listo para animar.';
+  canvas.style.width = '400px';
+  drawFrame(0);
+});
+</script>
+
+</body>
+</html>
