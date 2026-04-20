@@ -154,10 +154,18 @@
     .hero {
       position: relative;
       width: 100%;
-      min-height: clamp(560px, 82vh, 920px);
+      min-height: 78vh;
       overflow: hidden;
       background: #2a1547;
       isolation: isolate;
+    }
+    /* On wide desktops, let the hero grow taller for the layered scene */
+    @media (min-width: 1280px) and (orientation: landscape) {
+      .hero { min-height: min(86vh, 880px); }
+    }
+    /* Landscape phones: keep the hero compact so it fits the viewport */
+    @media (max-height: 480px) and (orientation: landscape) {
+      .hero { min-height: 100vh; }
     }
     .hero::after {
       content: '';
@@ -370,7 +378,7 @@
 
     /* ═══════════════════════════════════════════ SECTIONS BELOW HERO ═══════════════════════════════════════════ */
     .page-section {
-      padding: 6rem 2rem 5rem;
+      padding: 6rem clamp(1.25rem, 4vw, 2.5rem) 5rem;
       max-width: 1320px;
       margin: 0 auto;
       display: none;
@@ -1490,7 +1498,7 @@
     }
 
     .footer {
-      padding: 3rem 2rem 7rem;
+      padding: 3rem clamp(1.25rem, 4vw, 2.5rem) 7rem;
       border-top: 1px solid var(--frost-line);
       text-align: center;
       color: var(--silver);
@@ -1723,14 +1731,13 @@
     }
     /* ─── Wide desktop: more breathing room ─── */
     @media (min-width: 1280px) {
-      .page-section { padding: 7rem 2.5rem 6rem; }
+      .page-section { padding-top: 7rem; padding-bottom: 6rem; }
       .shorts-grid > .short-card { flex: 0 0 240px; }
-      .section-title { font-size: clamp(2.4rem, 4vw, 3.4rem); }
       .lead { font-size: 1.08rem; max-width: 760px; }
     }
     @media (min-width: 1600px) {
-      .page-section { max-width: 1480px; padding: 7.5rem 3rem 6.5rem; }
-      .footer { max-width: 1480px; padding: 3.5rem 3rem 7rem; }
+      .page-section { max-width: 1480px; padding-top: 7.5rem; padding-bottom: 6.5rem; }
+      .footer { max-width: 1480px; padding-top: 3.5rem; padding-bottom: 7rem; }
       .shorts-grid > .short-card { flex: 0 0 260px; }
     }
   </style>
