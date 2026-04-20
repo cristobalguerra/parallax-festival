@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="PARALLAX International Animation Festival — Animation, Video Games, Digital Art. Un proyecto LAED · UDEM.">
   <meta name="theme-color" content="#3a1f5f">
   <link rel="icon" type="image/png" href="parallax_logo.png">
@@ -58,7 +58,15 @@
       --radius-md: 14px;
     }
 
-    html { scroll-behavior: smooth; scrollbar-gutter: stable; }
+    html {
+      scroll-behavior: smooth;
+      scrollbar-gutter: stable;
+      background: var(--void);
+      /* Fill the safe-area zones (iOS landscape notch / Android cutouts) with the page color */
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+      box-sizing: border-box;
+    }
     body {
       font-family: var(--font-body);
       background: var(--void);
@@ -843,8 +851,7 @@
       scroll-behavior: smooth;
       scrollbar-width: thin;
       scrollbar-color: var(--frost-strong) transparent;
-      padding: 0.4rem 2rem 1rem 0;
-      margin-right: -1.25rem;  /* bleed off right edge for full-width feel */
+      padding: 0.4rem 0 1rem 0;
       -webkit-overflow-scrolling: touch;
     }
     .shorts-grid::-webkit-scrollbar { height: 6px; }
@@ -857,16 +864,28 @@
       scroll-snap-align: start;
     }
 
-    /* fade-out gradient on right edge to indicate more content */
+    /* Fade-out gradients on each edge — visibility toggled by JS when scrollable */
+    .shorts-row-wrap::before,
     .shorts-row-wrap::after {
       content: '';
       position: absolute;
-      top: 0; bottom: 16px; right: 0;
-      width: 60px;
+      top: 0; bottom: 0;
+      width: 56px;
       pointer-events: none;
-      background: linear-gradient(to right, transparent, var(--void) 90%);
       z-index: 2;
+      opacity: 0;
+      transition: opacity 0.25s ease;
     }
+    .shorts-row-wrap::before {
+      left: 0;
+      background: linear-gradient(to right, var(--void) 0%, transparent 100%);
+    }
+    .shorts-row-wrap::after {
+      right: 0;
+      background: linear-gradient(to left, var(--void) 0%, transparent 100%);
+    }
+    .shorts-row-wrap.has-overflow-start::before { opacity: 1; }
+    .shorts-row-wrap.has-overflow-end::after { opacity: 1; }
 
     /* nav arrows on hover (desktop only) */
     .row-nav {
@@ -992,6 +1011,7 @@
       .shorts-grid > .short-card { flex: 0 0 160px; }
       .short-card__body { padding: 0.8rem; }
       .short-card__title { font-size: 0.92rem; }
+      .shorts-row-wrap::before,
       .shorts-row-wrap::after { width: 32px; }
     }
 
@@ -2272,6 +2292,34 @@
         // scroll by ~3 cards at a time
         grid.scrollBy({ left: dir * cardWidth * 3, behavior: 'smooth' });
       });
+
+      // Toggle edge fade gradients based on scroll position
+      function syncRowFades() {
+        document.querySelectorAll('.shorts-row-wrap').forEach(wrap => {
+          const grid = wrap.querySelector('.shorts-grid');
+          if (!grid) return;
+          const max = grid.scrollWidth - grid.clientWidth;
+          const x = grid.scrollLeft;
+          wrap.classList.toggle('has-overflow-start', x > 4);
+          wrap.classList.toggle('has-overflow-end', max > 4 && x < max - 4);
+        });
+      }
+      function bindRowScroll() {
+        document.querySelectorAll('.shorts-grid').forEach(grid => {
+          if (grid.dataset.scrollBound) return;
+          grid.dataset.scrollBound = '1';
+          grid.addEventListener('scroll', syncRowFades, { passive: true });
+        });
+      }
+      bindRowScroll();
+      syncRowFades();
+      window.addEventListener('resize', syncRowFades);
+      // Re-bind after Supabase swaps the tracks innerHTML
+      const tracksObserverEl = document.getElementById('selectionTracks');
+      if (tracksObserverEl) {
+        new MutationObserver(() => { bindRowScroll(); syncRowFades(); })
+          .observe(tracksObserverEl, { childList: true, subtree: true });
+      }
 
       // ─── Short-film detail modal ───
       const modal = document.getElementById('shortModal');
