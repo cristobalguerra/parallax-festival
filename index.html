@@ -830,10 +830,66 @@
       text-transform: uppercase;
       color: var(--framer-blue);
     }
+    /* Netflix-style horizontal carousel */
+    .shorts-row-wrap {
+      position: relative;
+    }
     .shorts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1.1rem;
+      display: flex;
+      gap: 0.9rem;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: var(--frost-strong) transparent;
+      padding: 0.4rem 2rem 1rem 0;
+      margin-right: -1.25rem;  /* bleed off right edge for full-width feel */
+      -webkit-overflow-scrolling: touch;
+    }
+    .shorts-grid::-webkit-scrollbar { height: 6px; }
+    .shorts-grid::-webkit-scrollbar-track { background: transparent; }
+    .shorts-grid::-webkit-scrollbar-thumb { background: var(--frost-line); border-radius: 999px; }
+    .shorts-grid::-webkit-scrollbar-thumb:hover { background: var(--frost-strong); }
+
+    .shorts-grid > .short-card {
+      flex: 0 0 200px;
+      scroll-snap-align: start;
+    }
+
+    /* fade-out gradient on right edge to indicate more content */
+    .shorts-row-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 16px; right: 0;
+      width: 60px;
+      pointer-events: none;
+      background: linear-gradient(to right, transparent, var(--void) 90%);
+      z-index: 2;
+    }
+
+    /* nav arrows on hover (desktop only) */
+    .row-nav {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--frost-line);
+      color: #fff; font-size: 1.4rem;
+      display: grid; place-items: center;
+      cursor: pointer; opacity: 0;
+      transition: opacity 0.2s, background 0.2s, transform 0.2s;
+      z-index: 3;
+    }
+    .row-nav:hover { background: var(--framer-blue); border-color: var(--framer-blue); }
+    .row-nav--prev { left: -8px; }
+    .row-nav--next { right: -8px; }
+    .shorts-row-wrap:hover .row-nav { opacity: 1; }
+    @media (hover: none) {
+      .row-nav { display: none; }
     }
     .short-card {
       background: var(--void-elev);
@@ -842,11 +898,18 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      transition: border-color 0.2s ease, transform 0.2s ease;
+      transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
     }
     .short-card:hover {
       border-color: var(--framer-blue);
       transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.45), 0 0 0 1px var(--framer-blue-glow);
+    }
+    .short-card:focus-visible {
+      outline: none;
+      border-color: var(--framer-blue);
+      box-shadow: 0 0 0 3px var(--framer-blue-glow);
     }
     .short-card__poster {
       aspect-ratio: 2 / 3;
@@ -926,9 +989,10 @@
     .short-card__role { color: var(--silver); }
     .short-card__name { color: #fff; font-weight: 500; }
     @media (max-width: 720px) {
-      .shorts-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+      .shorts-grid > .short-card { flex: 0 0 160px; }
       .short-card__body { padding: 0.8rem; }
       .short-card__title { font-size: 0.92rem; }
+      .shorts-row-wrap::after { width: 32px; }
     }
 
     /* venues grid */
@@ -1089,6 +1153,201 @@
       box-shadow: 0 0 0 4px var(--framer-blue-glow);
     }
 
+    /* ═══ SHORT-FILM DETAIL MODAL ═══ */
+    .short-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.78);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 260;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      overflow-y: auto;
+    }
+    .short-modal.active { opacity: 1; visibility: visible; }
+    .short-modal__inner {
+      background: var(--void-elev);
+      border: 1px solid var(--frost-line);
+      border-radius: 22px;
+      max-width: 920px;
+      width: 100%;
+      max-height: calc(100vh - 3rem);
+      position: relative;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px var(--frost-line);
+      transform: translateY(12px) scale(0.985);
+      transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .short-modal.active .short-modal__inner { transform: translateY(0) scale(1); }
+    .short-modal__poster {
+      background: linear-gradient(135deg, #5a3a8a 0%, #2a1547 100%);
+      position: relative;
+      overflow: hidden;
+      min-height: 100%;
+    }
+    .short-modal__poster img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .short-modal__poster--placeholder::after {
+      content: attr(data-initial);
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-family: var(--font-display);
+      font-size: 8rem;
+      color: rgba(255,255,255,0.18);
+      letter-spacing: -0.04em;
+    }
+    .short-modal__body {
+      padding: 2.2rem 2.2rem 2rem;
+      overflow-y: auto;
+      max-height: calc(100vh - 3rem);
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+    .short-modal__num {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--framer-blue);
+    }
+    .short-modal__title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 2.1rem;
+      letter-spacing: -0.025em;
+      color: #fff;
+      line-height: 1.05;
+      margin: 0;
+    }
+    .short-modal__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 0.1rem;
+    }
+    .short-modal__chip {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--silver);
+      padding: 0.32rem 0.7rem;
+      border: 1px solid var(--frost-line);
+      border-radius: 999px;
+      background: var(--frost);
+    }
+    .short-modal__synopsis {
+      color: var(--silver);
+      line-height: 1.6;
+      font-size: 0.96rem;
+      letter-spacing: -0.005em;
+      margin: 0;
+    }
+    .short-modal__crew-label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--silver);
+      margin: 0.4rem 0 -0.2rem;
+    }
+    .short-modal__crew {
+      list-style: none;
+      padding: 0.9rem 0 0;
+      margin: 0;
+      border-top: 1px solid var(--frost-line);
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.9rem 0.7rem;
+    }
+    .short-modal__person {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.5rem;
+    }
+    .short-modal__avatar {
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: var(--frost);
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-size: 1.2rem;
+      color: #fff;
+      overflow: hidden;
+      border: 1px solid var(--frost-line);
+    }
+    .short-modal__avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .short-modal__person-name {
+      color: #fff;
+      font-weight: 500;
+      font-size: 0.88rem;
+      line-height: 1.25;
+      letter-spacing: -0.005em;
+    }
+    .short-modal__person-role {
+      color: var(--silver);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .short-modal__close {
+      position: absolute;
+      top: 0.9rem; right: 0.9rem;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.55);
+      border: 1px solid var(--frost-line);
+      backdrop-filter: blur(6px);
+      cursor: pointer;
+      z-index: 4;
+      transition: background 0.2s ease;
+    }
+    .short-modal__close:hover { background: var(--framer-blue); border-color: var(--framer-blue); }
+    .short-modal__close::before, .short-modal__close::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 14px; height: 1.5px;
+      background: #fff;
+      margin: -1px 0 0 -7px;
+    }
+    .short-modal__close::before { transform: rotate(45deg); }
+    .short-modal__close::after { transform: rotate(-45deg); }
+    @media (max-width: 760px) {
+      .short-modal { padding: 0; align-items: stretch; }
+      .short-modal__inner {
+        grid-template-columns: 1fr;
+        border-radius: 0;
+        max-height: 100vh;
+        height: 100vh;
+      }
+      .short-modal__poster { min-height: 260px; max-height: 38vh; }
+      .short-modal__body { padding: 1.4rem 1.3rem 2rem; }
+      .short-modal__title { font-size: 1.55rem; }
+      .short-modal__crew { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+      .short-modal__avatar { width: 64px; height: 64px; }
+    }
+
     .footer {
       padding: 3rem 1.5rem 7rem;
       border-top: 1px solid var(--frost-line);
@@ -1222,6 +1481,9 @@
           <h3 class="selection-track__type">Animación 2D</h3>
           <span class="selection-track__count">07 cortos</span>
         </div>
+        <div class="shorts-row-wrap">
+          <button class="row-nav row-nav--prev" data-dir="-1" aria-label="Anterior">‹</button>
+          <button class="row-nav row-nav--next" data-dir="1" aria-label="Siguiente">›</button>
         <div class="shorts-grid">
           <article class="short-card">
             <div class="short-card__poster short-card__poster--placeholder" data-initial="B"></div>
@@ -1294,6 +1556,7 @@
             </div>
           </article>
         </div>
+        </div>
       </div>
 
       <!-- 3D TRACK -->
@@ -1302,6 +1565,9 @@
           <h3 class="selection-track__type">Animación 3D</h3>
           <span class="selection-track__count">07 cortos</span>
         </div>
+        <div class="shorts-row-wrap">
+          <button class="row-nav row-nav--prev" data-dir="-1" aria-label="Anterior">‹</button>
+          <button class="row-nav row-nav--next" data-dir="1" aria-label="Siguiente">›</button>
         <div class="shorts-grid">
           <article class="short-card">
             <div class="short-card__poster short-card__poster--placeholder" data-initial="B"></div>
@@ -1373,6 +1639,7 @@
               </ul>
             </div>
           </article>
+        </div>
         </div>
       </div>
     </div>
@@ -1528,6 +1795,22 @@
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════ SHORT-FILM DETAIL MODAL ═══════════════════════════════════════════ -->
+  <div class="short-modal" id="shortModal" role="dialog" aria-modal="true" aria-labelledby="shortModalTitle">
+    <div class="short-modal__inner">
+      <button class="short-modal__close" id="closeShort" aria-label="Cerrar"></button>
+      <div class="short-modal__poster" id="shortModalPoster"></div>
+      <div class="short-modal__body">
+        <div class="short-modal__num" id="shortModalNum"></div>
+        <h2 class="short-modal__title" id="shortModalTitle"></h2>
+        <div class="short-modal__meta" id="shortModalMeta"></div>
+        <p class="short-modal__synopsis" id="shortModalSynopsis"></p>
+        <div class="short-modal__crew-label" id="shortModalCrewLabel">Equipo</div>
+        <ul class="short-modal__crew" id="shortModalCrew"></ul>
+      </div>
+    </div>
+  </div>
+
   <!-- Supabase client for live shorts data -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
   <script>
@@ -1561,8 +1844,19 @@
             const posterHtml = s.poster_url
               ? `<div class="short-card__poster"><img src="${esc(s.poster_url)}" alt="${esc(s.title)}" loading="lazy"></div>`
               : `<div class="short-card__poster short-card__poster--placeholder" data-initial="${esc(s.title.charAt(0).toUpperCase())}"></div>`;
+            const dataAttr = esc(JSON.stringify({
+              title: s.title,
+              track: s.track,
+              order_num: s.order_num,
+              synopsis: s.synopsis || '',
+              duration: s.duration || '',
+              year: s.year || '',
+              language: s.language || '',
+              poster_url: s.poster_url || '',
+              crew: crew.map(c => ({ name: c.name, role: c.role, avatar_url: c.avatar_url || '' }))
+            }));
             return `
-              <article class="short-card">
+              <article class="short-card" tabindex="0" role="button" aria-label="Ver detalles de ${esc(s.title)}" data-short='${dataAttr}'>
                 ${posterHtml}
                 <div class="short-card__body">
                   <div class="short-card__num">${esc(s.track)} · ${String(s.order_num).padStart(2,'0')}</div>
@@ -1577,7 +1871,11 @@
                 <h3 class="selection-track__type">${labels[track]}</h3>
                 <span class="selection-track__count">${String(items.length).padStart(2,'0')} cortos</span>
               </div>
-              <div class="shorts-grid">${cards}</div>
+              <div class="shorts-row-wrap">
+                <button class="row-nav row-nav--prev" data-dir="-1" aria-label="Anterior">‹</button>
+                <button class="row-nav row-nav--next" data-dir="1" aria-label="Siguiente">›</button>
+                <div class="shorts-grid">${cards}</div>
+              </div>
             </div>`;
         }).join('');
 
@@ -1594,6 +1892,200 @@
           if (error) { console.warn('[parallax] supabase fetch failed:', error.message); return; }
           if (data && data.length) renderShorts(data);
         });
+
+      // Wire up row navigation arrows (event delegation, works for static + dynamic content)
+      document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.row-nav');
+        if (!btn) return;
+        const wrap = btn.closest('.shorts-row-wrap');
+        if (!wrap) return;
+        const grid = wrap.querySelector('.shorts-grid');
+        if (!grid) return;
+        const card = grid.querySelector('.short-card');
+        const cardWidth = card ? card.getBoundingClientRect().width + 14 : 220; // include gap
+        const dir = parseInt(btn.dataset.dir) || 1;
+        // scroll by ~3 cards at a time
+        grid.scrollBy({ left: dir * cardWidth * 3, behavior: 'smooth' });
+      });
+
+      // ─── Short-film detail modal ───
+      const modal = document.getElementById('shortModal');
+      const mPoster = document.getElementById('shortModalPoster');
+      const mNum = document.getElementById('shortModalNum');
+      const mTitle = document.getElementById('shortModalTitle');
+      const mMeta = document.getElementById('shortModalMeta');
+      const mSynopsis = document.getElementById('shortModalSynopsis');
+      const mCrewLabel = document.getElementById('shortModalCrewLabel');
+      const mCrew = document.getElementById('shortModalCrew');
+      const mClose = document.getElementById('closeShort');
+
+      function readCardFromDom(card) {
+        // Fallback for static cards: read whatever we have from the DOM.
+        const titleEl = card.querySelector('.short-card__title');
+        const numEl = card.querySelector('.short-card__num');
+        const posterImg = card.querySelector('.short-card__poster img');
+        const placeholder = card.querySelector('.short-card__poster--placeholder');
+        const numTxt = numEl ? numEl.textContent.trim() : '';
+        const parts = numTxt.split('·').map(s => s.trim());
+        const crew = Array.from(card.querySelectorAll('.short-card__person')).map(li => {
+          const name = li.querySelector('.short-card__name');
+          const role = li.querySelector('.short-card__role');
+          const av = li.querySelector('.short-card__avatar img');
+          return {
+            name: name ? name.textContent.trim() : '',
+            role: role ? role.textContent.trim() : '',
+            avatar_url: av ? av.getAttribute('src') : ''
+          };
+        });
+        return {
+          title: titleEl ? titleEl.textContent.trim() : '',
+          track: parts[0] || '',
+          order_num: parts[1] ? parseInt(parts[1], 10) : null,
+          synopsis: '',
+          duration: '',
+          year: '',
+          language: '',
+          poster_url: posterImg ? posterImg.getAttribute('src') : '',
+          crew: crew
+        };
+      }
+
+      function openShortModal(data) {
+        // Poster
+        mPoster.innerHTML = '';
+        mPoster.classList.remove('short-modal__poster--placeholder');
+        mPoster.removeAttribute('data-initial');
+        if (data.poster_url) {
+          const img = document.createElement('img');
+          img.src = data.poster_url;
+          img.alt = data.title || '';
+          img.loading = 'lazy';
+          mPoster.appendChild(img);
+        } else {
+          mPoster.classList.add('short-modal__poster--placeholder');
+          mPoster.setAttribute('data-initial', (data.title || '?').charAt(0).toUpperCase());
+        }
+        // Header
+        mNum.textContent = data.track && data.order_num
+          ? `${data.track} · ${String(data.order_num).padStart(2,'0')}`
+          : (data.track || '');
+        mTitle.textContent = data.title || '';
+        // Meta chips
+        mMeta.innerHTML = '';
+        const chips = [];
+        if (data.year) chips.push(String(data.year));
+        if (data.duration) chips.push(String(data.duration));
+        if (data.language) chips.push(String(data.language));
+        chips.forEach(t => {
+          const span = document.createElement('span');
+          span.className = 'short-modal__chip';
+          span.textContent = t;
+          mMeta.appendChild(span);
+        });
+        mMeta.style.display = chips.length ? 'flex' : 'none';
+        // Synopsis
+        if (data.synopsis) {
+          mSynopsis.textContent = data.synopsis;
+          mSynopsis.style.display = '';
+        } else {
+          mSynopsis.textContent = 'Sinopsis por confirmar.';
+          mSynopsis.style.display = '';
+          mSynopsis.style.opacity = '0.6';
+        }
+        if (data.synopsis) mSynopsis.style.opacity = '';
+        // Crew
+        mCrew.innerHTML = '';
+        const crewList = data.crew || [];
+        if (crewList.length) {
+          mCrewLabel.style.display = '';
+          mCrew.style.display = '';
+          crewList.forEach(c => {
+            const li = document.createElement('li');
+            li.className = 'short-modal__person';
+            const av = document.createElement('span');
+            av.className = 'short-modal__avatar';
+            if (c.avatar_url) {
+              const img = document.createElement('img');
+              img.src = c.avatar_url;
+              img.alt = c.name || '';
+              av.appendChild(img);
+            } else {
+              av.textContent = initials(c.name || '?');
+            }
+            const name = document.createElement('span');
+            name.className = 'short-modal__person-name';
+            name.textContent = c.name || 'Por confirmar';
+            const role = document.createElement('span');
+            role.className = 'short-modal__person-role';
+            role.textContent = c.role || '';
+            li.appendChild(av);
+            li.appendChild(name);
+            if (c.role) li.appendChild(role);
+            mCrew.appendChild(li);
+          });
+        } else {
+          mCrewLabel.style.display = 'none';
+          mCrew.style.display = 'none';
+        }
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        // Reset body scroll inside modal
+        const body = modal.querySelector('.short-modal__body');
+        if (body) body.scrollTop = 0;
+      }
+
+      function closeShortModal() {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+
+      // Click to open (event delegation, also covers static cards)
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('.row-nav')) return; // arrows handled above
+        const card = e.target.closest('.short-card');
+        if (!card) return;
+        let data;
+        const raw = card.getAttribute('data-short');
+        if (raw) {
+          try { data = JSON.parse(raw); } catch { data = readCardFromDom(card); }
+        } else {
+          data = readCardFromDom(card);
+        }
+        openShortModal(data);
+      });
+      // Keyboard: Enter / Space on focused card
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+          closeShortModal();
+          return;
+        }
+        if ((e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.classList.contains('short-card')) {
+          e.preventDefault();
+          document.activeElement.click();
+        }
+      });
+      mClose.addEventListener('click', closeShortModal);
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeShortModal();
+      });
+
+      // Accessibility upgrade: make static fallback cards focusable like dynamic ones
+      function upgradeStaticCards() {
+        document.querySelectorAll('.short-card').forEach(card => {
+          if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '0');
+          if (!card.hasAttribute('role')) card.setAttribute('role', 'button');
+          if (!card.hasAttribute('aria-label')) {
+            const t = card.querySelector('.short-card__title');
+            if (t) card.setAttribute('aria-label', `Ver detalles de ${t.textContent.trim()}`);
+          }
+        });
+      }
+      upgradeStaticCards();
+      // Re-run after Supabase render swaps innerHTML
+      const tracksEl = document.getElementById('selectionTracks');
+      if (tracksEl) {
+        new MutationObserver(upgradeStaticCards).observe(tracksEl, { childList: true, subtree: true });
+      }
     })();
   </script>
 
