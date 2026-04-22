@@ -1677,6 +1677,37 @@
     }
     .footer__bottom-links a:hover { color: #fff; }
 
+    /* Closing block — sponsor logos + festival copyright */
+    .footer__close {
+      margin-top: 3.5rem;
+      padding-top: 2.5rem;
+      border-top: 1px solid var(--frost-line);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3.2rem;
+      text-align: center;
+    }
+    .footer__close .footer__sponsors {
+      max-width: 620px;
+      width: 100%;
+      height: auto;
+      margin: 0;
+      opacity: 0.9;
+    }
+    .footer__close-line {
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      color: var(--silver);
+    }
+    @media (max-width: 720px) {
+      .footer__close { margin-top: 2.5rem; padding-top: 2rem; gap: 2.4rem; }
+      .footer__close .footer__sponsors { max-width: 100%; }
+      .footer__close-line { font-size: 0.65rem; letter-spacing: 0.06em; }
+    }
+
     /* Legal modal — reuses person-modal pattern but bigger and scrollable */
     .legal-modal {
       position: fixed;
@@ -2233,9 +2264,6 @@
   </section>
 
   <div class="footer">
-    <img class="footer__sponsors" src="layers/Logotipos_-8.png" alt="Academic Partner Unreal · Escuela de Arte y Diseño UDEM · CRGS · UDEM">
-    <p style="margin-top: 1.5rem;">© 2026 PARALLAX · LAED — Universidad de Monterrey</p>
-
     <div class="footer__legal">
       <div class="footer__col">
         <h4>Festival</h4>
@@ -2270,6 +2298,13 @@
       </div>
     </div>
 
+    <!-- Sponsor logos + festival copyright -->
+    <div class="footer__close">
+      <img class="footer__sponsors" src="layers/Logotipos_-8.png" alt="Academic Partner Unreal · Escuela de Arte y Diseño UDEM · CRGS · UDEM">
+      <p class="footer__close-line">© 2026 PARALLAX · LAED — Universidad de Monterrey</p>
+    </div>
+
+    <!-- Closing line: UDEM copyright + legal links (very last thing on the page) -->
     <div class="footer__bottom">
       <span>© 2026 Universidad de Monterrey · Todos los derechos reservados</span>
       <div class="footer__bottom-links">
