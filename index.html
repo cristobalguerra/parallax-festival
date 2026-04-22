@@ -1027,6 +1027,111 @@
       .shorts-row-wrap::after { width: 32px; }
     }
 
+    /* ───────── Design Team Reel (LAED × LDG) ───────── */
+    .team-reel {
+      margin-top: 4.5rem;
+      padding-top: 2.8rem;
+      border-top: 1px solid var(--frost-line);
+    }
+    .team-reel__title {
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: clamp(1.2rem, 2.2vw, 1.6rem);
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin: 0.5rem 0 0.6rem;
+    }
+    .team-reel__sub {
+      color: var(--silver);
+      font-size: 0.88rem;
+      line-height: 1.55;
+      max-width: 720px;
+      margin-bottom: 1.6rem;
+    }
+    .team-marquee {
+      position: relative;
+      overflow: hidden;
+      padding: 0.4rem 0;
+      mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    }
+    .team-marquee__track {
+      display: flex;
+      gap: 0.9rem;
+      width: max-content;
+      animation: teamScroll 55s linear infinite;
+    }
+    .team-marquee:hover .team-marquee__track { animation-play-state: paused; }
+    @keyframes teamScroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    .team-chip {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.4rem 0.95rem 0.4rem 0.4rem;
+      background: var(--frost);
+      border: 1px solid var(--frost-line);
+      border-radius: 999px;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .team-chip:hover {
+      background: var(--frost-strong);
+      transform: translateY(-1px);
+    }
+    .team-chip__avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6f4cd5 0%, #b88dd8 100%);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .team-chip__avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .team-chip__txt { display: flex; flex-direction: column; line-height: 1.18; }
+    .team-chip__name {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .team-chip__role {
+      font-size: 0.62rem;
+      color: var(--silver);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .team-chip__dept {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.06em;
+      padding: 0.18rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(168,85,247,0.15);
+      color: #c8a5ff;
+      margin-left: 0.4rem;
+      align-self: center;
+    }
+    .team-chip__dept--ldg { background: rgba(255,107,142,0.15); color: #ffa6bd; }
+    @media (max-width: 720px) {
+      .team-reel { margin-top: 3rem; padding-top: 2rem; }
+      .team-marquee__track { animation-duration: 42s; gap: 0.6rem; }
+      .team-chip { padding: 0.32rem 0.75rem 0.32rem 0.32rem; }
+      .team-chip__avatar { width: 28px; height: 28px; font-size: 0.68rem; }
+      .team-chip__name { font-size: 0.72rem; }
+      .team-chip__role { font-size: 0.58rem; }
+      .team-chip__dept { font-size: 0.55rem; padding: 0.15rem 0.4rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .team-marquee__track { animation: none; }
+    }
+
     /* venues grid */
     .venues-grid {
       display: grid;
@@ -1983,6 +2088,16 @@
         </div>
       </div>
     </div>
+
+    <!-- Design team reel (LAED × LDG) -->
+    <div class="team-reel">
+      <span class="section-eyebrow">Equipo de Diseño</span>
+      <h3 class="team-reel__title">Una colaboración LAED × LDG.</h3>
+      <p class="team-reel__sub">El sello visual del festival —identidad, motion, posters y plataforma web— es obra de un equipo intercarrera entre Animación y Efectos Digitales (LAED) y la Licenciatura en Diseño Gráfico (LDG).</p>
+      <div class="team-marquee" aria-label="Equipo de diseño Parallax">
+        <div class="team-marquee__track" id="teamMarqueeTrack"></div>
+      </div>
+    </div>
   </section>
 
   <!-- ═══════════════════════════════════════════ FESTIVAL ═══════════════════════════════════════════ -->
@@ -2905,6 +3020,45 @@
     document.getElementById('closeLaed').addEventListener('click', () => laedModal.classList.remove('active'));
     laedModal.addEventListener('click', e => { if (e.target === laedModal) laedModal.classList.remove('active'); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') laedModal.classList.remove('active'); });
+
+    // ═══════════════════════════════════════════ DESIGN TEAM MARQUEE ═══════════════════════════════════════════
+    // Edita este array para sumar/quitar miembros. `photo` es opcional (URL).
+    const DESIGN_TEAM = [
+      { name: 'Por confirmar', role: 'Dirección de Arte', dept: 'LDG' },
+      { name: 'Por confirmar', role: 'Identidad Visual',  dept: 'LDG' },
+      { name: 'Por confirmar', role: 'Motion Graphics',   dept: 'LAED' },
+      { name: 'Por confirmar', role: 'Bumpers',           dept: 'LAED' },
+      { name: 'Por confirmar', role: 'Posters',           dept: 'LDG' },
+      { name: 'Por confirmar', role: 'Diseño Editorial',  dept: 'LDG' },
+      { name: 'Por confirmar', role: 'Animación de Logo', dept: 'LAED' },
+      { name: 'Por confirmar', role: 'Plataforma Web',    dept: 'LDG' },
+      { name: 'Por confirmar', role: 'Redes Sociales',    dept: 'LDG' },
+      { name: 'Por confirmar', role: 'Coordinación',      dept: 'LAED' },
+    ];
+    function renderDesignTeam() {
+      const track = document.getElementById('teamMarqueeTrack');
+      if (!track) return;
+      const chip = (p) => {
+        const initial = p.name && p.name !== 'Por confirmar' ? p.name.charAt(0).toUpperCase() : '·';
+        const avatar = p.photo
+          ? `<div class="team-chip__avatar"><img src="${p.photo}" alt="${p.name}"></div>`
+          : `<div class="team-chip__avatar">${initial}</div>`;
+        const deptCls = p.dept === 'LDG' ? 'team-chip__dept team-chip__dept--ldg' : 'team-chip__dept';
+        return `
+          <div class="team-chip">
+            ${avatar}
+            <div class="team-chip__txt">
+              <span class="team-chip__name">${p.name}</span>
+              <span class="team-chip__role">${p.role}</span>
+            </div>
+            <span class="${deptCls}">${p.dept}</span>
+          </div>
+        `;
+      };
+      // duplicado para loop continuo sin costura
+      track.innerHTML = [...DESIGN_TEAM, ...DESIGN_TEAM].map(chip).join('');
+    }
+    renderDesignTeam();
   </script>
 </body>
 </html>
