@@ -121,6 +121,21 @@
     .track-tab.active { background: var(--purple); color: #fff; border-color: var(--purple); }
     .track-tab__count { font-family: var(--font-mono); font-size: 0.7rem; opacity: 0.75; margin-left: 0.4rem; }
 
+    /* view switcher (Cortos / Equipo) */
+    .view-tabs {
+      display: flex; gap: 0.4rem;
+      padding: 0.35rem; margin-bottom: 1.6rem;
+      background: var(--void-elev); border: 1px solid var(--frost-line);
+      border-radius: 14px; width: fit-content;
+    }
+    .view-tab {
+      padding: 0.55rem 1.2rem; border-radius: 10px;
+      font-size: 0.88rem; font-weight: 500; color: var(--silver);
+      transition: all 0.18s;
+    }
+    .view-tab:hover { color: #fff; }
+    .view-tab.active { background: var(--purple); color: #fff; box-shadow: 0 4px 14px var(--purple-glow); }
+
     /* shorts list */
     .shorts-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.9rem; }
     .short-row {
@@ -148,6 +163,55 @@
     }
     .short-row__status--draft { color: var(--silver); }
     .short-row__status--live { color: var(--green); border-color: rgba(110,232,90,0.35); background: rgba(110,232,90,0.08); }
+
+    /* team list (design team) */
+    .team-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.8rem; }
+    .team-row {
+      background: var(--void-elev); border: 1px solid var(--frost-line);
+      border-radius: 14px; padding: 0.85rem;
+      display: grid; grid-template-columns: 56px 1fr auto; gap: 0.85rem; align-items: center;
+      cursor: pointer; transition: border-color 0.18s, transform 0.18s;
+    }
+    .team-row:hover { border-color: var(--purple); transform: translateY(-2px); }
+    .team-row__avatar {
+      width: 56px; height: 56px; border-radius: 50%; overflow: hidden;
+      background: linear-gradient(135deg, #6f4cd5 0%, #b88dd8 100%);
+      display: grid; place-items: center;
+      font-family: var(--font-mono); font-size: 0.9rem; color: #fff;
+    }
+    .team-row__avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+    .team-row__main { min-width: 0; }
+    .team-row__name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .team-row__role { font-size: 0.78rem; color: var(--silver); margin-top: 0.2rem; }
+    .team-row__meta { display: flex; align-items: center; gap: 0.5rem; flex-direction: column; }
+    .dept-badge {
+      font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.06em;
+      padding: 0.25rem 0.6rem; border-radius: 999px;
+      background: rgba(168,85,247,0.15); color: #c8a5ff;
+    }
+    .dept-badge--ldg { background: rgba(255,107,142,0.15); color: #ffa6bd; }
+    .team-row__order {
+      font-family: var(--font-mono); font-size: 0.62rem; color: var(--silver); opacity: 0.7;
+    }
+    .team-row--draft { opacity: 0.55; }
+
+    .team-actions { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.2rem; }
+
+    /* team photo uploader (circular preview, smaller than poster) */
+    .team-photo-uploader {
+      display: grid; grid-template-columns: 120px 1fr; gap: 1rem; align-items: start;
+      margin-bottom: 1.4rem;
+    }
+    .team-photo-preview {
+      width: 120px; height: 120px; border-radius: 50%; overflow: hidden;
+      background: linear-gradient(135deg, #6f4cd5 0%, #b88dd8 100%);
+      display: grid; place-items: center;
+      font-family: var(--font-mono); font-size: 1.6rem; color: #fff;
+      border: 1px solid var(--frost-line);
+    }
+    .team-photo-preview img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+    .team-photo-actions { display: flex; flex-direction: column; gap: 0.5rem; padding-top: 0.3rem; }
+    .team-photo-actions small { color: var(--silver); font-size: 0.78rem; line-height: 1.4; }
 
     /* ─── EDIT MODAL ─── */
     .modal {
@@ -292,19 +356,49 @@
     </header>
 
     <div class="app">
-      <div class="app__head">
-        <div class="app__eyebrow">Cortometrajes</div>
-        <h1 class="app__title">Selección Oficial 2026.</h1>
-        <p class="app__sub">Edita los datos de cada corto: poster, sinopsis, equipo y estado de publicación. Los cambios marcados como "Publicado" aparecen en la página principal.</p>
+      <!-- View switcher -->
+      <div class="view-tabs">
+        <button class="view-tab active" data-view="shorts">Cortometrajes</button>
+        <button class="view-tab" data-view="team">Equipo de Diseño</button>
       </div>
 
-      <div class="tracks">
-        <button class="track-tab active" data-track="all">Todos<span class="track-tab__count" id="countAll">0</span></button>
-        <button class="track-tab" data-track="2D">Animación 2D<span class="track-tab__count" id="count2D">0</span></button>
-        <button class="track-tab" data-track="3D">Animación 3D<span class="track-tab__count" id="count3D">0</span></button>
+      <!-- ─── SHORTS VIEW ─── -->
+      <div id="shortsView">
+        <div class="app__head">
+          <div class="app__eyebrow">Cortometrajes</div>
+          <h1 class="app__title">Selección Oficial 2026.</h1>
+          <p class="app__sub">Edita los datos de cada corto: poster, sinopsis, equipo y estado de publicación. Los cambios marcados como "Publicado" aparecen en la página principal.</p>
+        </div>
+
+        <div class="tracks">
+          <button class="track-tab active" data-track="all">Todos<span class="track-tab__count" id="countAll">0</span></button>
+          <button class="track-tab" data-track="2D">Animación 2D<span class="track-tab__count" id="count2D">0</span></button>
+          <button class="track-tab" data-track="3D">Animación 3D<span class="track-tab__count" id="count3D">0</span></button>
+        </div>
+
+        <div class="shorts-list" id="shortsList"></div>
       </div>
 
-      <div class="shorts-list" id="shortsList"></div>
+      <!-- ─── TEAM VIEW ─── -->
+      <div id="teamView" style="display:none;">
+        <div class="app__head">
+          <div class="app__eyebrow">Equipo de Diseño</div>
+          <h1 class="app__title">LAED × LDG.</h1>
+          <p class="app__sub">Administra el reel del equipo de diseño que aparece después de los cortometrajes 3D. Cambios se publican en cuanto guardes.</p>
+        </div>
+
+        <div class="tracks">
+          <button class="track-tab active" data-dept="all">Todos<span class="track-tab__count" id="countAllT">0</span></button>
+          <button class="track-tab" data-dept="LDG">LDG<span class="track-tab__count" id="countLDG">0</span></button>
+          <button class="track-tab" data-dept="LAED">LAED<span class="track-tab__count" id="countLAED">0</span></button>
+        </div>
+
+        <div class="team-actions">
+          <button class="btn" id="teamAddBtn" type="button">+ Agregar persona</button>
+        </div>
+
+        <div class="team-list" id="teamList"></div>
+      </div>
     </div>
   </div>
 
@@ -377,6 +471,73 @@
 
   <!-- Hidden file input for crew avatars -->
   <input type="file" id="avatarFile" accept="image/jpeg,image/png,image/webp" style="display:none;">
+
+  <!-- TEAM EDIT MODAL -->
+  <div class="modal" id="teamModal">
+    <div class="modal__panel">
+      <div class="modal__head">
+        <div>
+          <div class="modal__num" id="teamModalEyebrow">Equipo</div>
+          <h2 class="modal__title" id="teamModalTitle">Editar persona</h2>
+        </div>
+        <button class="modal__close" id="teamModalClose">×</button>
+      </div>
+
+      <!-- Photo -->
+      <div class="team-photo-uploader">
+        <div class="team-photo-preview" id="teamPhotoPreview"></div>
+        <div class="team-photo-actions">
+          <input type="file" id="teamPhotoFile" accept="image/jpeg,image/png,image/webp" style="display:none;">
+          <button class="btn" id="teamPhotoUploadBtn" type="button">Subir foto</button>
+          <button class="btn btn--ghost" id="teamPhotoRemoveBtn" type="button" style="display:none;">Quitar foto</button>
+          <small>JPG / PNG / WEBP · cuadrada (1:1) recomendada · máximo 3 MB · se recorta circular</small>
+        </div>
+      </div>
+
+      <!-- Name -->
+      <div class="field">
+        <label for="teamFldName">Nombre</label>
+        <input type="text" id="teamFldName" placeholder="Nombre completo o 'Por confirmar'">
+      </div>
+
+      <!-- Role -->
+      <div class="field">
+        <label for="teamFldRole">Rol / Posición</label>
+        <input type="text" id="teamFldRole" placeholder="Dirección de Arte, Motion, Identidad…">
+      </div>
+
+      <!-- Dept + Order -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.7rem;">
+        <div class="field">
+          <label for="teamFldDept">Carrera</label>
+          <select id="teamFldDept">
+            <option value="LDG">LDG · Diseño Gráfico</option>
+            <option value="LAED">LAED · Animación y Efectos Digitales</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="teamFldOrder">Orden (menor primero)</label>
+          <input type="number" id="teamFldOrder" placeholder="0">
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="modal__footer">
+        <div class="modal__footer-left">
+          <label class="toggle">
+            <input type="checkbox" id="teamFldPublished">
+            <span class="toggle__track"></span>
+            <span class="toggle__label" id="teamPublishedLabel">Borrador</span>
+          </label>
+        </div>
+        <div class="modal__footer-right">
+          <button class="btn btn--danger" id="teamDeleteBtn" type="button">Eliminar</button>
+          <button class="btn btn--ghost" id="teamCancelBtn" type="button">Cancelar</button>
+          <button class="btn" id="teamSaveBtn" type="button">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ─── SUPABASE CLIENT (CDN) ─── -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
@@ -738,6 +899,242 @@
       } finally {
         btn.disabled = false;
         btn.textContent = 'Guardar cambios';
+      }
+    });
+
+    // ════════════════════════════════════════════════════════════
+    // VIEW SWITCHER (Cortos / Equipo)
+    // ════════════════════════════════════════════════════════════
+    document.querySelectorAll('.view-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const view = tab.dataset.view;
+        $('shortsView').style.display = view === 'shorts' ? '' : 'none';
+        $('teamView').style.display   = view === 'team'   ? '' : 'none';
+        if (view === 'team' && !teamLoaded) loadTeam();
+      });
+    });
+
+    // ════════════════════════════════════════════════════════════
+    // DESIGN TEAM ADMIN
+    // ════════════════════════════════════════════════════════════
+    let allTeam = [];
+    let teamLoaded = false;
+    let currentDept = 'all';
+    let editingMember = null;
+    let pendingTeamPhotoFile = null;
+    let pendingTeamPhotoRemoval = false;
+
+    async function loadTeam() {
+      const { data, error } = await sb
+        .from('team_members')
+        .select('*')
+        .order('order_num', { ascending: true });
+      if (error) { toast('Error cargando equipo: ' + error.message, 'err'); return; }
+      allTeam = data;
+      teamLoaded = true;
+      renderTeam();
+      updateTeamCounts();
+    }
+
+    function updateTeamCounts() {
+      $('countAllT').textContent = allTeam.length;
+      $('countLDG').textContent  = allTeam.filter(m => m.dept === 'LDG').length;
+      $('countLAED').textContent = allTeam.filter(m => m.dept === 'LAED').length;
+    }
+
+    function renderTeam() {
+      const list = $('teamList');
+      const filtered = currentDept === 'all' ? allTeam : allTeam.filter(m => m.dept === currentDept);
+      list.innerHTML = filtered.map(m => {
+        const initials = (m.name && m.name !== 'Por confirmar')
+          ? m.name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase()
+          : '·';
+        const avatar = m.photo_url
+          ? `<img src="${escapeHtml(m.photo_url)}" alt="">`
+          : initials;
+        const deptCls = m.dept === 'LDG' ? 'dept-badge dept-badge--ldg' : 'dept-badge';
+        const draftCls = m.published ? '' : ' team-row--draft';
+        return `
+          <article class="team-row${draftCls}" data-id="${m.id}">
+            <div class="team-row__avatar">${avatar}</div>
+            <div class="team-row__main">
+              <div class="team-row__name">${escapeHtml(m.name || 'Sin nombre')}</div>
+              <div class="team-row__role">${escapeHtml(m.role || '—')}</div>
+            </div>
+            <div class="team-row__meta">
+              <span class="${deptCls}">${m.dept}</span>
+              <span class="team-row__order">#${m.order_num}</span>
+            </div>
+          </article>`;
+      }).join('') || '<p style="color: var(--silver); padding: 2rem; text-align: center;">No hay personas en este filtro.</p>';
+
+      list.querySelectorAll('.team-row').forEach(row => {
+        row.addEventListener('click', () => openTeamEdit(row.dataset.id));
+      });
+    }
+
+    document.querySelectorAll('[data-dept]').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('[data-dept]').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentDept = tab.dataset.dept;
+        renderTeam();
+      });
+    });
+
+    // ─── EDIT MODAL ───
+    function openTeamEdit(memberId) {
+      editingMember = allTeam.find(m => m.id === memberId);
+      if (!editingMember) return;
+      pendingTeamPhotoFile = null;
+      pendingTeamPhotoRemoval = false;
+      $('teamModalEyebrow').textContent = `${editingMember.dept} · #${editingMember.order_num}`;
+      $('teamModalTitle').textContent = editingMember.name || 'Sin nombre';
+      $('teamFldName').value = editingMember.name || '';
+      $('teamFldRole').value = editingMember.role || '';
+      $('teamFldDept').value = editingMember.dept || 'LDG';
+      $('teamFldOrder').value = editingMember.order_num ?? 0;
+      $('teamFldPublished').checked = !!editingMember.published;
+      $('teamPublishedLabel').textContent = editingMember.published ? 'Publicado' : 'Borrador';
+      $('teamDeleteBtn').style.display = '';
+      renderTeamPhoto(editingMember.photo_url);
+      $('teamModal').classList.add('open');
+    }
+
+    function openTeamCreate() {
+      editingMember = null;
+      pendingTeamPhotoFile = null;
+      pendingTeamPhotoRemoval = false;
+      const nextOrder = allTeam.length ? Math.max(...allTeam.map(m => m.order_num)) + 10 : 10;
+      $('teamModalEyebrow').textContent = 'Nueva persona';
+      $('teamModalTitle').textContent = 'Agregar al equipo';
+      $('teamFldName').value = '';
+      $('teamFldRole').value = '';
+      $('teamFldDept').value = 'LDG';
+      $('teamFldOrder').value = nextOrder;
+      $('teamFldPublished').checked = true;
+      $('teamPublishedLabel').textContent = 'Publicado';
+      $('teamDeleteBtn').style.display = 'none';
+      renderTeamPhoto(null);
+      $('teamModal').classList.add('open');
+    }
+
+    function closeTeamEdit() {
+      $('teamModal').classList.remove('open');
+      editingMember = null;
+      pendingTeamPhotoFile = null;
+      pendingTeamPhotoRemoval = false;
+    }
+
+    function renderTeamPhoto(url) {
+      const el = $('teamPhotoPreview');
+      if (url) {
+        el.innerHTML = `<img src="${url}" alt="">`;
+        $('teamPhotoRemoveBtn').style.display = '';
+      } else {
+        const initials = ($('teamFldName').value || '?').split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase() || '·';
+        el.textContent = initials;
+        $('teamPhotoRemoveBtn').style.display = 'none';
+      }
+    }
+
+    $('teamModalClose').addEventListener('click', closeTeamEdit);
+    $('teamCancelBtn').addEventListener('click', closeTeamEdit);
+    $('teamModal').addEventListener('click', (e) => {
+      if (e.target.id === 'teamModal') closeTeamEdit();
+    });
+    $('teamFldPublished').addEventListener('change', (e) => {
+      $('teamPublishedLabel').textContent = e.target.checked ? 'Publicado' : 'Borrador';
+    });
+    $('teamFldName').addEventListener('input', () => {
+      if (!pendingTeamPhotoFile && !(editingMember && editingMember.photo_url) && !$('teamPhotoPreview').querySelector('img')) {
+        renderTeamPhoto(null);
+      }
+    });
+
+    $('teamAddBtn').addEventListener('click', openTeamCreate);
+
+    // ─── PHOTO UPLOAD ───
+    $('teamPhotoUploadBtn').addEventListener('click', () => $('teamPhotoFile').click());
+    $('teamPhotoFile').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      pendingTeamPhotoFile = file;
+      pendingTeamPhotoRemoval = false;
+      const reader = new FileReader();
+      reader.onload = () => renderTeamPhoto(reader.result);
+      reader.readAsDataURL(file);
+    });
+    $('teamPhotoRemoveBtn').addEventListener('click', () => {
+      pendingTeamPhotoFile = null;
+      pendingTeamPhotoRemoval = true;
+      renderTeamPhoto(null);
+    });
+
+    // ─── SAVE ───
+    $('teamSaveBtn').addEventListener('click', async () => {
+      const btn = $('teamSaveBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Guardando…';
+      try {
+        const payload = {
+          name: $('teamFldName').value.trim() || 'Por confirmar',
+          role: $('teamFldRole').value.trim() || 'Diseño',
+          dept: $('teamFldDept').value,
+          order_num: parseInt($('teamFldOrder').value) || 0,
+          published: $('teamFldPublished').checked
+        };
+
+        // Upload photo if pending
+        if (pendingTeamPhotoFile) {
+          const ext = pendingTeamPhotoFile.name.split('.').pop().toLowerCase();
+          const safe = (payload.name || 'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,30);
+          const path = `${safe}-${Date.now()}.${ext}`;
+          const { error: upErr } = await sb.storage.from('team-photos').upload(path, pendingTeamPhotoFile, {
+            upsert: true, contentType: pendingTeamPhotoFile.type
+          });
+          if (upErr) throw upErr;
+          const { data: pub } = sb.storage.from('team-photos').getPublicUrl(path);
+          payload.photo_url = pub.publicUrl + `?v=${Date.now()}`;
+        } else if (pendingTeamPhotoRemoval) {
+          payload.photo_url = null;
+        } else if (editingMember) {
+          payload.photo_url = editingMember.photo_url;
+        }
+
+        if (editingMember) {
+          const { error } = await sb.from('team_members').update(payload).eq('id', editingMember.id);
+          if (error) throw error;
+        } else {
+          const { error } = await sb.from('team_members').insert(payload);
+          if (error) throw error;
+        }
+        toast('Guardado ✓', 'ok');
+        closeTeamEdit();
+        await loadTeam();
+      } catch (err) {
+        console.error(err);
+        toast('Error: ' + err.message, 'err');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Guardar';
+      }
+    });
+
+    // ─── DELETE ───
+    $('teamDeleteBtn').addEventListener('click', async () => {
+      if (!editingMember) return;
+      if (!confirm(`¿Eliminar a "${editingMember.name}" del equipo?`)) return;
+      try {
+        const { error } = await sb.from('team_members').delete().eq('id', editingMember.id);
+        if (error) throw error;
+        toast('Eliminado', 'ok');
+        closeTeamEdit();
+        await loadTeam();
+      } catch (err) {
+        toast('Error: ' + err.message, 'err');
       }
     });
 

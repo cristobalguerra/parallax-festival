@@ -3022,52 +3022,77 @@
     document.addEventListener('keydown', e => { if (e.key === 'Escape') laedModal.classList.remove('active'); });
 
     // ═══════════════════════════════════════════ DESIGN TEAM MARQUEE ═══════════════════════════════════════════
-    // Edita este array para sumar/quitar miembros. `photo` es opcional (URL).
-    const DESIGN_TEAM = [
-      { name: 'Por confirmar', role: 'Dirección de Arte', dept: 'LDG',  photo: 'team-ldg/LDG1.png'  },
-      { name: 'Por confirmar', role: 'Identidad Visual',  dept: 'LDG',  photo: 'team-ldg/LDG2.png'  },
-      { name: 'Por confirmar', role: 'Posters',           dept: 'LDG',  photo: 'team-ldg/LDG3.png'  },
-      { name: 'Por confirmar', role: 'Diseño Editorial',  dept: 'LDG',  photo: 'team-ldg/LDG4.png'  },
-      { name: 'Por confirmar', role: 'Plataforma Web',    dept: 'LDG',  photo: 'team-ldg/LDG5.png'  },
-      { name: 'Por confirmar', role: 'Redes Sociales',    dept: 'LDG',  photo: 'team-ldg/LDG6.png'  },
-      { name: 'Por confirmar', role: 'Tipografía',        dept: 'LDG',  photo: 'team-ldg/LDG7.png'  },
-      { name: 'Por confirmar', role: 'Branding',          dept: 'LDG',  photo: 'team-ldg/LDG8.png'  },
-      { name: 'Por confirmar', role: 'Pictogramas',       dept: 'LDG',  photo: 'team-ldg/LDG9.png'  },
-      { name: 'Por confirmar', role: 'Carteles',          dept: 'LDG',  photo: 'team-ldg/LDG10.png' },
-      { name: 'Por confirmar', role: 'Mockups',           dept: 'LDG',  photo: 'team-ldg/LDG11.png' },
-      { name: 'Por confirmar', role: 'Diseño de Empaque', dept: 'LDG',  photo: 'team-ldg/LDG12.png' },
-      { name: 'Por confirmar', role: 'Coordinación LDG',  dept: 'LDG',  photo: 'team-ldg/LDG13.png' },
-      { name: 'Por confirmar', role: 'Asistente Diseño',  dept: 'LDG',  photo: 'team-ldg/LDG14.png' },
-      // LAED — a la espera de fotos
-      { name: 'Por confirmar', role: 'Motion Graphics',   dept: 'LAED' },
-      { name: 'Por confirmar', role: 'Bumpers',           dept: 'LAED' },
-      { name: 'Por confirmar', role: 'Animación de Logo', dept: 'LAED' },
-      { name: 'Por confirmar', role: 'Coordinación LAED', dept: 'LAED' },
+    // Fuente de verdad: Supabase tabla `team_members`. Edición vía /admin.html → "Equipo de Diseño".
+    // El array siguiente es solo fallback si Supabase no responde.
+    const DESIGN_TEAM_FALLBACK = [
+      { name: 'Por confirmar', role: 'Dirección de Arte', dept: 'LDG',  photo_url: 'team-ldg/LDG1.png'  },
+      { name: 'Por confirmar', role: 'Identidad Visual',  dept: 'LDG',  photo_url: 'team-ldg/LDG2.png'  },
+      { name: 'Por confirmar', role: 'Posters',           dept: 'LDG',  photo_url: 'team-ldg/LDG3.png'  },
+      { name: 'Por confirmar', role: 'Diseño Editorial',  dept: 'LDG',  photo_url: 'team-ldg/LDG4.png'  },
+      { name: 'Por confirmar', role: 'Plataforma Web',    dept: 'LDG',  photo_url: 'team-ldg/LDG5.png'  },
+      { name: 'Por confirmar', role: 'Redes Sociales',    dept: 'LDG',  photo_url: 'team-ldg/LDG6.png'  },
+      { name: 'Por confirmar', role: 'Tipografía',        dept: 'LDG',  photo_url: 'team-ldg/LDG7.png'  },
+      { name: 'Por confirmar', role: 'Branding',          dept: 'LDG',  photo_url: 'team-ldg/LDG8.png'  },
+      { name: 'Por confirmar', role: 'Pictogramas',       dept: 'LDG',  photo_url: 'team-ldg/LDG9.png'  },
+      { name: 'Por confirmar', role: 'Carteles',          dept: 'LDG',  photo_url: 'team-ldg/LDG10.png' },
+      { name: 'Por confirmar', role: 'Mockups',           dept: 'LDG',  photo_url: 'team-ldg/LDG11.png' },
+      { name: 'Por confirmar', role: 'Diseño de Empaque', dept: 'LDG',  photo_url: 'team-ldg/LDG12.png' },
+      { name: 'Por confirmar', role: 'Coordinación LDG',  dept: 'LDG',  photo_url: 'team-ldg/LDG13.png' },
+      { name: 'Por confirmar', role: 'Asistente Diseño',  dept: 'LDG',  photo_url: 'team-ldg/LDG14.png' },
+      { name: 'Por confirmar', role: 'Motion Graphics',   dept: 'LAED', photo_url: null },
+      { name: 'Por confirmar', role: 'Bumpers',           dept: 'LAED', photo_url: null },
+      { name: 'Por confirmar', role: 'Animación de Logo', dept: 'LAED', photo_url: null },
+      { name: 'Por confirmar', role: 'Coordinación LAED', dept: 'LAED', photo_url: null },
     ];
-    function renderDesignTeam() {
+
+    function renderDesignTeam(team) {
       const track = document.getElementById('teamMarqueeTrack');
       if (!track) return;
+      const escAttr = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       const chip = (p) => {
-        const initial = p.name && p.name !== 'Por confirmar' ? p.name.charAt(0).toUpperCase() : '·';
-        const avatar = p.photo
-          ? `<div class="team-chip__avatar"><img src="${p.photo}" alt="${p.name}"></div>`
+        const name = p.name || 'Por confirmar';
+        const role = p.role || 'Diseño';
+        const dept = p.dept || 'LDG';
+        const photo = p.photo_url || p.photo;
+        const initial = name && name !== 'Por confirmar' ? name.charAt(0).toUpperCase() : '·';
+        const avatar = photo
+          ? `<div class="team-chip__avatar"><img src="${escAttr(photo)}" alt="${escAttr(name)}"></div>`
           : `<div class="team-chip__avatar">${initial}</div>`;
-        const deptCls = p.dept === 'LDG' ? 'team-chip__dept team-chip__dept--ldg' : 'team-chip__dept';
+        const deptCls = dept === 'LDG' ? 'team-chip__dept team-chip__dept--ldg' : 'team-chip__dept';
         return `
           <div class="team-chip">
             ${avatar}
             <div class="team-chip__txt">
-              <span class="team-chip__name">${p.name}</span>
-              <span class="team-chip__role">${p.role}</span>
+              <span class="team-chip__name">${escAttr(name)}</span>
+              <span class="team-chip__role">${escAttr(role)}</span>
             </div>
-            <span class="${deptCls}">${p.dept}</span>
+            <span class="${deptCls}">${escAttr(dept)}</span>
           </div>
         `;
       };
       // duplicado para loop continuo sin costura
-      track.innerHTML = [...DESIGN_TEAM, ...DESIGN_TEAM].map(chip).join('');
+      track.innerHTML = [...team, ...team].map(chip).join('');
     }
-    renderDesignTeam();
+
+    // Render inicial con fallback (instantáneo)
+    renderDesignTeam(DESIGN_TEAM_FALLBACK);
+
+    // Después intenta refetch desde Supabase y re-renderiza si hay data
+    (function fetchTeamFromSupabase() {
+      if (!window.supabase) return;
+      const sbTeam = window.supabase.createClient(
+        'https://finmxfaqitgglyprgxxt.supabase.co',
+        'sb_publishable_dn1MIc9sd51qsyBVfFaRVQ_U0ncAG-0'
+      );
+      sbTeam.from('team_members')
+        .select('name, role, dept, photo_url, order_num')
+        .eq('published', true)
+        .order('order_num', { ascending: true })
+        .then(({ data, error }) => {
+          if (error) { console.warn('[parallax] team fetch failed:', error.message); return; }
+          if (data && data.length) renderDesignTeam(data);
+        });
+    })();
   </script>
 </body>
 </html>
