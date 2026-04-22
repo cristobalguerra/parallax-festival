@@ -205,15 +205,15 @@
     }
 
     .layer--mono {
-      top: 14%;
-      width: min(80vw, 1080px);
+      top: 22%;
+      width: min(46vw, 640px);
       z-index: 5;
       transform-origin: center center;
       animation: monoFloat 6s ease-in-out infinite;
     }
     @keyframes monoFloat {
-      0%, 100% { transform: scale(1.7) translate(28%, 0); }
-      50%      { transform: scale(1.7) translate(28%, -8px); }
+      0%, 100% { transform: scale(1) translate(8%, 0); }
+      50%      { transform: scale(1) translate(8%, -8px); }
     }
 
     .layer--clouds-front {
@@ -268,8 +268,12 @@
 
     @media (max-width: 720px) {
       .hero__head { top: 6.6rem; width: 86vw; gap: 1rem; }
-      .layer--mono { top: 38%; width: 80vw; }
+      .layer--mono { top: 38%; width: 80vw; animation: monoFloatMobile 6s ease-in-out infinite; }
       .layer--mountain { width: 110vw; }
+    }
+    @keyframes monoFloatMobile {
+      0%, 100% { transform: scale(1.7) translate(28%, 0); }
+      50%      { transform: scale(1.7) translate(28%, -8px); }
     }
 
     /* ═══════════════════════════════════════════ UNLOCK SCREEN ═══════════════════════════════════════════ */
