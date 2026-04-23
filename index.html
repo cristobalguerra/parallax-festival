@@ -381,14 +381,15 @@
     }
 
     /* ═══════════════════════════════════════════ SECTIONS BELOW HERO ═══════════════════════════════════════════ */
+    /* All sections are always visible — nav becomes scroll-to-anchor */
     .page-section {
       padding: 6rem clamp(1.25rem, 4vw, 2.5rem) 5rem;
       max-width: 1320px;
       margin: 0 auto;
-      display: none;
+      display: block;
       background: var(--void);
+      scroll-margin-top: 80px; /* offset for sticky nav when jumping */
     }
-    .page-section.active { display: block; }
     .section-eyebrow {
       display: inline-flex;
       align-items: center;
@@ -3030,22 +3031,39 @@
       });
     });
 
-    // ═══════════════════════════════════════════ TOP NAV TABS ═══════════════════════════════════════════
+    // ═══════════════════════════════════════════ TOP NAV TABS — scroll-to-anchor ═══════════════════════════════════════════
     let countersAnimated = false;
     document.querySelectorAll('.nav__tab[data-tab]').forEach(btn => {
       btn.addEventListener('click', () => {
         const tab = btn.dataset.tab;
         document.querySelectorAll('.nav__tab').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-        document.getElementById('page-' + tab).classList.add('active');
-        if (tab === 'festival' && !countersAnimated) {
-          animateCounters();
-          countersAnimated = true;
-        }
-        window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+        const target = document.getElementById('page-' + tab);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
+
+    // Update active nav tab as the user scrolls through sections
+    (function setupScrollSpy() {
+      const sections = ['programa', 'seleccion', 'festival', 'mapa']
+        .map(id => document.getElementById('page-' + id))
+        .filter(Boolean);
+      if (!sections.length || !('IntersectionObserver' in window)) return;
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const id = entry.target.id.replace('page-', '');
+          document.querySelectorAll('.nav__tab').forEach(b => {
+            b.classList.toggle('active', b.dataset.tab === id);
+          });
+          if (id === 'festival' && !countersAnimated) {
+            animateCounters();
+            countersAnimated = true;
+          }
+        });
+      }, { rootMargin: '-30% 0px -55% 0px', threshold: 0 });
+      sections.forEach(s => obs.observe(s));
+    })();
 
     function animateCounters() {
       document.querySelectorAll('.counter__num').forEach(el => {
