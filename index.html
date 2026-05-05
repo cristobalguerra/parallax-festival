@@ -213,12 +213,11 @@
          relative position in the viewport at any width. The original
          top:-40% was % of hero HEIGHT, which barely changed; the mono
          WIDTH grew with viewport, pushing the character off the bottom. */
-      top: -35vw;
-      /* Match the original 160vw scale (cap 2560px) so the mono scales
-         together with the rest of the scene on wide viewports.
-         Centering uses left:50% + translateX(-50%) to defeat the
-         original margin:auto + translate(8%) drift. */
-      width: min(160vw, 2560px);
+      top: -15vw;
+      /* Half the original size: was min(160vw, 2560px), now min(80vw, 1280px).
+         Top scaled down too so the character stays roughly centered in the
+         hero at any viewport width. */
+      width: min(80vw, 1280px);
       left: 50%;
       right: auto;
       margin-left: 0;
