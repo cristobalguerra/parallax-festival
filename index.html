@@ -964,44 +964,62 @@
       .featured-piece { grid-template-columns: 1fr; }
       .featured-piece__poster { max-width: 220px; margin: 0 auto; }
     }
-    /* Auto-sliding marquee — shorts crawl slowly, hover to pause */
+    /* Paginated card row — cards scroll horizontally with snap; pager
+       dots below let the user jump to a specific page and auto-advance
+       drifts slowly through them. */
     .shorts-row-wrap {
       position: relative;
-      overflow: hidden;
-      padding: 0.4rem 0 1rem 0;
-      mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
-      -webkit-mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
+      mask-image: linear-gradient(to right, transparent, #000 3%, #000 97%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 3%, #000 97%, transparent);
     }
     .shorts-grid {
       display: flex;
       gap: 0.9rem;
-      width: max-content;
-      /* duration is set dynamically by JS (constant px/sec across viewports) */
-      animation: shortsScroll 180s linear infinite;
-      will-change: transform;
-    }
-    .shorts-row-wrap:hover .shorts-grid { animation-play-state: paused; }
-    .shorts-row-wrap:focus-within .shorts-grid { animation-play-state: paused; }
-    @keyframes shortsScroll {
-      from { transform: translate3d(0, 0, 0); }
-      to   { transform: translate3d(-50%, 0, 0); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .shorts-grid { animation: none; }
-    }
-    /* Fallback (pre-JS) horizontal scroll behaviour kept for the static
-       cards before Supabase fetches and renders the marquee track */
-    .shorts-grid--fallback {
       overflow-x: auto;
       overflow-y: hidden;
-      animation: none;
-      width: auto;
       scroll-snap-type: x mandatory;
       scroll-behavior: smooth;
-      scrollbar-width: thin;
-      scrollbar-color: var(--frost-strong) transparent;
+      scrollbar-width: none;            /* hide scrollbar — pager handles nav */
+      -ms-overflow-style: none;
+      padding: 0.4rem 0 1rem 0;
       -webkit-overflow-scrolling: touch;
     }
+    .shorts-grid::-webkit-scrollbar { display: none; }
+
+    /* Pager dots — one per page */
+    .shorts-pager {
+      display: flex;
+      justify-content: center;
+      gap: 0.55rem;
+      margin: 0.4rem 0 0.2rem;
+      padding: 0;
+      list-style: none;
+    }
+    .shorts-pager__dot {
+      width: 8px; height: 8px;
+      padding: 0;
+      border: 0;
+      border-radius: 999px;
+      background: var(--frost-line);
+      cursor: pointer;
+      transition: width 0.25s ease, background 0.2s ease, opacity 0.2s ease;
+      opacity: 0.6;
+    }
+    .shorts-pager__dot:hover { opacity: 1; background: var(--frost-strong); }
+    .shorts-pager__dot--active {
+      width: 22px;
+      background: var(--framer-blue);
+      opacity: 1;
+    }
+    .shorts-pager__dot:focus-visible {
+      outline: 2px solid var(--framer-blue);
+      outline-offset: 2px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .shorts-grid { scroll-behavior: auto; }
+    }
+    /* Static fallback retains its scroll behaviour identically */
+    .shorts-grid--fallback { /* same as default — kept for clarity */ }
     .shorts-grid::-webkit-scrollbar { height: 6px; }
     .shorts-grid::-webkit-scrollbar-track { background: transparent; }
     .shorts-grid::-webkit-scrollbar-thumb { background: var(--frost-line); border-radius: 999px; }
@@ -2595,26 +2613,23 @@
                 </div>
               </article>`;
           }).join('');
-          // Duplicate cards once so the marquee can loop seamlessly with
-          // a translateX(-50%) animation (one full set scrolls past, then
-          // the duplicate takes its place — no visible seam).
-          const duplicated = cards + cards;
           return `
             <div class="selection-track">
               <div class="selection-track__head">
                 <h3 class="selection-track__type">${labels[track]}</h3>
                 <span class="selection-track__count">${String(items.length).padStart(2,'0')} cortos</span>
               </div>
-              <div class="shorts-row-wrap" aria-label="${labels[track]} — pasa el cursor para pausar">
-                <div class="shorts-grid">${duplicated}</div>
+              <div class="shorts-row-wrap">
+                <div class="shorts-grid">${cards}</div>
               </div>
+              <ul class="shorts-pager" role="tablist" aria-label="Páginas ${labels[track]}"></ul>
             </div>`;
         }).join('');
 
         if (html.trim()) {
           container.innerHTML = html;
-          // dispatch event so adjustShortsMarqueeSpeed (defined in another
-          // IIFE scope) can recompute durations now that cards are in DOM
+          // notify pager logic (defined in another IIFE) that it should
+          // build/refresh the dots now that the cards are in the DOM
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               window.dispatchEvent(new CustomEvent('shorts:rendered'));
@@ -3326,28 +3341,139 @@
     let _marqueeResizeTimer;
     window.addEventListener('resize', () => {
       clearTimeout(_marqueeResizeTimer);
-      _marqueeResizeTimer = setTimeout(() => {
-        adjustMarqueeSpeed();
-        adjustShortsMarqueeSpeed();
-      }, 150);
+      _marqueeResizeTimer = setTimeout(adjustMarqueeSpeed, 150);
     });
 
-    // ── Shorts marquee speed (independent from the team marquee so each
-    // ── track of cards moves at its own constant px/sec) ──
-    const SHORTS_MARQUEE_PX_PER_SEC = 18; // slower than team chips — cards are bigger
-    function adjustShortsMarqueeSpeed() {
-      document.querySelectorAll('.shorts-grid:not(.shorts-grid--fallback)').forEach(track => {
-        const halfWidth = track.scrollWidth / 2; // content is duplicated
-        if (halfWidth < 10) return;
-        const duration = halfWidth / SHORTS_MARQUEE_PX_PER_SEC;
-        track.style.animationDuration = duration + 's';
+    // ─────────────────────────────────────────────────────────────────
+    // Shorts pager: dots that paginate the 2D / 3D card rows, with a
+    // gentle auto-advance so the rows feel "alive" without being
+    // distracting. Hover, focus and dot click pause auto-advance.
+    // ─────────────────────────────────────────────────────────────────
+    const SHORTS_AUTOADVANCE_MS = 6000;       // page flip every ~6s
+    const SHORTS_RESUME_AFTER_MS = 12000;     // resume auto-advance 12s after manual click
+    const _shortsPagerTimers = new WeakMap(); // track interval per row
+    const _shortsPagerPaused = new WeakMap(); // track per-row pause until time
+
+    function cardsPerPage(grid) {
+      // Compute how many full cards fit in the visible width — defines
+      // page size. Falls back to 1 for tiny widths.
+      const card = grid.querySelector('.short-card');
+      if (!card) return 1;
+      const cardW = card.getBoundingClientRect().width + 14; // include flex gap
+      const visW = grid.clientWidth;
+      return Math.max(1, Math.floor(visW / cardW));
+    }
+
+    function buildPagerDots(track) {
+      const grid  = track.querySelector('.shorts-grid');
+      const pager = track.querySelector('.shorts-pager');
+      if (!grid || !pager) return;
+      const cards = grid.querySelectorAll('.short-card');
+      const perPage = cardsPerPage(grid);
+      const pageCount = Math.max(1, Math.ceil(cards.length / perPage));
+
+      // Hide pager entirely if everything fits on one page (no scroll needed)
+      if (pageCount <= 1) { pager.innerHTML = ''; pager.style.display = 'none'; return; }
+      pager.style.display = '';
+
+      pager.innerHTML = Array.from({ length: pageCount }, (_, i) =>
+        `<li><button class="shorts-pager__dot" data-page="${i}" role="tab" aria-label="Página ${i + 1}"></button></li>`
+      ).join('');
+
+      pager.dataset.perPage = perPage;
+      pager.dataset.pageCount = pageCount;
+      updatePagerActive(track);
+    }
+
+    function updatePagerActive(track) {
+      const grid  = track.querySelector('.shorts-grid');
+      const pager = track.querySelector('.shorts-pager');
+      if (!grid || !pager) return;
+      const perPage = parseInt(pager.dataset.perPage || '1', 10);
+      const card = grid.querySelector('.short-card');
+      if (!card) return;
+      const cardW = card.getBoundingClientRect().width + 14;
+      const currentPage = Math.round(grid.scrollLeft / (cardW * perPage));
+      pager.querySelectorAll('.shorts-pager__dot').forEach((d, i) => {
+        d.classList.toggle('shorts-pager__dot--active', i === currentPage);
       });
     }
+
+    function scrollToPage(track, pageIdx) {
+      const grid  = track.querySelector('.shorts-grid');
+      const pager = track.querySelector('.shorts-pager');
+      if (!grid || !pager) return;
+      const perPage = parseInt(pager.dataset.perPage || '1', 10);
+      const pageCount = parseInt(pager.dataset.pageCount || '1', 10);
+      const targetIdx = Math.max(0, Math.min(pageCount - 1, pageIdx)) * perPage;
+      const target = grid.children[targetIdx];
+      if (target) target.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+    }
+
+    function startAutoAdvance(track) {
+      stopAutoAdvance(track);
+      const tick = () => {
+        const grid  = track.querySelector('.shorts-grid');
+        const pager = track.querySelector('.shorts-pager');
+        if (!grid || !pager) return;
+        // skip if user is hovering / interacting / inside pause window
+        const pausedUntil = _shortsPagerPaused.get(track) || 0;
+        if (Date.now() < pausedUntil) return;
+        if (track.matches(':hover') || track.contains(document.activeElement)) return;
+        const pageCount = parseInt(pager.dataset.pageCount || '1', 10);
+        const perPage = parseInt(pager.dataset.perPage || '1', 10);
+        const card = grid.querySelector('.short-card');
+        if (!card) return;
+        const cardW = card.getBoundingClientRect().width + 14;
+        const current = Math.round(grid.scrollLeft / (cardW * perPage));
+        const next = (current + 1) % pageCount;
+        scrollToPage(track, next);
+      };
+      const id = setInterval(tick, SHORTS_AUTOADVANCE_MS);
+      _shortsPagerTimers.set(track, id);
+    }
+    function stopAutoAdvance(track) {
+      const id = _shortsPagerTimers.get(track);
+      if (id) { clearInterval(id); _shortsPagerTimers.delete(track); }
+    }
+
+    function refreshShortsPagers() {
+      document.querySelectorAll('.selection-track').forEach(track => {
+        buildPagerDots(track);
+        startAutoAdvance(track);
+      });
+    }
+
+    // Click on a dot scrolls to that page and pauses auto-advance briefly
+    document.addEventListener('click', (e) => {
+      const dot = e.target.closest('.shorts-pager__dot');
+      if (!dot) return;
+      const track = dot.closest('.selection-track');
+      if (!track) return;
+      const pageIdx = parseInt(dot.dataset.page, 10) || 0;
+      _shortsPagerPaused.set(track, Date.now() + SHORTS_RESUME_AFTER_MS);
+      scrollToPage(track, pageIdx);
+    });
+
+    // Sync active dot with native scroll (touch swipe, dot click, keyboard, etc.)
+    document.addEventListener('scroll', (e) => {
+      const grid = e.target.closest && e.target.closest('.shorts-grid');
+      if (!grid) return;
+      const track = grid.closest('.selection-track');
+      if (track) updatePagerActive(track);
+    }, true);
+
     // Recompute when:
-    //  - posters finish loading (dimensions affect track width)
-    //  - renderShorts swaps the tracks (different IIFE scope, dispatches event)
-    window.addEventListener('load', adjustShortsMarqueeSpeed);
-    window.addEventListener('shorts:rendered', adjustShortsMarqueeSpeed);
+    //  - renderShorts swaps the tracks (different IIFE; dispatches event)
+    //  - posters finish loading (their dimensions affect card width)
+    //  - viewport resizes (cards-per-page may change)
+    window.addEventListener('shorts:rendered', refreshShortsPagers);
+    window.addEventListener('load', refreshShortsPagers);
+    let _shortsPagerResizeT;
+    window.addEventListener('resize', () => {
+      clearTimeout(_shortsPagerResizeT);
+      _shortsPagerResizeT = setTimeout(refreshShortsPagers, 200);
+    });
 
     // Render inicial con fallback (instantáneo)
     renderDesignTeam(DESIGN_TEAM_FALLBACK);
