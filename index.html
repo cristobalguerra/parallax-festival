@@ -964,20 +964,42 @@
       .featured-piece { grid-template-columns: 1fr; }
       .featured-piece__poster { max-width: 220px; margin: 0 auto; }
     }
-    /* Netflix-style horizontal carousel */
+    /* Auto-sliding marquee — shorts crawl slowly, hover to pause */
     .shorts-row-wrap {
       position: relative;
+      overflow: hidden;
+      padding: 0.4rem 0 1rem 0;
+      mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
     }
     .shorts-grid {
       display: flex;
       gap: 0.9rem;
+      width: max-content;
+      /* duration is set dynamically by JS (constant px/sec across viewports) */
+      animation: shortsScroll 180s linear infinite;
+      will-change: transform;
+    }
+    .shorts-row-wrap:hover .shorts-grid { animation-play-state: paused; }
+    .shorts-row-wrap:focus-within .shorts-grid { animation-play-state: paused; }
+    @keyframes shortsScroll {
+      from { transform: translate3d(0, 0, 0); }
+      to   { transform: translate3d(-50%, 0, 0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .shorts-grid { animation: none; }
+    }
+    /* Fallback (pre-JS) horizontal scroll behaviour kept for the static
+       cards before Supabase fetches and renders the marquee track */
+    .shorts-grid--fallback {
       overflow-x: auto;
       overflow-y: hidden;
+      animation: none;
+      width: auto;
       scroll-snap-type: x mandatory;
       scroll-behavior: smooth;
       scrollbar-width: thin;
       scrollbar-color: var(--frost-strong) transparent;
-      padding: 0.4rem 0 1rem 0;
       -webkit-overflow-scrolling: touch;
     }
     .shorts-grid::-webkit-scrollbar { height: 6px; }
@@ -2102,7 +2124,7 @@
         <div class="shorts-row-wrap">
           <button class="row-nav row-nav--prev" data-dir="-1" aria-label="Anterior">‹</button>
           <button class="row-nav row-nav--next" data-dir="1" aria-label="Siguiente">›</button>
-        <div class="shorts-grid">
+        <div class="shorts-grid shorts-grid--fallback">
           <article class="short-card">
             <div class="short-card__poster short-card__poster--placeholder" data-initial="B"></div>
             <div class="short-card__body">
@@ -2186,7 +2208,7 @@
         <div class="shorts-row-wrap">
           <button class="row-nav row-nav--prev" data-dir="-1" aria-label="Anterior">‹</button>
           <button class="row-nav row-nav--next" data-dir="1" aria-label="Siguiente">›</button>
-        <div class="shorts-grid">
+        <div class="shorts-grid shorts-grid--fallback">
           <article class="short-card">
             <div class="short-card__poster short-card__poster--placeholder" data-initial="B"></div>
             <div class="short-card__body">
@@ -2573,21 +2595,32 @@
                 </div>
               </article>`;
           }).join('');
+          // Duplicate cards once so the marquee can loop seamlessly with
+          // a translateX(-50%) animation (one full set scrolls past, then
+          // the duplicate takes its place — no visible seam).
+          const duplicated = cards + cards;
           return `
             <div class="selection-track">
               <div class="selection-track__head">
                 <h3 class="selection-track__type">${labels[track]}</h3>
                 <span class="selection-track__count">${String(items.length).padStart(2,'0')} cortos</span>
               </div>
-              <div class="shorts-row-wrap">
-                <button class="row-nav row-nav--prev" data-dir="-1" aria-label="Anterior">‹</button>
-                <button class="row-nav row-nav--next" data-dir="1" aria-label="Siguiente">›</button>
-                <div class="shorts-grid">${cards}</div>
+              <div class="shorts-row-wrap" aria-label="${labels[track]} — pasa el cursor para pausar">
+                <div class="shorts-grid">${duplicated}</div>
               </div>
             </div>`;
         }).join('');
 
-        if (html.trim()) container.innerHTML = html;
+        if (html.trim()) {
+          container.innerHTML = html;
+          // dispatch event so adjustShortsMarqueeSpeed (defined in another
+          // IIFE scope) can recompute durations now that cards are in DOM
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              window.dispatchEvent(new CustomEvent('shorts:rendered'));
+            });
+          });
+        }
         // else: leave fallback content in place
       }
 
@@ -3293,8 +3326,28 @@
     let _marqueeResizeTimer;
     window.addEventListener('resize', () => {
       clearTimeout(_marqueeResizeTimer);
-      _marqueeResizeTimer = setTimeout(adjustMarqueeSpeed, 150);
+      _marqueeResizeTimer = setTimeout(() => {
+        adjustMarqueeSpeed();
+        adjustShortsMarqueeSpeed();
+      }, 150);
     });
+
+    // ── Shorts marquee speed (independent from the team marquee so each
+    // ── track of cards moves at its own constant px/sec) ──
+    const SHORTS_MARQUEE_PX_PER_SEC = 18; // slower than team chips — cards are bigger
+    function adjustShortsMarqueeSpeed() {
+      document.querySelectorAll('.shorts-grid:not(.shorts-grid--fallback)').forEach(track => {
+        const halfWidth = track.scrollWidth / 2; // content is duplicated
+        if (halfWidth < 10) return;
+        const duration = halfWidth / SHORTS_MARQUEE_PX_PER_SEC;
+        track.style.animationDuration = duration + 's';
+      });
+    }
+    // Recompute when:
+    //  - posters finish loading (dimensions affect track width)
+    //  - renderShorts swaps the tracks (different IIFE scope, dispatches event)
+    window.addEventListener('load', adjustShortsMarqueeSpeed);
+    window.addEventListener('shorts:rendered', adjustShortsMarqueeSpeed);
 
     // Render inicial con fallback (instantáneo)
     renderDesignTeam(DESIGN_TEAM_FALLBACK);
