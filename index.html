@@ -158,6 +158,9 @@
       overflow: hidden;
       background: #2a1547;
       isolation: isolate;
+      /* Shared anchor: matches the hero__head width so the mono stays
+         locked to the green ANIMATION · VIDEO GAMES · DIGITAL ART banners */
+      --hero-anchor: min(74vw, 883px);
     }
     /* On wide desktops, let the hero grow taller for the layered scene */
     @media (min-width: 1280px) and (orientation: landscape) {
@@ -206,14 +209,27 @@
 
     .layer--mono {
       top: -40%;
-      width: min(160vw, 2560px);
+      /* Width derived from the head anchor × 3 — caps at the same viewport
+         (1192px) where the green banners cap, so the mono stays locked in
+         relation to ANIMATION · VIDEO GAMES · DIGITAL ART on wide screens.
+         Inlined instead of calc(var(--hero-anchor)*3) because Chromium does
+         not multiply CSS vars that contain min() correctly. */
+      width: min(222vw, 2649px);  /* head is min(74vw, 883px), so this is ×3 */
+      max-width: none;             /* defeat the global img { max-width: 100% } */
+      /* Override the .layer auto-margins to use absolute centering */
+      left: 50%;
+      right: auto;
+      margin-left: 0;
+      margin-right: 0;
       z-index: 5;
       transform-origin: center center;
       animation: monoFloat 6s ease-in-out infinite;
     }
     @keyframes monoFloat {
-      0%, 100% { transform: scale(1) translate(8%, 0); }
-      50%      { transform: scale(1) translate(8%, -8px); }
+      /* translateX(-50%) centers the element on left:50%, then the 8% offset
+         preserves the original "falling from the side" composition. */
+      0%, 100% { transform: translateX(-50%) translate(8%, 0); }
+      50%      { transform: translateX(-50%) translate(8%, -8px); }
     }
 
     .layer--clouds-front {
