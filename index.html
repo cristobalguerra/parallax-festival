@@ -851,6 +851,108 @@
       text-transform: uppercase;
       color: var(--framer-blue);
     }
+    /* ── Featured collective piece (Afterlight) — sits above the 2D/3D tracks ── */
+    .featured-piece {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(180px, 260px) 1fr;
+      gap: clamp(1.5rem, 3vw, 2.5rem);
+      align-items: stretch;
+      margin: 2.5rem 0 1rem;
+      padding: clamp(1.25rem, 3vw, 2rem);
+      background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(255,75,107,0.05));
+      border: 1px solid var(--frost-line);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+    .featured-piece::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, var(--framer-blue-glow), transparent 60%);
+      pointer-events: none;
+      opacity: 0.7;
+    }
+    .featured-piece__poster {
+      position: relative;
+      aspect-ratio: 2/3;
+      border-radius: 12px;
+      background: #050211;
+      border: 1px solid var(--frost-line);
+      overflow: hidden;
+    }
+    .featured-piece__poster img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .featured-piece__body {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.9rem;
+    }
+    .featured-piece__eyebrow {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-pink);
+      padding: 0.32rem 0.78rem;
+      border: 1px solid rgba(255,75,107,0.35);
+      border-radius: var(--radius-pill);
+    }
+    .featured-piece__title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      letter-spacing: -0.04em;
+      line-height: 0.96;
+      color: #fff;
+    }
+    .featured-piece__desc {
+      margin: 0;
+      max-width: 56ch;
+      color: var(--silver);
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+    .featured-piece__meta {
+      list-style: none;
+      margin: 0.4rem 0 0;
+      padding: 0.95rem 0 0;
+      border-top: 1px solid var(--frost-line);
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+    .featured-piece__meta li {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+    .featured-piece__meta li span:first-child {
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.45);
+    }
+    .featured-piece__meta li span:last-child {
+      color: rgba(255,255,255,0.88);
+      text-align: right;
+    }
+    @media (max-width: 640px) {
+      .featured-piece { grid-template-columns: 1fr; }
+      .featured-piece__poster { max-width: 220px; margin: 0 auto; }
+    }
     /* Netflix-style horizontal carousel */
     .shorts-row-wrap {
       position: relative;
@@ -1956,7 +2058,23 @@
   <section class="page-section active" id="page-seleccion">
     <span class="section-eyebrow">Selección Oficial</span>
     <h2 class="section-title">Cortometrajes 2026.</h2>
-    <p class="lead">Catorce piezas seleccionadas por curaduría académica. Producidas por estudiantes de animación y arte digital — proyectadas el 22 de mayo en el Teatro UDEM.</p>
+    <p class="lead">Quince piezas seleccionadas por curaduría académica más una pieza colectiva — producidas por estudiantes de animación y arte digital, proyectadas el 22 de mayo en el Teatro UDEM.</p>
+
+    <!-- Pieza colectiva del festival — abre el screening -->
+    <aside class="featured-piece" aria-label="Pieza colectiva del festival">
+      <div class="featured-piece__poster">
+        <img src="posters/afterlight.jpg" alt="Poster de Afterlight" loading="lazy">
+      </div>
+      <div class="featured-piece__body">
+        <span class="featured-piece__eyebrow">Pieza colectiva · 2026</span>
+        <h3 class="featured-piece__title">Afterlight</h3>
+        <p class="featured-piece__desc">El corto firma del festival, realizado en conjunto por la generación LAED 2026. Abre el screening del 22 de mayo en el Teatro UDEM.</p>
+        <ul class="featured-piece__meta">
+          <li><span>Dirección colectiva</span><span>Generación LAED 2026</span></li>
+          <li><span>Función</span><span>Apertura · 16:45 · Teatro UDEM</span></li>
+        </ul>
+      </div>
+    </aside>
 
     <div class="selection-tracks" id="selectionTracks">
       <!-- Tracks rendered by JS from Supabase. Fallback content below: -->
@@ -2986,6 +3104,7 @@
         type: 'Screening',
         categories: ['2D', '3D', 'Cortometrajes'],
         items: [
+          { num: '00', title: 'Afterlight', desc: 'Pieza colectiva del festival — apertura por la generación LAED 2026', tag: 'Festival', time: '16:45' },
           { num: '01', title: 'Bloque 2D',  desc: 'Selección de cortometrajes en animación tradicional 2D', tag: '2D',  time: '17:00' },
           { num: '02', title: 'Bloque 3D',  desc: 'Selección de cortometrajes en animación 3D y CGI',     tag: '3D',  time: '18:30' },
           { num: '03', title: 'Premiación', desc: 'Reconocimientos y cierre de la edición 2026',           tag: 'Live', time: '20:00' },

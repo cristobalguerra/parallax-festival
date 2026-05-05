@@ -3,9 +3,10 @@
   "configurations": [
     {
       "name": "parallax",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8080", "--directory", "/Volumes/Lexar/parallax-festival"],
-      "port": 8080
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "python3 -m http.server $PORT --directory /Volumes/Lexar/parallax-festival"],
+      "port": 8080,
+      "autoPort": true
     }
   ]
 }
