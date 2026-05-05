@@ -2604,11 +2604,10 @@
                     <span><span class="short-card__name">${esc(c.name)}</span> · <span class="short-card__role">${esc(c.role)}</span></span>
                   </li>`).join('')}</ul>`
               : '';
-            const metaParts = [];
-            if (s.duration) metaParts.push(esc(s.duration));
-            if (extraCount > 0) metaParts.push(`+${extraCount} en equipo`);
-            const metaHtml = metaParts.length
-              ? `<div class="short-card__meta">${metaParts.join(' · ')}</div>`
+            // Only show duration on the card. The rest of the team is
+            // surfaced inside the modal — no "+N en equipo" hint.
+            const metaHtml = s.duration
+              ? `<div class="short-card__meta">${esc(s.duration)}</div>`
               : '';
             const posterHtml = s.poster_url
               ? `<div class="short-card__poster"><img src="${esc(s.poster_url)}" alt="${esc(s.title)}" loading="lazy"></div>`
