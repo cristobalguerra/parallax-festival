@@ -207,28 +207,27 @@
       50%      { transform: translate(-35%, -7px); }
     }
 
+    /* Mono lives INSIDE .hero__head, so its size and position are
+       anchored to the green ANIMATION/VIDEO GAMES/DIGITAL ART banners.
+       Width = 130% of head, so the mono scales together with them at
+       any viewport width (caps at the same 1192px viewport). */
     .layer--mono {
-      /* top is in vw (not %) so it scales with the mono's width — the
-         character (which sits ~55% down the image) stays at the same
-         relative position in the viewport at any width. The original
-         top:-40% was % of hero HEIGHT, which barely changed; the mono
-         WIDTH grew with viewport, pushing the character off the bottom. */
-      top: -15vw;
-      /* Half the original size: was min(160vw, 2560px), now min(80vw, 1280px).
-         Top scaled down too so the character stays roughly centered in the
-         hero at any viewport width. */
-      width: min(80vw, 1280px);
-      left: 50%;
-      right: auto;
-      margin-left: 0;
-      margin-right: 0;
-      z-index: 5;
-      transform-origin: center center;
+      position: absolute;
+      top: 50%;                 /* anchor to head's vertical middle */
+      left: 50%;                /* anchor to head's horizontal center */
+      width: 130%;              /* slightly wider than the banners */
+      max-width: none;          /* defeat global img{max-width:100%} so 130% can exceed parent */
+      margin: 0;
+      z-index: -1;              /* behind logo + titulos within head's stacking context */
+      pointer-events: none;
       animation: monoFloat 6s ease-in-out infinite;
     }
+    /* translateX(-50%) horizontally centers on head; translateY(-30%) lifts
+       the mono so the parachutes extend up around the logo and the
+       character figure sits right around the banners. */
     @keyframes monoFloat {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50%      { transform: translateX(-50%) translateY(-8px); }
+      0%, 100% { transform: translate(-50%, -30%); }
+      50%      { transform: translate(-50%, calc(-30% - 8px)); }
     }
 
     .layer--clouds-front {
@@ -283,12 +282,9 @@
 
     @media (max-width: 720px) {
       .hero__head { top: 6.6rem; width: 86vw; gap: 1rem; }
-      .layer--mono { top: 38%; width: 80vw; animation: monoFloatMobile 6s ease-in-out infinite; }
+      /* Mono no longer needs a mobile-specific rule — it lives inside
+         .hero__head and inherits its responsive width automatically. */
       .layer--mountain { width: 110vw; }
-    }
-    @keyframes monoFloatMobile {
-      0%, 100% { transform: scale(1.7) translate(28%, 0); }
-      50%      { transform: scale(1.7) translate(28%, -8px); }
     }
 
     /* ═══════════════════════════════════════════ UNLOCK SCREEN ═══════════════════════════════════════════ */
@@ -2039,11 +2035,13 @@
     <img class="layer layer--bg-sky"       src="layers/Fondo morado-8.png"      alt="" data-pl="0.05">
     <img class="layer layer--mountain"     src="layers/Montana-8.png"           alt="" data-pl="0.10">
     <img class="layer layer--clouds-back"  src="layers/nubes_2-8.png"           alt="" data-pl="0.18">
-    <img class="layer layer--mono"         src="layers/CRGS-8.png"              alt="" data-pl="0.26">
     <img class="layer layer--clouds-front" src="layers/01-Nube-8.png"           alt="" data-pl="0.32">
 
-    <!-- logo + pills grouped, just below nav -->
+    <!-- logo + pills grouped, just below nav. The mono lives INSIDE here
+         so it shares the exact same positioning + width cap as the green
+         banners — never drifts, never disappears at narrow widths. -->
     <div class="hero__head">
+      <img class="layer layer--mono"    src="layers/CRGS-8.png"              alt="" data-pl="0.26">
       <img class="layer layer--logo"    src="layers/Logotipo Parallax-8.png" alt="PARALLAX">
       <img class="layer layer--titulos" src="layers/titulos-8.png"           alt="Animation · Video Games · Digital Art">
     </div>
