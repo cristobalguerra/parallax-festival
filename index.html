@@ -208,19 +208,17 @@
     }
 
     .layer--mono {
-      top: -40%;
-      /* Width derived from the head anchor × 3 — caps at the same viewport
-         (1192px) where the green banners cap, so the mono stays locked in
-         relation to ANIMATION · VIDEO GAMES · DIGITAL ART on wide screens.
-         Inlined instead of calc(var(--hero-anchor)*3) because Chromium does
-         not multiply CSS vars that contain min() correctly. */
-      /* Cap at 1280px so on wide viewports the mono stops growing
-         (matches what the global img{max-width:100%} reset was doing
-         implicitly at narrow viewports) — and translate(8%) then yields
-         a constant pixel offset instead of drifting with the viewport. */
-      width: min(100vw, 1280px);
-      max-width: 1280px;           /* defeat the global img { max-width: 100% } and let the cap above govern */
-      /* Override the .layer auto-margins to use absolute centering */
+      /* top is in vw (not %) so it scales with the mono's width — the
+         character (which sits ~55% down the image) stays at the same
+         relative position in the viewport at any width. The original
+         top:-40% was % of hero HEIGHT, which barely changed; the mono
+         WIDTH grew with viewport, pushing the character off the bottom. */
+      top: -35vw;
+      /* Match the original 160vw scale (cap 2560px) so the mono scales
+         together with the rest of the scene on wide viewports.
+         Centering uses left:50% + translateX(-50%) to defeat the
+         original margin:auto + translate(8%) drift. */
+      width: min(160vw, 2560px);
       left: 50%;
       right: auto;
       margin-left: 0;
@@ -230,10 +228,8 @@
       animation: monoFloat 6s ease-in-out infinite;
     }
     @keyframes monoFloat {
-      /* translateX(-50%) centers the element on left:50%, then the 8% offset
-         preserves the original "falling from the side" composition. */
-      0%, 100% { transform: translateX(-50%) translate(8%, 0); }
-      50%      { transform: translateX(-50%) translate(8%, -8px); }
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%      { transform: translateX(-50%) translateY(-8px); }
     }
 
     .layer--clouds-front {
