@@ -1406,11 +1406,156 @@
       background: var(--void-elev);
       border: 1px solid var(--frost-line);
       border-radius: 18px;
-      max-width: 520px;
+      max-width: 640px;
       width: 100%;
-      padding: 2.5rem;
+      padding: 2.4rem 2.4rem 2rem;
       position: relative;
       box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px var(--frost-line);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .laed-modal__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--silver);
+      padding: 0.32rem 0.78rem;
+      border: 1px solid var(--frost-line);
+      border-radius: var(--radius-pill);
+      margin-bottom: 1rem;
+    }
+    .laed-modal__eyebrow::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--framer-blue);
+      box-shadow: 0 0 0 4px var(--framer-blue-glow);
+    }
+    .laed-modal__pitch {
+      color: var(--silver);
+      line-height: 1.55;
+      margin: 0 0 1.6rem;
+      font-size: 0.95rem;
+    }
+    /* Stats strip */
+    .laed-modal__stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.6rem;
+      margin: 0 0 1.6rem;
+      padding: 1rem 0;
+      border-top: 1px solid var(--frost-line);
+      border-bottom: 1px solid var(--frost-line);
+    }
+    .laed-stat { text-align: center; }
+    .laed-stat__num {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(1.4rem, 4vw, 1.8rem);
+      letter-spacing: -0.03em;
+      color: #fff;
+      line-height: 1;
+    }
+    .laed-stat__lbl {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-top: 0.4rem;
+    }
+    /* DPA contact card — the admissions hook */
+    .laed-dpa {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 1rem;
+      align-items: center;
+      padding: 1.1rem;
+      background: linear-gradient(135deg, rgba(255,75,107,0.08), rgba(168,85,247,0.05));
+      border: 1px solid rgba(255,75,107,0.25);
+      border-radius: 14px;
+      margin: 0 0 1.4rem;
+    }
+    .laed-dpa__photo {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff4b6b, #a855f7);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+      overflow: hidden;
+    }
+    .laed-dpa__photo img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .laed-dpa__small {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent-pink);
+      margin-bottom: 0.2rem;
+    }
+    .laed-dpa__name {
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      color: #fff;
+      line-height: 1.15;
+    }
+    .laed-dpa__role {
+      font-size: 0.85rem;
+      color: var(--silver);
+      margin: 0.15rem 0 0.7rem;
+    }
+    .laed-dpa__cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.45rem 0.9rem;
+      background: var(--accent-pink);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: -0.005em;
+      border-radius: var(--radius-pill);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .laed-dpa__cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px var(--accent-pink-glow);
+    }
+    /* Footer actions row */
+    .laed-modal__actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .laed-modal__partner {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+    @media (max-width: 480px) {
+      .laed-modal__inner { padding: 1.6rem 1.4rem; }
+      .laed-modal__stats { grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem; }
+      .laed-dpa { grid-template-columns: 1fr; text-align: center; }
+      .laed-dpa__photo { margin: 0 auto; }
     }
     .laed-modal__close {
       position: absolute;
@@ -2533,14 +2678,48 @@
 
 
   <!-- ═══════════════════════════════════════════ LAED MODAL ═══════════════════════════════════════════ -->
-  <div class="laed-modal" id="laedModal">
+  <div class="laed-modal" id="laedModal" role="dialog" aria-modal="true" aria-labelledby="laedModalTitle">
     <div class="laed-modal__inner">
       <button class="laed-modal__close" id="closeLaed" aria-label="Cerrar"></button>
-      <h2>Por LAED · UDEM</h2>
-      <p>PARALLAX es un proyecto curado por la Licenciatura en Animación y Efectos Digitales (LAED) del Centro Roberto Garza Sada — Universidad de Monterrey, con Epic Games como Academic Partner 2026.</p>
-      <a class="laed-modal__link" href="https://crgs.udem.edu.mx/art-architecture-and-design/academics/professional/bachelor-animation-and-digital-effects" target="_blank" rel="noopener">
-        Conoce LAED →
-      </a>
+
+      <span class="laed-modal__eyebrow">CRGS · UDEM</span>
+      <h2 id="laedModalTitle">Licenciatura en Animación y Efectos Digitales</h2>
+      <p class="laed-modal__pitch">Forma proyectos de animación digital integrando 2D, modelado 3D, efectos visuales, diseño de personajes y audio — con instalaciones de vanguardia y Epic Games como Academic Partner.</p>
+
+      <div class="laed-modal__stats">
+        <div class="laed-stat">
+          <div class="laed-stat__num">9</div>
+          <div class="laed-stat__lbl">semestres</div>
+        </div>
+        <div class="laed-stat">
+          <div class="laed-stat__num">+90%</div>
+          <div class="laed-stat__lbl">empleabilidad</div>
+        </div>
+        <div class="laed-stat">
+          <div class="laed-stat__num">6</div>
+          <div class="laed-stat__lbl">áreas de especialización</div>
+        </div>
+      </div>
+
+      <!-- Christian Méndez · Director de Programa Académico -->
+      <div class="laed-dpa">
+        <div class="laed-dpa__photo" aria-hidden="true">CM</div>
+        <div class="laed-dpa__body">
+          <div class="laed-dpa__small">¿Te interesa aplicar?</div>
+          <div class="laed-dpa__name">Christian Javier Méndez Aguilar</div>
+          <div class="laed-dpa__role">Director de Programa Académico · LAED</div>
+          <a class="laed-dpa__cta" href="mailto:christian.mendez@udem.edu?subject=LAED%20Admisiones%20%E2%80%94%20Pregunta%20desde%20Parallax%20Festival">
+            ✉ Escribir a Christian
+          </a>
+        </div>
+      </div>
+
+      <div class="laed-modal__actions">
+        <a class="laed-modal__link" href="https://crgs.udem.edu.mx/arte-arquitectura-y-diseno/academia/profesional/licenciatura-en-animacion-y-efectos-digitales" target="_blank" rel="noopener">
+          Conoce el plan de estudios →
+        </a>
+        <span class="laed-modal__partner">Academic Partner · Epic Games</span>
+      </div>
     </div>
   </div>
 
