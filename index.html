@@ -404,6 +404,10 @@
       background: var(--void);
       scroll-margin-top: 80px; /* offset for sticky nav when jumping */
     }
+    /* Mapa flows directly out of Festival (the FilmFreeway link sits at
+       its bottom) — drop top padding so the Sedes header doesn't float
+       in 200+px of dead space. */
+    #page-mapa { padding-top: 2rem; }
     .section-eyebrow {
       display: inline-flex;
       align-items: center;
@@ -2247,11 +2251,13 @@
     /* ─── Wide desktop: more breathing room ─── */
     @media (min-width: 1280px) {
       .page-section { padding-top: 7rem; padding-bottom: 6rem; }
+      #page-mapa { padding-top: 2.5rem; }
       .shorts-grid > .short-card { flex: 0 0 240px; }
       .lead { font-size: 1.08rem; max-width: 760px; }
     }
     @media (min-width: 1600px) {
       .page-section { max-width: 1480px; padding-top: 7.5rem; padding-bottom: 6.5rem; }
+      #page-mapa { padding-top: 3rem; }
       .footer { max-width: 1480px; padding-top: 3.5rem; padding-bottom: 7rem; }
       .shorts-grid > .short-card { flex: 0 0 260px; }
     }
