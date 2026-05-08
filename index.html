@@ -967,6 +967,59 @@
       .featured-piece { grid-template-columns: 1fr; }
       .featured-piece__poster { max-width: 220px; margin: 0 auto; }
     }
+    /* Credit chips for director / producer in featured card */
+    .featured-piece__credits {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.55rem;
+      margin: 0.2rem 0 0.6rem;
+    }
+    @media (max-width: 560px) {
+      .featured-piece__credits { grid-template-columns: 1fr; }
+    }
+    .featured-credit {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.45rem 0.75rem 0.45rem 0.45rem;
+      background: var(--frost);
+      border: 1px solid var(--frost-line);
+      border-radius: 999px;
+    }
+    .featured-credit__photo {
+      width: 38px; height: 38px;
+      flex: 0 0 38px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: var(--void-elev);
+    }
+    .featured-credit__photo img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .featured-credit__txt {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+      min-width: 0;
+    }
+    .featured-credit__role {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+    }
+    .featured-credit__name {
+      font-size: 0.85rem;
+      color: #fff;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     /* Paginated card row — cards scroll horizontally with snap; pager
        dots below let the user jump to a specific page and auto-advance
        drifts slowly through them. */
@@ -2277,12 +2330,30 @@
         <img src="posters/afterlight.jpg" alt="Poster de Afterlight" loading="lazy">
       </div>
       <div class="featured-piece__body">
-        <span class="featured-piece__eyebrow">Corto del festival · 2026</span>
+        <span class="featured-piece__eyebrow">Pieza 2026</span>
         <h3 class="featured-piece__title">Afterlight</h3>
         <p class="featured-piece__desc">Tras su muerte, el "Abuelo" debe enfrentarse a los recuerdos de su vida para poder seguir adelante en un proceso burocrático para salir del purgatorio — volviendo a experimentar la complicada relación que compartía con su hija.</p>
+        <div class="featured-piece__credits">
+          <div class="featured-credit">
+            <div class="featured-credit__photo">
+              <img src="team-laed/lorena-santos-morales.jpg" alt="Lorena Santos Morales" loading="lazy">
+            </div>
+            <div class="featured-credit__txt">
+              <span class="featured-credit__role">Dirección</span>
+              <span class="featured-credit__name">Lorena Santos Morales</span>
+            </div>
+          </div>
+          <div class="featured-credit">
+            <div class="featured-credit__photo">
+              <img src="team-laed/victoria-alcala-garza.jpg" alt="Victoria Alcalá Garza" loading="lazy">
+            </div>
+            <div class="featured-credit__txt">
+              <span class="featured-credit__role">Producción</span>
+              <span class="featured-credit__name">Victoria Alcalá Garza</span>
+            </div>
+          </div>
+        </div>
         <ul class="featured-piece__meta">
-          <li><span>Dirección</span><span>Lorena Santos Morales</span></li>
-          <li><span>Producción</span><span>Victoria Alcalá Garza</span></li>
           <li><span>Función</span><span>Apertura · 16:45 · Teatro UDEM</span></li>
         </ul>
       </div>
