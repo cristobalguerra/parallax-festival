@@ -839,6 +839,126 @@
       line-height: 1.4;
     }
 
+    /* ───────── Partner universities roster ───────── */
+    .partners-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.85rem;
+      margin-top: 2rem;
+    }
+    .partner-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      padding: 1.4rem 1.25rem 1.1rem;
+      background: var(--void-elev);
+      border: 1px solid var(--frost-line);
+      border-radius: 16px;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+      overflow: hidden;
+    }
+    .partner-card:hover {
+      border-color: var(--framer-blue);
+      background: var(--frost);
+      transform: translateY(-2px);
+    }
+    .partner-card--host {
+      background: linear-gradient(135deg, rgba(168,85,247,0.10), rgba(255,75,107,0.05));
+      border-color: rgba(168,85,247,0.35);
+    }
+    .partner-card__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .partner-card__flag {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+    .partner-card__pill {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--framer-blue);
+      padding: 0.25rem 0.6rem;
+      border: 1px solid rgba(168,85,247,0.35);
+      border-radius: var(--radius-pill);
+    }
+    .partner-card__logo {
+      flex: 0 0 auto;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .partner-card__logo img {
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+      filter: brightness(0) invert(1);  /* monochrome white logos for consistency */
+      opacity: 0.92;
+    }
+    .partner-card__logo--text {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+    .partner-card__name {
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin: 0;
+    }
+    .partner-card__country {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      color: var(--silver);
+      text-transform: uppercase;
+      margin-top: 0.15rem;
+    }
+    .partner-card__categories {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: auto;
+      padding-top: 0.7rem;
+      border-top: 1px solid var(--frost-line);
+    }
+    .partner-card__cat {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      padding: 0.2rem 0.55rem;
+      background: var(--frost);
+      border: 1px solid var(--frost-line);
+      border-radius: var(--radius-pill);
+    }
+    .partner-card__cat--tbd {
+      color: rgba(255,255,255,0.4);
+      border-style: dashed;
+    }
+    .partner-card__link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      letter-spacing: 0.04em;
+      color: var(--framer-blue);
+      margin-top: 0.4rem;
+    }
+    .partner-card__link:hover { color: #fff; }
+
     /* official selection */
     .selection-tracks {
       display: flex;
@@ -2630,6 +2750,89 @@
           <div class="category-card__num">05 · Exhibición</div>
           <h4 class="category-card__title">Arte Digital</h4>
           <p class="category-card__limit">Hasta 3 piezas por universidad</p>
+        </article>
+      </div>
+
+      <!-- Partner universities roster -->
+      <h3 class="subsection-title" style="margin-top:3rem;">Universidades participantes.</h3>
+      <p class="lead">Cuatro instituciones, cuatro países, una conversación académica internacional sobre animación digital y nuevos medios.</p>
+
+      <div class="partners-grid">
+        <!-- UDEM · Anfitrión -->
+        <article class="partner-card partner-card--host">
+          <div class="partner-card__head">
+            <span class="partner-card__flag" aria-label="México">🇲🇽</span>
+            <span class="partner-card__pill">Anfitrión</span>
+          </div>
+          <div class="partner-card__logo partner-card__logo--text">UDEM</div>
+          <div>
+            <h4 class="partner-card__name">Universidad de Monterrey</h4>
+            <div class="partner-card__country">México</div>
+          </div>
+          <div class="partner-card__categories">
+            <span class="partner-card__cat">Animación 2D</span>
+            <span class="partner-card__cat">Animación 3D</span>
+            <span class="partner-card__cat">Videojuego</span>
+            <span class="partner-card__cat">Arte Digital</span>
+          </div>
+          <a class="partner-card__link" href="https://crgs.udem.edu.mx/arte-arquitectura-y-diseno/academia/profesional/licenciatura-en-animacion-y-efectos-digitales" target="_blank" rel="noopener">crgs.udem.edu.mx ↗</a>
+        </article>
+
+        <!-- DUOC UC · Chile -->
+        <article class="partner-card">
+          <div class="partner-card__head">
+            <span class="partner-card__flag" aria-label="Chile">🇨🇱</span>
+            <span class="partner-card__pill" style="color:var(--silver); border-color:var(--frost-line);">Invitada</span>
+          </div>
+          <div class="partner-card__logo">
+            <img src="partners/duoc-uc.svg" alt="DUOC UC" loading="lazy">
+          </div>
+          <div>
+            <h4 class="partner-card__name">DUOC UC</h4>
+            <div class="partner-card__country">Chile</div>
+          </div>
+          <div class="partner-card__categories">
+            <span class="partner-card__cat partner-card__cat--tbd">Por confirmar</span>
+          </div>
+          <a class="partner-card__link" href="https://www.duoc.cl/" target="_blank" rel="noopener">duoc.cl ↗</a>
+        </article>
+
+        <!-- UDIT · España -->
+        <article class="partner-card">
+          <div class="partner-card__head">
+            <span class="partner-card__flag" aria-label="España">🇪🇸</span>
+            <span class="partner-card__pill" style="color:var(--silver); border-color:var(--frost-line);">Invitada</span>
+          </div>
+          <div class="partner-card__logo">
+            <img src="partners/udit.png" alt="UDIT" loading="lazy">
+          </div>
+          <div>
+            <h4 class="partner-card__name">UDIT</h4>
+            <div class="partner-card__country">España</div>
+          </div>
+          <div class="partner-card__categories">
+            <span class="partner-card__cat partner-card__cat--tbd">Por confirmar</span>
+          </div>
+          <a class="partner-card__link" href="https://www.udit.es/" target="_blank" rel="noopener">udit.es ↗</a>
+        </article>
+
+        <!-- NABA · Italia -->
+        <article class="partner-card">
+          <div class="partner-card__head">
+            <span class="partner-card__flag" aria-label="Italia">🇮🇹</span>
+            <span class="partner-card__pill" style="color:var(--silver); border-color:var(--frost-line);">Invitada</span>
+          </div>
+          <div class="partner-card__logo">
+            <img src="partners/naba.png" alt="NABA" loading="lazy">
+          </div>
+          <div>
+            <h4 class="partner-card__name">NABA</h4>
+            <div class="partner-card__country">Italia</div>
+          </div>
+          <div class="partner-card__categories">
+            <span class="partner-card__cat partner-card__cat--tbd">Por confirmar</span>
+          </div>
+          <a class="partner-card__link" href="https://www.naba.it/en" target="_blank" rel="noopener">naba.it ↗</a>
         </article>
       </div>
 
