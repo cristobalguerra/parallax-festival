@@ -138,6 +138,88 @@
     button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
     img { display: block; max-width: 100%; }
 
+    /* ═══════════════════════════════════════════ ATMOSPHERE ═══════════════════════════════════════════ */
+    /* Aurora orbs — soft purple+pink blobs that drift slowly behind
+       all page content. Very low opacity + heavy blur so they read as
+       "atmospheric color" not "design element". They sit BEHIND
+       content (z-index 0) but ABOVE the body's solid black background.
+       Hero is exempt because it has its own layered art (and an
+       isolation: isolate stacking context that walls these out). */
+    .aurora-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .aurora-orb {
+      position: absolute;
+      width: 720px;
+      height: 720px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.16;
+      will-change: transform;
+    }
+    .aurora-orb--purple {
+      background: #a855f7;
+      top: 18%;
+      left: -200px;
+      animation: orbDrift1 90s ease-in-out infinite;
+    }
+    .aurora-orb--pink {
+      background: #ff4b6b;
+      top: 60%;
+      right: -240px;
+      animation: orbDrift2 110s ease-in-out infinite;
+    }
+    .aurora-orb--violet {
+      background: #6e3aff;
+      top: 90%;
+      left: 35%;
+      width: 560px;
+      height: 560px;
+      opacity: 0.10;
+      animation: orbDrift3 130s ease-in-out infinite;
+    }
+    @keyframes orbDrift1 {
+      0%, 100% { transform: translate(0, 0); }
+      33%      { transform: translate(140px, -90px); }
+      66%      { transform: translate(60px, 120px); }
+    }
+    @keyframes orbDrift2 {
+      0%, 100% { transform: translate(0, 0); }
+      40%      { transform: translate(-160px, 60px); }
+      75%      { transform: translate(-40px, -140px); }
+    }
+    @keyframes orbDrift3 {
+      0%, 100% { transform: translate(0, 0); }
+      50%      { transform: translate(-180px, -160px); }
+    }
+    @media (max-width: 720px) {
+      /* Heavy blur is expensive on mobile — shrink + lower opacity */
+      .aurora-orb { width: 420px; height: 420px; filter: blur(80px); opacity: 0.12; }
+      .aurora-orb--violet { width: 320px; height: 320px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .aurora-orb { animation: none !important; }
+    }
+
+    /* Grain texture — SVG noise overlay above content. Mix-blend-mode
+       overlay gives it a subtle filmic/tactile feel without changing
+       perceived colors. */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 3;  /* above content, below modals (z:200+) and nav (z:50+) */
+      pointer-events: none;
+      opacity: 0.06;
+      mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      background-size: 240px 240px;
+    }
+
     /* ═══════════════════════════════════════════ NAV ═══════════════════════════════════════════ */
     /* top nav — floating glass pill with tabs */
     /* full-width frosted haze behind nav — separates header from page */
@@ -455,13 +537,16 @@
     /* ═══════════════════════════════════════════ SECTIONS BELOW HERO ═══════════════════════════════════════════ */
     /* All sections are always visible — nav becomes scroll-to-anchor */
     .page-section {
+      position: relative;
+      z-index: 2;
       padding: 6rem clamp(1.25rem, 4vw, 2.5rem) 5rem;
       max-width: 1320px;
       margin: 0 auto;
       display: block;
-      background: var(--void);
+      background: transparent;  /* let aurora orbs show through */
       scroll-margin-top: 80px; /* offset for sticky nav when jumping */
     }
+    .team-reel-band, .footer { position: relative; z-index: 2; }
     /* Mapa flows directly out of Festival (the FilmFreeway link sits at
        its bottom) — drop top padding so the Sedes header doesn't float
        in 200+px of dead space. */
@@ -2556,6 +2641,13 @@
   </style>
 </head>
 <body>
+
+  <!-- Atmospheric color: soft drifting orbs behind everything -->
+  <div class="aurora-bg" aria-hidden="true">
+    <div class="aurora-orb aurora-orb--purple"></div>
+    <div class="aurora-orb aurora-orb--pink"></div>
+    <div class="aurora-orb aurora-orb--violet"></div>
+  </div>
 
   <!-- ═══════════════════════════════════════════ NAV ═══════════════════════════════════════════ -->
   <div class="nav-haze" aria-hidden="true"></div>
