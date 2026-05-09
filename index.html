@@ -310,22 +310,47 @@
     @media (max-height: 480px) and (orientation: landscape) {
       .hero { min-height: 100vh; }
     }
+    /* Hero bottom fade — only fades the mono character within the hero;
+       does NOT reach the very bottom edge so it can't create a hard
+       black line against the aurora-tinted body beyond. The actual
+       hero→programa visual bridge is handled by .hero-seam below. */
     .hero::after {
       content: '';
       position: absolute;
       left: 0; right: 0; bottom: 0;
-      height: 220px;
-      /* Fades to transparent (not pure #000) so the aurora atmosphere
-         on the body bleeds into the gradient — no visible "black line"
-         where the hero ends. Above .hero__head (z:9) so it still fades
-         the mono character. */
+      height: 200px;
       background: linear-gradient(to bottom,
         rgba(0,0,0,0) 0%,
-        rgba(0,0,0,0.45) 55%,
-        rgba(0,0,0,0.85) 90%,
-        rgba(0,0,0,0) 100%);
+        rgba(0,0,0,0.40) 60%,
+        rgba(0,0,0,0.55) 100%);
       z-index: 10;
       pointer-events: none;
+    }
+
+    /* Hero→programa seam: a 0-height anchor between the two sections
+       whose absolute child overlaps both. Symmetrical gradient
+       (transparent → dark → transparent) creates a smooth "valley" of
+       darkness that hides the boundary, no matter what colors meet
+       there. Sits above hero contents (z:11) so it always wins.
+       Sibling of .hero so .hero{overflow:hidden} doesn't clip it. */
+    .hero-seam {
+      position: relative;
+      height: 0;
+      z-index: 11;
+      pointer-events: none;
+    }
+    .hero-seam::before {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      top: -160px;
+      height: 320px;
+      background: linear-gradient(to bottom,
+        rgba(0,0,0,0)    0%,
+        rgba(0,0,0,0.55) 35%,
+        rgba(0,0,0,0.95) 50%,
+        rgba(0,0,0,0.55) 65%,
+        rgba(0,0,0,0)   100%);
     }
     .layer {
       position: absolute;
@@ -2692,6 +2717,10 @@
       <img class="layer layer--titulos" src="layers/titulos-8.png"           alt="Animation · Video Games · Digital Art">
     </div>
   </section>
+
+  <!-- Visual bridge between hero and programa — smooth darkness valley
+       hides the boundary regardless of what colors meet there -->
+  <div class="hero-seam" aria-hidden="true"></div>
 
   <!-- ═══════════════════════════════════════════ PROGRAMA ═══════════════════════════════════════════ -->
   <section class="page-section active" id="page-programa">
