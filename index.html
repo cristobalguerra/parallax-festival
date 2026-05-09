@@ -56,6 +56,62 @@
       --bg: var(--void);
       --radius-pill: 999px;
       --radius-md: 14px;
+
+      /* Easing curves — Emil Kowalski style. Custom cubic-beziers feel
+         intentional vs. the flat built-in `ease`. Use --ease-out for
+         entrances/UI feedback, --ease-in-out for on-screen movement. */
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+      --ease-press: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ───────── Global press feedback ─────────
+       Any pressable element gets a subtle scale on :active so the UI
+       feels responsive to clicks/taps. Selector list intentionally
+       broad — covers nav tabs, cards, dot pagers, CTAs, etc. */
+    .nav__tab,
+    .tab,
+    .short-card,
+    .partner-card,
+    .featured-credit,
+    .laed-dpa__cta,
+    .laed-modal__link,
+    .row-nav,
+    .shorts-pager__dot,
+    .venue-card__link,
+    .stream-card,
+    .nav__btn-laed,
+    button.short-modal__close,
+    button.legal-modal__close,
+    button.person-modal__close,
+    button.laed-modal__close {
+      transition-property: transform, background, border-color, color, box-shadow, opacity;
+      transition-duration: 160ms;
+      transition-timing-function: var(--ease-out);
+    }
+    .nav__tab:active,
+    .tab:active,
+    .partner-card:active,
+    .featured-credit:active,
+    .laed-modal__link:active,
+    .venue-card__link:active,
+    .stream-card:active,
+    .nav__btn-laed:active {
+      transform: scale(0.97);
+    }
+    .short-card:active,
+    .laed-dpa__cta:active,
+    .row-nav:active {
+      transform: scale(0.96);
+    }
+    .shorts-pager__dot:active {
+      transform: scale(0.85);
+    }
+    button.short-modal__close:active,
+    button.legal-modal__close:active,
+    button.person-modal__close:active,
+    button.laed-modal__close:active {
+      transform: scale(0.92);
     }
 
     html {
@@ -131,7 +187,9 @@
       letter-spacing: -0.01em;
       padding: 0.6rem 0.6rem;
       border-radius: var(--radius-pill);
-      transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+      /* No transition on color/background — nav clicks are too frequent
+         to animate (Emil's rule). Only transform inherits press feedback
+         from the global :active rule above. */
     }
     .nav__tab svg {
       width: 15px; height: 15px;
@@ -300,7 +358,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      transition: opacity 0.6s ease, visibility 0.6s ease;
+      transition: opacity 220ms var(--ease-out), visibility 220ms var(--ease-out);
       overflow: hidden;
     }
     .unlock.gone { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -858,10 +916,12 @@
       transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
       overflow: hidden;
     }
-    .partner-card:hover {
-      border-color: var(--framer-blue);
-      background: var(--frost);
-      transform: translateY(-2px);
+    @media (hover: hover) and (pointer: fine) {
+      .partner-card:hover {
+        border-color: var(--framer-blue);
+        background: var(--frost);
+        transform: translateY(-2px);
+      }
     }
     .partner-card--host {
       background: linear-gradient(135deg, rgba(168,85,247,0.10), rgba(255,75,107,0.05));
@@ -1144,6 +1204,82 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    /* Skeleton screens — shown while Supabase fetches. They occupy the
+       same space as real cards so the section doesn't reflow on load,
+       and the shimmer signals "loading" instead of "broken/empty". */
+    .shorts-skeleton {
+      display: flex;
+      gap: 0.9rem;
+      padding: 0.4rem 0 1rem 0;
+      overflow: hidden;
+    }
+    .shorts-skeleton__card {
+      flex: 0 0 240px;
+      border-radius: 14px;
+      border: 1px solid var(--frost-line);
+      background: var(--void-elev);
+      overflow: hidden;
+    }
+    .shorts-skeleton__poster {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0.04) 0%,
+        rgba(255,255,255,0.10) 50%,
+        rgba(255,255,255,0.04) 100%
+      );
+      background-size: 200% 100%;
+      animation: skeleton-shimmer 1.4s linear infinite;
+    }
+    .shorts-skeleton__body {
+      padding: 0.95rem 1rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+    .shorts-skeleton__line {
+      height: 10px;
+      border-radius: 4px;
+      background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0.05) 0%,
+        rgba(255,255,255,0.13) 50%,
+        rgba(255,255,255,0.05) 100%
+      );
+      background-size: 200% 100%;
+      animation: skeleton-shimmer 1.4s linear infinite;
+    }
+    .shorts-skeleton__line--short { width: 35%; }
+    .shorts-skeleton__line--med   { width: 70%; height: 14px; }
+    .shorts-skeleton__line--tiny  { width: 50%; height: 8px; margin-top: 0.3rem; }
+    @keyframes skeleton-shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .shorts-skeleton__poster,
+      .shorts-skeleton__line { animation: none; }
+    }
+    @media (max-width: 720px) {
+      .shorts-skeleton__card { flex: 0 0 160px; }
+    }
+
+    /* Image fade-in — posters fade in once the bytes load instead of
+       popping in instantly. The default state is opacity:0; the JS sets
+       a `data-loaded="true"` attr in renderShorts via inline onload. */
+    .short-card__poster img,
+    .featured-piece__poster img {
+      opacity: 0;
+      transition: opacity 280ms var(--ease-out);
+    }
+    .short-card__poster img[data-loaded="true"],
+    .featured-piece__poster img[data-loaded="true"],
+    .short-card__poster img.loaded,
+    .featured-piece__poster img.loaded {
+      opacity: 1;
+    }
+
     /* Paginated card row — cards scroll horizontally with snap; pager
        dots below let the user jump to a specific page and auto-advance
        drifts slowly through them. */
@@ -1266,10 +1402,12 @@
       transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
       cursor: pointer;
     }
-    .short-card:hover {
-      border-color: var(--framer-blue);
-      transform: translateY(-3px);
-      box-shadow: 0 12px 28px rgba(0,0,0,0.45), 0 0 0 1px var(--framer-blue-glow);
+    @media (hover: hover) and (pointer: fine) {
+      .short-card:hover {
+        border-color: var(--framer-blue);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(0,0,0,0.45), 0 0 0 1px var(--framer-blue-glow);
+      }
     }
     .short-card:focus-visible {
       outline: none;
@@ -1415,7 +1553,8 @@
       /* duration is set dynamically by JS (constant px/sec regardless of screen size) */
       animation: teamScroll 120s linear infinite;
     }
-    .team-marquee:hover .team-marquee__track { animation-play-state: paused; }
+    .team-marquee:hover .team-marquee__track,
+    .team-marquee:focus-within .team-marquee__track { animation-play-state: paused; }
     @keyframes teamScroll {
       from { transform: translateX(0); }
       to   { transform: translateX(-50%); }
@@ -1431,9 +1570,11 @@
       border-radius: 999px;
       transition: background 0.2s ease, transform 0.2s ease;
     }
-    .team-chip:hover {
-      background: var(--frost-strong);
-      transform: translateY(-1px);
+    @media (hover: hover) and (pointer: fine) {
+      .team-chip:hover {
+        background: var(--frost-strong);
+        transform: translateY(-1px);
+      }
     }
     .team-chip__avatar {
       width: 128px; height: 128px;
@@ -1483,7 +1624,18 @@
       .team-chip__dept { font-size: 0.66rem; padding: 0.22rem 0.55rem; margin-left: 0.5rem; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .team-marquee__track { animation: none; }
+      .team-marquee__track {
+        animation: none !important;
+        /* Restore an offset so all chips are visible without animation */
+        transform: none !important;
+      }
+      /* Also stop the auto-pager and the hero parallax float for users
+         who opt out of motion */
+      .layer--mono,
+      .layer--clouds-back,
+      .layer--clouds-front {
+        animation: none !important;
+      }
     }
 
     /* venues grid */
@@ -1576,9 +1728,15 @@
       padding: 1.5rem;
       opacity: 0;
       visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
+      /* Exit: faster, system responding */
+      transition: opacity 180ms var(--ease-in-out), visibility 180ms var(--ease-in-out);
     }
-    .laed-modal.active { opacity: 1; visibility: visible; }
+    .laed-modal.active {
+      opacity: 1;
+      visibility: visible;
+      /* Enter: slightly slower, deliberate */
+      transition: opacity 280ms var(--ease-out), visibility 280ms var(--ease-out);
+    }
     .laed-modal__inner {
       background: var(--void-elev);
       border: 1px solid var(--frost-line);
@@ -1709,9 +1867,11 @@
       border-radius: var(--radius-pill);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .laed-dpa__cta:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 24px var(--accent-pink-glow);
+    @media (hover: hover) and (pointer: fine) {
+      .laed-dpa__cta:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px var(--accent-pink-glow);
+      }
     }
     /* Footer actions row */
     .laed-modal__actions {
@@ -1803,10 +1963,14 @@
       padding: 1.5rem;
       opacity: 0;
       visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
+      transition: opacity 180ms var(--ease-in-out), visibility 180ms var(--ease-in-out);
       overflow-y: auto;
     }
-    .short-modal.active { opacity: 1; visibility: visible; }
+    .short-modal.active {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 280ms var(--ease-out), visibility 280ms var(--ease-out);
+    }
     .short-modal__inner {
       background: var(--void-elev);
       border: 1px solid var(--frost-line);
@@ -1819,8 +1983,8 @@
       grid-template-columns: 280px 1fr;
       overflow: hidden;
       box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px var(--frost-line);
-      transform: translateY(12px) scale(0.985);
-      transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transform: translateY(8px) scale(0.96);
+      transition: transform 280ms var(--ease-out);
     }
     .short-modal.active .short-modal__inner { transform: translateY(0) scale(1); }
     .short-modal__poster {
@@ -2026,9 +2190,13 @@
       padding: 1.5rem;
       opacity: 0;
       visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
+      transition: opacity 180ms var(--ease-in-out), visibility 180ms var(--ease-in-out);
     }
-    .person-modal.active { opacity: 1; visibility: visible; }
+    .person-modal.active {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 280ms var(--ease-out), visibility 280ms var(--ease-out);
+    }
     .person-modal__inner {
       position: relative;
       max-width: 380px;
@@ -2221,9 +2389,13 @@
       padding: 1.5rem;
       opacity: 0;
       visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
+      transition: opacity 180ms var(--ease-in-out), visibility 180ms var(--ease-in-out);
     }
-    .legal-modal.active { opacity: 1; visibility: visible; }
+    .legal-modal.active {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 280ms var(--ease-out), visibility 280ms var(--ease-out);
+    }
     .legal-modal__inner {
       background: var(--void-elev);
       border: 1px solid var(--frost-line);
@@ -2236,8 +2408,8 @@
       flex-direction: column;
       overflow: hidden;
       box-shadow: 0 40px 100px rgba(0,0,0,0.7);
-      transform: translateY(12px) scale(0.985);
-      transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transform: translateY(8px) scale(0.96);
+      transition: transform 280ms var(--ease-out);
     }
     .legal-modal.active .legal-modal__inner { transform: translateY(0) scale(1); }
     .legal-modal__header {
@@ -2453,7 +2625,7 @@
     <!-- Afterlight — corto firma del festival, abre el screening -->
     <aside class="featured-piece" aria-label="Afterlight, corto del festival 2026">
       <div class="featured-piece__poster">
-        <img src="posters/afterlight.jpg" alt="Poster de Afterlight" loading="lazy">
+        <img src="posters/afterlight.jpg" alt="Poster de Afterlight" loading="lazy" onload="this.dataset.loaded='true'" onerror="this.dataset.loaded='true'">
       </div>
       <div class="featured-piece__body">
         <span class="featured-piece__eyebrow">Pieza 2026</span>
@@ -3046,6 +3218,40 @@
       const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       const initials = (name) => (name || '?').split(' ').filter(Boolean).map(w => w[0]).slice(0,2).join('').toUpperCase();
 
+      // Inject skeleton screens immediately so the section never shows
+      // empty/raw fallback. Replaced when Supabase data arrives.
+      function showSkeletons() {
+        const container = document.getElementById('selectionTracks');
+        if (!container) return;
+        const skel = (count) => Array.from({length: count}, () => `
+          <div class="shorts-skeleton__card">
+            <div class="shorts-skeleton__poster"></div>
+            <div class="shorts-skeleton__body">
+              <div class="shorts-skeleton__line shorts-skeleton__line--tiny"></div>
+              <div class="shorts-skeleton__line shorts-skeleton__line--med"></div>
+              <div class="shorts-skeleton__line shorts-skeleton__line--short"></div>
+            </div>
+          </div>
+        `).join('');
+        container.innerHTML = `
+          <div class="selection-track">
+            <div class="selection-track__head">
+              <h3 class="selection-track__type">Animación 2D</h3>
+              <span class="selection-track__count">cargando…</span>
+            </div>
+            <div class="shorts-skeleton" aria-hidden="true">${skel(5)}</div>
+          </div>
+          <div class="selection-track">
+            <div class="selection-track__head">
+              <h3 class="selection-track__type">Animación 3D</h3>
+              <span class="selection-track__count">cargando…</span>
+            </div>
+            <div class="shorts-skeleton" aria-hidden="true">${skel(5)}</div>
+          </div>
+        `;
+      }
+      showSkeletons();
+
       function renderShorts(shorts) {
         const tracks = ['2D', '3D'];
         const labels = { '2D': 'Animación 2D', '3D': 'Animación 3D' };
@@ -3075,7 +3281,7 @@
               ? `<div class="short-card__meta">${esc(s.duration)}</div>`
               : '';
             const posterHtml = s.poster_url
-              ? `<div class="short-card__poster"><img src="${esc(s.poster_url)}" alt="${esc(s.title)}" loading="lazy"></div>`
+              ? `<div class="short-card__poster"><img src="${esc(s.poster_url)}" alt="${esc(s.title)}" loading="lazy" onload="this.dataset.loaded='true'" onerror="this.dataset.loaded='true'"></div>`
               : `<div class="short-card__poster short-card__poster--placeholder" data-initial="${esc(s.title.charAt(0).toUpperCase())}"></div>`;
             const dataAttr = esc(JSON.stringify({
               title: s.title,
@@ -3891,9 +4097,20 @@
       if (!grid || !pager) return;
       const perPage = parseInt(pager.dataset.perPage || '1', 10);
       const pageCount = parseInt(pager.dataset.pageCount || '1', 10);
-      const targetIdx = Math.max(0, Math.min(pageCount - 1, pageIdx)) * perPage;
+      const safeIdx = Math.max(0, Math.min(pageCount - 1, pageIdx));
+      const targetIdx = safeIdx * perPage;
       const target = grid.children[targetIdx];
-      if (target) target.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+      if (!target) return;
+      // Smart scroll: smooth for adjacent pages, instant for far jumps.
+      // Page 1 → 7 with smooth takes 2+ seconds; instant lands you there.
+      const card = grid.querySelector('.short-card');
+      const cardW = card ? card.getBoundingClientRect().width + 14 : 240;
+      const currentPage = Math.round(grid.scrollLeft / (cardW * perPage));
+      const distance = Math.abs(safeIdx - currentPage);
+      const behavior = (distance <= 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+        ? 'smooth'
+        : 'instant';
+      target.scrollIntoView({ behavior, inline: 'start', block: 'nearest' });
     }
 
     function startAutoAdvance(track) {
