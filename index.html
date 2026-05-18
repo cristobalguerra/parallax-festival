@@ -778,13 +778,22 @@
     }
     .moment--apertura::before    { background: oklch(0.85 0.18 132); }
     .moment--spaces::before      { background: oklch(0.62 0.24 305); }
-    .moment--bloque-2d::before   { background: var(--accent-pink); }
-    .moment--bloque-3d::before   { background: var(--framer-blue); }
+    .moment--bloque-2d::before   { background: var(--accent-pink); width: 6px; }
+    .moment--bloque-3d::before   { background: var(--framer-blue); width: 6px; }
     .moment--intermedio::before  { background: oklch(0.45 0.02 290); }
     .moment--streaming::before   { background: oklch(0.62 0.20 250); }
     .moment--clausura::before    { background: oklch(0.62 0.20 250); }
     .moment--premiacion::before  { background: linear-gradient(180deg, oklch(0.85 0.18 90), oklch(0.65 0.20 50)); }
     .moment--cierre::before      { background: rgba(255,255,255,0.18); }
+    /* Tinted background for the bloques to make them visually dominant */
+    .moment--bloque-2d {
+      background: linear-gradient(135deg, rgba(255,75,107,0.10), rgba(255,75,107,0.02) 60%), var(--void-elev);
+      border-color: rgba(255,75,107,0.30);
+    }
+    .moment--bloque-3d {
+      background: linear-gradient(135deg, rgba(168,85,247,0.10), rgba(168,85,247,0.02) 60%), var(--void-elev);
+      border-color: rgba(168,85,247,0.30);
+    }
 
     /* Time / icon column */
     .moment__time {
@@ -811,6 +820,66 @@
     .moment--premiacion  .moment__icon { background: oklch(0.82 0.18 80 / 0.15); border-color: oklch(0.82 0.18 80 / 0.4); color: oklch(0.92 0.10 80); }
     .moment--clausura    .moment__icon { background: oklch(0.62 0.20 250 / 0.12); border-color: oklch(0.62 0.20 250 / 0.4); color: oklch(0.75 0.18 250); }
     .moment--spaces      .moment__icon { background: oklch(0.62 0.24 305 / 0.12); border-color: oklch(0.62 0.24 305 / 0.4); color: var(--framer-blue); }
+
+    /* Track code badge — big, square, dominant. Replaces the generic ▶ icon
+       for bloques 2D and 3D so the category is the LOUDEST thing on the card. */
+    .moment__icon--track {
+      width: 64px;
+      height: 64px;
+      border-radius: 14px;
+      border-width: 2px;
+      box-shadow: 0 4px 14px oklch(0 0 0 / 0.4);
+    }
+    .moment__track-code {
+      font-family: 'Archivo Black', var(--font-display), sans-serif;
+      font-weight: 900;
+      font-size: 1.5rem;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .moment--bloque-2d .moment__icon--track {
+      background: linear-gradient(135deg, var(--accent-pink), oklch(0.55 0.22 10));
+      border-color: rgba(255,75,107,0.6);
+      color: #fff;
+    }
+    .moment--bloque-3d .moment__icon--track {
+      background: linear-gradient(135deg, var(--framer-blue), oklch(0.50 0.24 295));
+      border-color: rgba(168,85,247,0.6);
+      color: #fff;
+    }
+
+    /* Track banner — "Animación 2D · 13 cortometrajes" prominent above the title */
+    .moment__track-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      margin-bottom: 0.7rem;
+    }
+    .moment__track-banner-tag {
+      font-family: 'Archivo Black', var(--font-display), sans-serif;
+      font-weight: 900;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.8rem;
+      border-radius: 6px;
+      line-height: 1;
+    }
+    .moment--bloque-2d .moment__track-banner-tag {
+      background: var(--accent-pink);
+      color: oklch(0.18 0.08 10);
+    }
+    .moment--bloque-3d .moment__track-banner-tag {
+      background: var(--framer-blue);
+      color: oklch(0.16 0.08 295);
+    }
+    .moment__track-banner-meta {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--silver);
+    }
 
     .moment__time-block {
       display: flex;
@@ -4429,7 +4498,7 @@
             where: 'Teatro UDEM',
             tip: 'Afterlight dura ~10 minutos. Es la única pieza colectiva del festival.' },
 
-          { time: '17:34', end: '19:11', kind: 'bloque-2d', icon: '▶', title: 'Bloque 2D — 13 cortometrajes',
+          { time: '17:34', end: '19:11', kind: 'bloque-2d', icon: '▶', title: 'Bloque de proyección · Animación 2D',
             summary: '1 hora 37 minutos · 7 cortos UDEM + 6 invitados internacionales (España, Italia, Chile).',
             where: 'Teatro UDEM',
             films: [
@@ -4453,7 +4522,7 @@
             where: 'Lobby Teatro UDEM',
             tip: 'YouTube e Instagram Live siguen transmitiendo desde el lobby.' },
 
-          { time: '20:00', end: '21:15', kind: 'bloque-3d', icon: '▶', title: 'Bloque 3D — 10 cortometrajes',
+          { time: '20:00', end: '21:15', kind: 'bloque-3d', icon: '▶', title: 'Bloque de proyección · Animación 3D',
             summary: '1 hora 15 minutos · 8 cortos UDEM + 2 invitados de NABA (Italia).',
             where: 'Teatro UDEM',
             films: [
@@ -4500,16 +4569,32 @@
         (m.spaces && m.spaces.length) ? renderSpaces(m.spaces) :
         '';
 
+      // Bloques 2D/3D get a dominant track badge instead of the generic icon
+      const isTrackBloque = m.kind === 'bloque-2d' || m.kind === 'bloque-3d';
+      const trackCode = m.kind === 'bloque-2d' ? '2D' : '3D';
+      const iconContent = isTrackBloque
+        ? `<span class="moment__track-code">${trackCode}</span>`
+        : (m.icon || '');
+
+      // Big "ANIMACIÓN 2D" / "ANIMACIÓN 3D" ribbon above the title
+      const trackBanner = isTrackBloque
+        ? `<div class="moment__track-banner">
+             <span class="moment__track-banner-tag">Animación ${trackCode}</span>
+             <span class="moment__track-banner-meta">${m.films ? m.films.length + ' cortometrajes' : ''}</span>
+           </div>`
+        : '';
+
       return `
         <article class="moment moment--${m.kind}" style="animation-delay: ${Math.min(i * 0.06, 0.4)}s">
           <div class="moment__time">
-            <div class="moment__icon" aria-hidden="true">${m.icon || ''}</div>
+            <div class="moment__icon${isTrackBloque ? ' moment__icon--track' : ''}" aria-hidden="true">${iconContent}</div>
             <div class="moment__time-block">
               <span class="moment__time-start">${m.time}</span>
               ${m.end ? `<span class="moment__time-end">→ ${m.end}</span>` : ''}
             </div>
           </div>
           <div class="moment__body">
+            ${trackBanner}
             <h3 class="moment__title">${_escHtml(m.title)}</h3>
             ${m.summary ? `<p class="moment__summary">${_escHtml(m.summary)}</p>` : ''}
             ${m.where ? `<div class="moment__where"><span class="moment__where-pin">●</span>${_escHtml(m.where)}</div>` : ''}
