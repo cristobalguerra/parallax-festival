@@ -700,159 +700,381 @@
       text-transform: uppercase;
     }
 
-    /* ═══════════════════════════════════════════ TIMELINE (programa) ═══════════════════════════════════════════
-       Vertical timeline. Left column: time range (HH:MM start + end).
-       Right column: activity card with title, presenter, location, notes.
-       Category color is encoded as a left border on each card. */
-    .timeline {
-      margin-top: 1.5rem;
+    /* ═══════════════════════════════════════════ PROGRAMA — MOMENT-BASED UI ═══════════════════════════════════════════
+       Attendee-first information architecture:
+       — Each day is ~6-8 logical "moments" (not 49 minute-level rows)
+       — Backstage detail (cortos, premios, espacios) is collapsed into
+         expandable <details> sections so the overview stays scannable
+       — Color/icon per moment kind makes the day's shape readable at glance */
+
+    /* Hero stats strip at the top of each day */
+    .event-header__stats {
       display: flex;
-      flex-direction: column;
-      gap: 0.55rem;
+      gap: 0.6rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
     }
-    .timeline__divider {
-      display: flex;
-      align-items: center;
-      gap: 0.85rem;
-      margin: 1.6rem 0 0.5rem;
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--silver);
-    }
-    .timeline__divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--frost-line);
-    }
-    .timeline__divider span {
-      padding: 0.3rem 0.7rem;
+    .event-stat {
+      flex: 1 1 80px;
+      padding: 0.85rem 1rem;
+      background: rgba(255,255,255,0.03);
       border: 1px solid var(--frost-line);
-      border-radius: var(--radius-pill);
-      background: rgba(255,255,255,0.02);
-    }
-    .timeline__row {
-      display: grid;
-      grid-template-columns: 90px 1fr;
-      gap: 1rem;
-      align-items: stretch;
-      animation: fadeUp 0.4s var(--ease-out) backwards;
-    }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .timeline__time {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      justify-content: center;
-      gap: 0.15rem;
-      padding-top: 0.85rem;
-      font-family: var(--font-mono);
-      letter-spacing: 0.02em;
-    }
-    .timeline__time-start {
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: #fff;
-    }
-    .timeline__time-end {
-      font-size: 0.7rem;
-      color: var(--silver);
-    }
-    .timeline__card {
-      background: var(--void-elev);
-      border: 1px solid var(--frost-line);
-      border-left: 3px solid var(--frost-line);
       border-radius: 12px;
-      padding: 0.85rem 1rem 0.85rem 1rem;
-      position: relative;
-      transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+      min-width: 0;
     }
-    @media (hover: hover) and (pointer: fine) {
-      .timeline__card:hover {
-        border-color: var(--frost-strong);
-        background: var(--frost);
-        transform: translateX(2px);
-      }
-    }
-    .timeline__card-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 0.75rem;
-      margin-bottom: 0.3rem;
-    }
-    .timeline__title {
-      font-family: var(--font-body);
-      font-weight: 600;
-      font-size: 1rem;
-      letter-spacing: -0.015em;
+    .event-stat__num {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(1.4rem, 4vw, 1.8rem);
+      letter-spacing: -0.03em;
       color: #fff;
-      margin: 0;
-      line-height: 1.25;
+      line-height: 1;
     }
-    .timeline__flag {
-      font-size: 0.95em;
-      margin-left: 0.2rem;
-    }
-    .timeline__cat-pill {
-      flex-shrink: 0;
+    .event-stat__label {
       font-family: var(--font-mono);
-      font-size: 0.6rem;
+      font-size: 0.64rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 0.2rem 0.55rem;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--frost-line);
       color: var(--silver);
-      background: rgba(255,255,255,0.03);
-      white-space: nowrap;
-    }
-    .timeline__meta {
-      font-family: var(--font-body);
-      font-size: 0.82rem;
-      color: var(--silver);
-      line-height: 1.4;
-    }
-    .timeline__notes {
       margin-top: 0.35rem;
+    }
+
+    /* Moments stack */
+    .moments {
+      margin-top: 1.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .moment {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 1.4rem;
+      align-items: stretch;
+      padding: 1.2rem 1.3rem;
+      background: var(--void-elev);
+      border: 1px solid var(--frost-line);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.45s var(--ease-out) backwards;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .moment:hover { border-color: var(--frost-strong); }
+    }
+    /* Left accent strip — color per kind */
+    .moment::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--frost-line);
+    }
+    .moment--apertura::before    { background: oklch(0.85 0.18 132); }
+    .moment--spaces::before      { background: oklch(0.62 0.24 305); }
+    .moment--bloque-2d::before   { background: var(--accent-pink); }
+    .moment--bloque-3d::before   { background: var(--framer-blue); }
+    .moment--intermedio::before  { background: oklch(0.45 0.02 290); }
+    .moment--streaming::before   { background: oklch(0.62 0.20 250); }
+    .moment--clausura::before    { background: oklch(0.62 0.20 250); }
+    .moment--premiacion::before  { background: linear-gradient(180deg, oklch(0.85 0.18 90), oklch(0.65 0.20 50)); }
+    .moment--cierre::before      { background: rgba(255,255,255,0.18); }
+
+    /* Time / icon column */
+    .moment__time {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.7rem;
+      padding-top: 0.15rem;
+    }
+    .moment__icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--frost-line);
+    }
+    .moment--apertura    .moment__icon { background: oklch(0.85 0.18 132 / 0.12); border-color: oklch(0.85 0.18 132 / 0.4); color: oklch(0.85 0.18 132); }
+    .moment--bloque-2d   .moment__icon { background: rgba(255,75,107,0.12); border-color: rgba(255,75,107,0.4); color: var(--accent-pink); }
+    .moment--bloque-3d   .moment__icon { background: rgba(168,85,247,0.12); border-color: rgba(168,85,247,0.4); color: var(--framer-blue); }
+    .moment--premiacion  .moment__icon { background: oklch(0.82 0.18 80 / 0.15); border-color: oklch(0.82 0.18 80 / 0.4); color: oklch(0.92 0.10 80); }
+    .moment--clausura    .moment__icon { background: oklch(0.62 0.20 250 / 0.12); border-color: oklch(0.62 0.20 250 / 0.4); color: oklch(0.75 0.18 250); }
+    .moment--spaces      .moment__icon { background: oklch(0.62 0.24 305 / 0.12); border-color: oklch(0.62 0.24 305 / 0.4); color: var(--framer-blue); }
+
+    .moment__time-block {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      font-family: var(--font-mono);
+    }
+    .moment__time-start {
+      font-size: 1.4rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: #fff;
+      line-height: 1;
+    }
+    .moment__time-end {
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      color: var(--silver);
+    }
+
+    /* Body */
+    .moment__body { min-width: 0; }
+    .moment__title {
       font-family: var(--font-body);
-      font-size: 0.76rem;
+      font-weight: 700;
+      font-size: 1.18rem;
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin: 0 0 0.4rem;
+      line-height: 1.2;
+    }
+    .moment__summary {
+      color: var(--silver);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      margin: 0 0 0.55rem;
+    }
+    .moment__where {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      color: rgba(255,255,255,0.78);
+      text-transform: uppercase;
+      padding: 0.3rem 0.65rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--frost-line);
+      border-radius: var(--radius-pill);
+      margin-right: 0.4rem;
+    }
+    .moment__where-pin {
+      color: var(--framer-blue);
+      font-size: 0.65rem;
+    }
+    .moment__tip {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-top: 0.7rem;
+      padding: 0.55rem 0.75rem;
+      background: oklch(0.85 0.18 80 / 0.05);
+      border: 1px solid oklch(0.85 0.18 80 / 0.18);
+      border-radius: 10px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.45;
+    }
+    .moment__tip-icon { line-height: 1.45; flex-shrink: 0; }
+
+    /* Expandable details (films, awards) */
+    .moment__details {
+      margin-top: 0.9rem;
+    }
+    .moment__details summary {
+      list-style: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--framer-blue);
+      padding: 0.4rem 0.8rem;
+      background: rgba(168,85,247,0.08);
+      border: 1px solid rgba(168,85,247,0.3);
+      border-radius: var(--radius-pill);
+      transition: background 0.2s ease, border-color 0.2s ease;
+      user-select: none;
+    }
+    .moment__details summary::-webkit-details-marker { display: none; }
+    .moment__details summary:hover {
+      background: rgba(168,85,247,0.14);
+      border-color: rgba(168,85,247,0.5);
+    }
+    .moment__details[open] summary { background: rgba(168,85,247,0.14); }
+    .moment__details[open] .moment__chevron { transform: rotate(180deg); }
+    .moment__chevron { transition: transform 0.2s var(--ease-out); }
+    .moment__details-meta {
+      color: var(--silver);
+      letter-spacing: 0.04em;
+      font-size: 0.9em;
+    }
+
+    .moment__films {
+      list-style: none;
+      padding: 0;
+      margin: 0.85rem 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .moment__film {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 0.85rem;
+      padding: 0.6rem 0.85rem;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--frost-line);
+      border-left: 2px solid var(--frost-line);
+      border-radius: 8px;
+      transition: background 0.15s ease;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .moment__film:hover { background: rgba(255,255,255,0.05); }
+    }
+    .moment__film--2d        { border-left-color: var(--accent-pink); }
+    .moment__film--3d        { border-left-color: var(--framer-blue); }
+    .moment__film--invitado  { border-left-color: oklch(0.85 0.27 132); }
+    .moment__film-time {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--silver);
+      align-self: center;
+    }
+    .moment__film-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.05rem;
+      min-width: 0;
+    }
+    .moment__film-title {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+    .moment__film-flag { font-size: 0.85em; margin-left: 0.25rem; }
+    .moment__film-by {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.05em;
+      color: var(--silver);
+      text-transform: uppercase;
+    }
+    .moment__film-note {
+      font-size: 0.74rem;
       font-style: italic;
       color: rgba(255,255,255,0.55);
-      line-height: 1.4;
+      margin-top: 0.2rem;
     }
-    /* Category color tokens — left border + cat-pill accent */
-    .timeline__row--2d         .timeline__card { border-left-color: var(--accent-pink); }
-    .timeline__row--2d         .timeline__cat-pill { color: var(--accent-pink); border-color: rgba(255,75,107,0.35); background: rgba(255,75,107,0.08); }
-    .timeline__row--3d         .timeline__card { border-left-color: var(--framer-blue); }
-    .timeline__row--3d         .timeline__cat-pill { color: var(--framer-blue); border-color: rgba(168,85,247,0.35); background: rgba(168,85,247,0.08); }
-    .timeline__row--colectivo  .timeline__card { border-left: 3px solid transparent; border-image: linear-gradient(180deg, var(--accent-pink), var(--framer-blue)) 1; background: linear-gradient(135deg, rgba(255,75,107,0.06), rgba(168,85,247,0.04)); }
-    .timeline__row--colectivo  .timeline__cat-pill { color: #fff; border-color: rgba(168,85,247,0.4); background: linear-gradient(135deg, rgba(255,75,107,0.12), rgba(168,85,247,0.10)); }
-    .timeline__row--invitado   .timeline__card { border-left-color: oklch(0.85 0.27 132); }
-    .timeline__row--invitado   .timeline__cat-pill { color: oklch(0.85 0.27 132); border-color: oklch(0.85 0.27 132 / 0.35); background: oklch(0.85 0.27 132 / 0.08); }
-    .timeline__row--evento     .timeline__card { border-left-color: rgba(255,255,255,0.25); }
-    .timeline__row--intermedio .timeline__card { border-left-color: rgba(255,255,255,0.10); background: rgba(255,255,255,0.015); opacity: 0.88; }
-    .timeline__row--intermedio .timeline__title { color: var(--silver); }
-    .timeline__row--clausura   .timeline__card { border-left-color: oklch(0.62 0.20 250); background: oklch(0.62 0.20 250 / 0.05); }
-    .timeline__row--clausura   .timeline__cat-pill { color: oklch(0.62 0.20 250); border-color: oklch(0.62 0.20 250 / 0.35); }
-    .timeline__row--premiacion .timeline__card { border-left-color: oklch(0.82 0.18 80); background: oklch(0.82 0.18 80 / 0.04); }
-    .timeline__row--premiacion .timeline__cat-pill { color: oklch(0.82 0.18 80); border-color: oklch(0.82 0.18 80 / 0.35); background: oklch(0.82 0.18 80 / 0.08); }
-    .timeline__row--premiacion .timeline__title { color: oklch(0.92 0.10 80); }
+
+    .moment__awards {
+      list-style: none;
+      counter-reset: award;
+      padding: 0;
+      margin: 0.85rem 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .moment__award {
+      counter-increment: award;
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      gap: 0.85rem;
+      padding: 0.65rem 0.85rem;
+      background: oklch(0.82 0.18 80 / 0.04);
+      border: 1px solid oklch(0.82 0.18 80 / 0.18);
+      border-radius: 8px;
+      align-items: center;
+    }
+    .moment__award::before {
+      content: counter(award, decimal-leading-zero);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      color: oklch(0.82 0.18 80);
+    }
+    .moment__award-title {
+      font-weight: 600;
+      color: #fff;
+      font-size: 0.9rem;
+      letter-spacing: -0.01em;
+    }
+    .moment__award-by {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      letter-spacing: 0.04em;
+      color: var(--silver);
+      text-transform: uppercase;
+    }
+
+    /* Spaces grid (for Day 1's continuous-format moment) */
+    .moment__spaces {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.7rem;
+    }
+    .moment__space {
+      padding: 0.85rem 0.95rem;
+      background: rgba(168,85,247,0.04);
+      border: 1px solid rgba(168,85,247,0.25);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .moment__space-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+    .moment__space-hours {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      color: var(--framer-blue);
+    }
+    .moment__space-where {
+      font-size: 0.72rem;
+      color: var(--silver);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .moment__space-desc {
+      margin: 0.3rem 0 0;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.72);
+      line-height: 1.45;
+    }
 
     @media (max-width: 720px) {
-      .timeline__row { grid-template-columns: 64px 1fr; gap: 0.7rem; }
-      .timeline__time-start { font-size: 0.85rem; }
-      .timeline__time-end { font-size: 0.65rem; }
-      .timeline__title { font-size: 0.93rem; }
-      .timeline__cat-pill { font-size: 0.55rem; padding: 0.18rem 0.45rem; }
+      .moment {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+      }
+      .moment__time {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.85rem;
+      }
+      .moment__title { font-size: 1.05rem; }
+      .moment__films { font-size: 0.9em; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .timeline__row { animation: none; }
+      .moment { animation: none; }
+      .moment__chevron { transition: none; }
     }
 
     .tab {
@@ -4134,111 +4356,229 @@
     });
 
     // ═══════════════════════════════════════════ PROGRAMA DATA ═══════════════════════════════════════════
-    // Full schedule extracted from PARALLAX_Programa_Oficial.xlsx (May 2026).
-    // Items can be of two types:
-    //   { type: 'header', label: '...' } — section divider within the timeline
-    //   { time, end, title, by, where, notes, cat, country, status } — activity card
-    // cat values map to CSS color tokens: '2d' '3d' 'evento' 'colectivo' 'invitado'
-    //                                     'intermedio' 'clausura' 'premiacion'
+    // Designed for ATTENDEES, not production. Each day is ~6-8 "moments"
+    // (logical chunks of time) instead of 37 minute-level rows. Detail is
+    // available on demand via expandable lists inside each moment.
+    //
+    // Each moment: { time, end, icon, kind, title, summary, where, tip, films[], awards[] }
+    // - kind: visual/color treatment ('apertura' | 'spaces' | 'bloque' | 'intermedio'
+    //         | 'clausura' | 'premiacion' | 'cierre')
+    // - films: list of {time, title, by, country, note} for expandable detail
+    // - awards: list of {title, by} for premiación
+    // - spaces: list of {title, hours, where, desc} for Day 1's continuous-format
     const days = {
       1: {
         date: '15.05.2026',
         venue: 'Campus UDEM',
         venueQuery: 'UDEM+San+Pedro+Garza+Garcia',
-        type: 'Exhibición · Videojuegos · Artist Alley',
+        type: 'Exhibición continua',
         hours: '10:00 – 18:00',
-        categories: ['Artist Alley', 'Videojuegos', 'Arte Digital', 'Portfolio Reviews'],
-        items: [
-          { type: 'header', label: 'Apertura' },
-          { time: '09:30', end: '10:00', title: 'Montaje final Artist Alley y espacios', by: 'Producción + Artistas', where: 'Campus completo', notes: 'Revisión técnica general', cat: 'evento', status: 'ok' },
-          { time: '10:00', end: '10:30', title: 'Ceremonia de apertura — Palabras institucionales', by: 'Dirección General + UDEM', where: 'Auditorio · Entrada', notes: 'Corta. Energizante. No más de 20 min real.', cat: 'evento', status: 'ok' },
-          { time: '10:30', end: '11:00', title: 'Apertura general al público', by: 'Todos los comités', where: 'Campus completo', notes: 'Puertas abiertas. Artist Alley, videojuegos y arte digital simultáneos.', cat: 'evento', status: 'ok' },
+        stats: [
+          { num: '4', label: 'espacios abiertos' },
+          { num: '8h', label: 'de exhibición' },
+          { num: '~6', label: 'lives en IG' },
+        ],
+        moments: [
+          { time: '10:00', end: '10:30', kind: 'apertura', icon: '★', title: 'Ceremonia de apertura',
+            summary: 'Palabras institucionales y corte de listón. Llega temprano si quieres asiento.',
+            where: 'Auditorio · Entrada principal',
+            tip: 'El evento abre al público a las 10:30 — antes solo está el montaje.' },
 
-          { type: 'header', label: 'Artist Alley · todo el día' },
-          { time: '10:30', end: '18:00', title: 'Artist Alley — Booths abiertos al público', by: 'Coordinación Artist Alley', where: 'Zona Artist Alley', notes: 'Booths activos todo el día con receso 14:00–15:00.', cat: 'evento', status: 'ok' },
+          { time: '10:30', end: '18:00', kind: 'spaces', icon: '◈', title: 'Roam libre por el campus',
+            summary: 'Cuatro espacios paralelos durante todo el día. Visitas en el orden que quieras, te quedas el tiempo que quieras.',
+            spaces: [
+              { title: 'Artist Alley', hours: '10:30 – 18:00', where: 'Zona Artist Alley', desc: 'Booths con prints, ilustración y merch de artistas LAED.' },
+              { title: 'Videojuegos', hours: '10:30 – 14:00  ·  15:00 – 18:00', where: 'Espacio videojuegos', desc: 'Estaciones jugables con demos de proyectos finales en Unreal Engine.' },
+              { title: 'Arte Digital', hours: '10:30 – 18:00', where: 'Sala de exposición', desc: 'Piezas destacadas en pantallas y displays. Acceso libre.' },
+              { title: 'Portfolio Reviews', hours: 'Slot ~90 min · TBD', where: 'Sala Portfolio Reviews', desc: 'Sesión curada con profesionales — solo artistas seleccionados.' },
+            ] },
 
-          { type: 'header', label: 'Showcase de videojuegos' },
-          { time: '10:30', end: '14:00', title: 'Showcase Videojuegos — Sesión 1', by: 'Curaduría + Producción', where: 'Espacio videojuegos', notes: 'Estaciones disponibles al público.', cat: 'evento', status: 'pendiente' },
-          { time: '15:00', end: '18:00', title: 'Showcase Videojuegos — Sesión 2', by: 'Curaduría + Producción', where: 'Espacio videojuegos', notes: 'Continúa después del receso.', cat: 'evento', status: 'pendiente' },
+          { time: '14:00', end: '15:00', kind: 'intermedio', icon: '⏸', title: 'Receso general',
+            summary: 'Una hora de pausa. Artist Alley cubierto temporalmente.',
+            tip: 'Hay food trucks afuera del campus.' },
 
-          { type: 'header', label: 'Arte Digital & Portfolio Reviews' },
-          { time: '10:30', end: '18:00', title: 'Exposición Arte Digital — Proyectos destacados', by: 'Curaduría', where: 'Sala de exposición', notes: 'Obra en pantallas y displays. Acceso libre.', cat: 'evento', status: 'pendiente' },
-          { time: 'TBD',   end: '',      title: 'Portfolio Reviews con profesionales', by: 'Conferencias e Industria', where: 'Sala Portfolio Reviews', notes: 'Sesión curada · solo artistas seleccionados (~90 min).', cat: 'evento', status: 'pendiente' },
+          { time: '10:00', end: '18:00', kind: 'streaming', icon: '▶', title: 'Streaming en vivo',
+            summary: 'Cobertura simultánea por Instagram Live — un panel estudiantil va grabando segmentos del día. YouTube Live en lobby.',
+            where: 'En el campus y online',
+            tip: 'Si no puedes asistir, las transmisiones quedan archivadas en el canal del festival.' },
 
-          { type: 'header', label: 'Streaming' },
-          { time: '10:00', end: '18:00', title: 'Instagram Live — Panel estudiantil', by: 'Branding & Comunicación', where: 'Todo el campus', notes: '6 lives programados en segmentos. YouTube Live en lobby.', cat: 'evento', status: 'pendiente' },
-
-          { type: 'header', label: 'Receso & Cierre' },
-          { time: '14:00', end: '15:00', title: 'Receso general', by: 'Producción', where: 'Todo el campus', notes: 'Artist Alley cubierto temporalmente. Food trucks disponibles.', cat: 'intermedio', status: 'ok' },
-          { time: '18:00', end: '18:30', title: 'Cierre día 1 y desmontaje Artist Alley', by: 'Producción + Artistas', where: 'Campus completo', notes: 'Coordinador verifica estado de cada espacio.', cat: 'evento', status: 'ok' },
+          { time: '18:00', end: '18:30', kind: 'cierre', icon: '◼', title: 'Cierre del día',
+            summary: 'Desmontaje de Artist Alley y revisión de espacios.',
+            tip: 'Mañana 22 de mayo en Teatro UDEM — la gran noche.' },
         ],
       },
       2: {
         date: '22.05.2026',
         venue: 'Teatro UDEM',
         venueQuery: 'Teatro+UDEM+Monterrey',
-        type: 'Screening · Premiación',
+        type: 'Screening + Premiación',
         hours: '16:30 – 22:10',
-        categories: ['Alfombra Roja', 'Bloque 2D', 'Bloque 3D', 'Clausura', 'Premiación'],
-        items: [
-          { type: 'header', label: 'Alfombra Roja & Photobooth · 16:30 — 17:20' },
-          { time: '16:30', end: '17:20', title: 'Inauguración y desfile de artistas — Alfombra Roja', by: 'Organización Parallax', where: 'Lobby Teatro UDEM', notes: 'Photobooth activo. Registro fotográfico.', cat: 'evento', status: 'ok' },
+        stats: [
+          { num: '23', label: 'cortometrajes' },
+          { num: '4', label: 'países' },
+          { num: '9', label: 'premios' },
+        ],
+        moments: [
+          { time: '16:30', end: '17:20', kind: 'apertura', icon: '★', title: 'Alfombra roja & photobooth',
+            summary: '50 minutos de alfombra antes de entrar a la sala. Llégate temprano para fotos.',
+            where: 'Lobby del Teatro UDEM',
+            tip: 'Habrá una segunda alfombra durante el intermedio (19:11) si te lo pierdes.' },
 
-          { type: 'header', label: 'Apertura del Screening' },
-          { time: '17:20', end: '17:23', title: 'Ingreso a sala — Bienvenida institucional', by: 'Dirección General + UDEM', where: 'Teatro UDEM', cat: 'evento', status: 'ok' },
-          { time: '17:23', end: '17:33', title: 'Afterlight — Pieza inaugural', by: 'Diversas generaciones · UDEM', where: 'Teatro UDEM', notes: 'Abre el screening. Producción conjunta LAED.', cat: 'colectivo', status: 'ok' },
-          { time: '17:33', end: '17:34', title: 'Introducción al Bloque 2D', by: 'Moderador Parallax', where: 'Teatro UDEM', cat: 'evento', status: 'ok' },
+          { time: '17:20', end: '17:34', kind: 'apertura', icon: '✨', title: 'Bienvenida + Afterlight (pieza inaugural)',
+            summary: '13 minutos · Apertura institucional + Afterlight, producción conjunta de la LAED que abre el screening.',
+            where: 'Teatro UDEM',
+            tip: 'Afterlight dura ~10 minutos. Es la única pieza colectiva del festival.' },
 
-          { type: 'header', label: 'Bloque 1 · Animación 2D · 7 UDEM + 6 invitados' },
-          { time: '17:34', end: '17:36', title: 'Presentación del Bloque 2D', by: 'Moderador Parallax', where: 'Teatro UDEM', cat: 'evento', status: 'ok' },
-          { time: '17:36', end: '17:46', title: 'Ronnie en la luna', by: 'UDEM', country: '🇲🇽', notes: 'Abre el bloque', cat: '2d', status: 'ok' },
-          { time: '17:47', end: '17:49', title: 'La Máscara de la Muerte Roja', by: 'UDIT', country: '🇪🇸', cat: 'invitado', status: 'ok' },
-          { time: '17:50', end: '17:59', title: 'Have a Nice Day', by: 'NABA', country: '🇮🇹', cat: 'invitado', status: 'ok' },
-          { time: '18:00', end: '18:07', title: 'Battle of the Batter', by: 'UDEM', country: '🇲🇽', cat: '2d', status: 'ok' },
-          { time: '18:08', end: '18:14', title: 'Flama', by: 'UDEM', country: '🇲🇽', cat: '2d', status: 'ok' },
-          { time: '18:15', end: '18:18', title: 'Burbuja', by: 'DUOC UC', country: '🇨🇱', cat: 'invitado', status: 'ok' },
-          { time: '18:19', end: '18:30', title: 'Malita Pa Ti', by: 'UDEM', country: '🇲🇽', cat: '2d', status: 'ok' },
-          { time: '18:31', end: '18:41', title: 'The Breaking Point', by: 'NABA', country: '🇮🇹', cat: 'invitado', status: 'ok' },
-          { time: '18:42', end: '18:47', title: 'Beat Box King', by: 'UDEM', country: '🇲🇽', cat: '2d', status: 'ok' },
-          { time: '18:48', end: '18:54', title: 'Frat Magic', by: 'UDIT', country: '🇪🇸', cat: 'invitado', status: 'ok' },
-          { time: '18:55', end: '18:59', title: 'Freshtzu', by: 'UDEM', country: '🇲🇽', cat: '2d', status: 'ok' },
-          { time: '19:00', end: '19:03', title: 'Reflejo', by: 'DUOC UC', country: '🇨🇱', cat: 'invitado', status: 'ok' },
-          { time: '19:04', end: '19:11', title: 'Otter Side', by: 'UDEM', country: '🇲🇽', notes: 'Cierra el bloque', cat: '2d', status: 'ok' },
+          { time: '17:34', end: '19:11', kind: 'bloque-2d', icon: '▶', title: 'Bloque 2D — 13 cortometrajes',
+            summary: '1 hora 37 minutos · 7 cortos UDEM + 6 invitados internacionales (España, Italia, Chile).',
+            where: 'Teatro UDEM',
+            films: [
+              { time: '17:36', title: 'Ronnie en la luna', by: 'UDEM', country: '🇲🇽', note: 'Abre el bloque' },
+              { time: '17:47', title: 'La Máscara de la Muerte Roja', by: 'UDIT', country: '🇪🇸' },
+              { time: '17:50', title: 'Have a Nice Day', by: 'NABA', country: '🇮🇹' },
+              { time: '18:00', title: 'Battle of the Batter', by: 'UDEM', country: '🇲🇽' },
+              { time: '18:08', title: 'Flama', by: 'UDEM', country: '🇲🇽' },
+              { time: '18:15', title: 'Burbuja', by: 'DUOC UC', country: '🇨🇱' },
+              { time: '18:19', title: 'Malita Pa Ti', by: 'UDEM', country: '🇲🇽' },
+              { time: '18:31', title: 'The Breaking Point', by: 'NABA', country: '🇮🇹' },
+              { time: '18:42', title: 'Beat Box King', by: 'UDEM', country: '🇲🇽' },
+              { time: '18:48', title: 'Frat Magic', by: 'UDIT', country: '🇪🇸' },
+              { time: '18:55', title: 'Freshtzu', by: 'UDEM', country: '🇲🇽' },
+              { time: '19:00', title: 'Reflejo', by: 'DUOC UC', country: '🇨🇱' },
+              { time: '19:04', title: 'Otter Side', by: 'UDEM', country: '🇲🇽', note: 'Cierra el bloque' },
+            ] },
 
-          { type: 'header', label: 'Intermedio · Networking · Photobooth' },
-          { time: '19:11', end: '20:00', title: 'Intermedio — segunda alfombra roja', by: 'Organización', where: 'Lobby Teatro UDEM', notes: 'YouTube e Instagram Live activos en lobby.', cat: 'intermedio', status: 'ok' },
+          { time: '19:11', end: '20:00', kind: 'intermedio', icon: '⏸', title: 'Intermedio · 49 minutos',
+            summary: 'Networking, segunda alfombra roja y streaming activo en el lobby.',
+            where: 'Lobby Teatro UDEM',
+            tip: 'YouTube e Instagram Live siguen transmitiendo desde el lobby.' },
 
-          { type: 'header', label: 'Bloque 2 · Animación 3D · 8 UDEM + 2 invitados' },
-          { time: '20:00', end: '20:02', title: 'Presentación del Bloque 3D', by: 'Moderador Parallax', where: 'Teatro UDEM', cat: 'evento', status: 'ok' },
-          { time: '20:02', end: '20:08', title: 'Contact', by: 'UDEM', country: '🇲🇽', notes: 'Abre el bloque', cat: '3d', status: 'ok' },
-          { time: '20:09', end: '20:13', title: 'Blockhead', by: 'UDEM', country: '🇲🇽', cat: '3d', status: 'ok' },
-          { time: '20:14', end: '20:24', title: 'Lone Star Store', by: 'UDEM', country: '🇲🇽', cat: '3d', status: 'ok' },
-          { time: '20:25', end: '20:27', title: 'Chase', by: 'NABA', country: '🇮🇹', cat: 'invitado', status: 'ok' },
-          { time: '20:28', end: '20:41', title: 'Rex', by: 'UDEM', country: '🇲🇽', notes: '⚠ Corto más largo del bloque', cat: '3d', status: 'ok' },
-          { time: '20:42', end: '20:48', title: 'Recuerda que te amo', by: 'UDEM', country: '🇲🇽', cat: '3d', status: 'ok' },
-          { time: '20:49', end: '20:55', title: 'I Need Some Space', by: 'UDEM', country: '🇲🇽', cat: '3d', status: 'ok' },
-          { time: '20:56', end: '21:00', title: 'Flora Ex Machina', by: 'NABA', country: '🇮🇹', cat: 'invitado', status: 'ok' },
-          { time: '21:01', end: '21:07', title: 'Un Giro Bajo el Agua', by: 'UDEM', country: '🇲🇽', cat: '3d', status: 'ok' },
-          { time: '21:08', end: '21:15', title: 'Escamas', by: 'UDEM', country: '🇲🇽', notes: 'Cierra el bloque', cat: '3d', status: 'ok' },
+          { time: '20:00', end: '21:15', kind: 'bloque-3d', icon: '▶', title: 'Bloque 3D — 10 cortometrajes',
+            summary: '1 hora 15 minutos · 8 cortos UDEM + 2 invitados de NABA (Italia).',
+            where: 'Teatro UDEM',
+            films: [
+              { time: '20:02', title: 'Contact', by: 'UDEM', country: '🇲🇽', note: 'Abre el bloque' },
+              { time: '20:09', title: 'Blockhead', by: 'UDEM', country: '🇲🇽' },
+              { time: '20:14', title: 'Lone Star Store', by: 'UDEM', country: '🇲🇽' },
+              { time: '20:25', title: 'Chase', by: 'NABA', country: '🇮🇹' },
+              { time: '20:28', title: 'Rex', by: 'UDEM', country: '🇲🇽', note: '⚠ Corto más largo del bloque (13 min)' },
+              { time: '20:42', title: 'Recuerda que te amo', by: 'UDEM', country: '🇲🇽' },
+              { time: '20:49', title: 'I Need Some Space', by: 'UDEM', country: '🇲🇽' },
+              { time: '20:56', title: 'Flora Ex Machina', by: 'NABA', country: '🇮🇹' },
+              { time: '21:01', title: 'Un Giro Bajo el Agua', by: 'UDEM', country: '🇲🇽' },
+              { time: '21:08', title: 'Escamas', by: 'UDEM', country: '🇲🇽', note: 'Cierra el bloque' },
+            ] },
 
-          { type: 'header', label: 'Clausura' },
-          { time: '21:15', end: '21:25', title: 'Clausura — Palabras finales del festival', by: 'Christian Javier Méndez Aguilar · DPA LAED', where: 'Teatro UDEM', notes: 'Cierre oficial del programa.', cat: 'clausura', status: 'ok' },
-          { time: '21:25', end: '21:40', title: 'Descanso — sala se prepara para premiación', by: '—', cat: 'intermedio', status: 'ok' },
+          { time: '21:15', end: '21:40', kind: 'clausura', icon: '◼', title: 'Clausura · palabras finales',
+            summary: 'Christian Méndez (DPA · LAED) cierra el programa oficial. Después, 15 min de descanso mientras se prepara la sala para premiación.',
+            where: 'Teatro UDEM' },
 
-          { type: 'header', label: 'Premiación · 9 categorías' },
-          { time: '21:40', end: '21:43', title: 'Apertura de la ceremonia de premiación', by: 'Conductor(a) oficial', notes: 'Música de entrada · presentación del jurado.', cat: 'premiacion', status: 'pendiente' },
-          { time: '21:43', end: '21:46', title: 'Premio: Mejor Animación 2D', by: 'Jurado externo', notes: 'Anuncio + entrega + foto oficial.', cat: 'premiacion', status: 'pendiente' },
-          { time: '21:46', end: '21:49', title: 'Premio: Mejor Animación 3D', by: 'Jurado externo', notes: 'Anuncio + entrega + foto oficial.', cat: 'premiacion', status: 'pendiente' },
-          { time: '21:49', end: '21:52', title: 'Premio: Mejor Narrativa', by: 'Jurado externo', notes: 'Anuncio + entrega + foto oficial.', cat: 'premiacion', status: 'pendiente' },
-          { time: '21:52', end: '21:55', title: 'Premio: Mejor Dirección de Arte', by: 'Jurado externo', notes: 'Anuncio + entrega + foto oficial.', cat: 'premiacion', status: 'pendiente' },
-          { time: '21:55', end: '21:58', title: 'Premio: Mejor Proyecto Internacional', by: 'Jurado externo', notes: 'Anuncio + entrega + foto oficial.', cat: 'premiacion', status: 'pendiente' },
-          { time: '21:58', end: '22:01', title: 'Premio del Público', by: 'Moderador — votación abierta', notes: 'Resultados de votación digital.', cat: 'premiacion', status: 'pendiente' },
-          { time: '22:01', end: '22:04', title: 'Reconocimiento Parallax', by: 'Dirección del festival', notes: 'Premio especial del comité.', cat: 'premiacion', status: 'pendiente' },
-          { time: '22:04', end: '22:07', title: 'Reconocimiento Institucional UDEM', by: 'Dirección + UDEM', notes: 'Entregado por representante institucional.', cat: 'premiacion', status: 'pendiente' },
-          { time: '22:07', end: '22:10', title: 'Fotografía grupal — cierre oficial', by: 'Fotógrafo oficial', notes: 'Ganadores + jurado + organización.', cat: 'premiacion', status: 'pendiente' },
+          { time: '21:40', end: '22:10', kind: 'premiacion', icon: '🏆', title: 'Premiación — 9 categorías',
+            summary: '30 minutos · Anuncio + entrega + foto oficial por cada premio, más fotografía grupal final.',
+            where: 'Teatro UDEM',
+            awards: [
+              { title: 'Mejor Animación 2D', by: 'Jurado externo' },
+              { title: 'Mejor Animación 3D', by: 'Jurado externo' },
+              { title: 'Mejor Narrativa', by: 'Jurado externo' },
+              { title: 'Mejor Dirección de Arte', by: 'Jurado externo' },
+              { title: 'Mejor Proyecto Internacional', by: 'Jurado externo' },
+              { title: 'Premio del Público', by: 'Votación abierta · resultados digitales' },
+              { title: 'Reconocimiento Parallax', by: 'Dirección del festival' },
+              { title: 'Reconocimiento Institucional UDEM', by: 'Representante institucional' },
+              { title: 'Fotografía grupal — cierre oficial', by: 'Ganadores + jurado + organización' },
+            ] },
         ],
       },
     };
+
+    const _escHtml = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+    function renderMoment(m, i) {
+      const expandable =
+        (m.films && m.films.length)  ? renderFilms(m.films, m.kind) :
+        (m.awards && m.awards.length) ? renderAwards(m.awards) :
+        (m.spaces && m.spaces.length) ? renderSpaces(m.spaces) :
+        '';
+
+      return `
+        <article class="moment moment--${m.kind}" style="animation-delay: ${Math.min(i * 0.06, 0.4)}s">
+          <div class="moment__time">
+            <div class="moment__icon" aria-hidden="true">${m.icon || ''}</div>
+            <div class="moment__time-block">
+              <span class="moment__time-start">${m.time}</span>
+              ${m.end ? `<span class="moment__time-end">→ ${m.end}</span>` : ''}
+            </div>
+          </div>
+          <div class="moment__body">
+            <h3 class="moment__title">${_escHtml(m.title)}</h3>
+            ${m.summary ? `<p class="moment__summary">${_escHtml(m.summary)}</p>` : ''}
+            ${m.where ? `<div class="moment__where"><span class="moment__where-pin">●</span>${_escHtml(m.where)}</div>` : ''}
+            ${m.tip ? `<div class="moment__tip"><span class="moment__tip-icon">💡</span>${_escHtml(m.tip)}</div>` : ''}
+            ${expandable}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderFilms(films, kind) {
+      const total = films.length;
+      const countries = [...new Set(films.map(f => f.country))].join(' ');
+      return `
+        <details class="moment__details">
+          <summary>
+            <span>Ver los ${total} cortometrajes</span>
+            <span class="moment__details-meta">${countries}</span>
+            <svg class="moment__chevron" viewBox="0 0 12 12" width="12" height="12"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <ol class="moment__films">
+            ${films.map(f => `
+              <li class="moment__film moment__film--${kind === 'bloque-2d' ? '2d' : kind === 'bloque-3d' ? '3d' : 'evento'}${f.by !== 'UDEM' ? ' moment__film--invitado' : ''}">
+                <span class="moment__film-time">${f.time}</span>
+                <div class="moment__film-body">
+                  <span class="moment__film-title">${_escHtml(f.title)} <span class="moment__film-flag">${f.country || ''}</span></span>
+                  <span class="moment__film-by">${_escHtml(f.by)}</span>
+                  ${f.note ? `<span class="moment__film-note">${_escHtml(f.note)}</span>` : ''}
+                </div>
+              </li>
+            `).join('')}
+          </ol>
+        </details>
+      `;
+    }
+
+    function renderAwards(awards) {
+      return `
+        <details class="moment__details">
+          <summary>
+            <span>Ver las ${awards.length} categorías</span>
+            <svg class="moment__chevron" viewBox="0 0 12 12" width="12" height="12"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <ol class="moment__awards">
+            ${awards.map(a => `
+              <li class="moment__award">
+                <span class="moment__award-title">${_escHtml(a.title)}</span>
+                <span class="moment__award-by">${_escHtml(a.by)}</span>
+              </li>
+            `).join('')}
+          </ol>
+        </details>
+      `;
+    }
+
+    function renderSpaces(spaces) {
+      return `
+        <div class="moment__spaces">
+          ${spaces.map(s => `
+            <div class="moment__space">
+              <div class="moment__space-title">${_escHtml(s.title)}</div>
+              <div class="moment__space-hours">${_escHtml(s.hours)}</div>
+              <div class="moment__space-where">${_escHtml(s.where)}</div>
+              <p class="moment__space-desc">${_escHtml(s.desc)}</p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
 
     function renderDay(d) {
       const info = days[d];
@@ -4249,49 +4589,26 @@
             <div>
               <div class="event-header__date">${info.date}</div>
               <div class="event-header__venue"><span class="event-header__pin"></span>${info.venue}</div>
-              <div class="event-header__hours">${info.hours} hrs</div>
+              <div class="event-header__hours">${info.hours} hrs · ${info.type}</div>
             </div>
             <a class="event-header__map" href="https://maps.google.com/?q=${info.venueQuery}" target="_blank" rel="noopener">Open in Maps ↗</a>
           </div>
-          <div class="event-header__categories">
-            ${info.categories.map(c => `<span class="cat-pill">${c}</span>`).join('')}
-          </div>
+          ${info.stats ? `
+            <div class="event-header__stats">
+              ${info.stats.map(s => `
+                <div class="event-stat">
+                  <div class="event-stat__num">${s.num}</div>
+                  <div class="event-stat__label">${s.label}</div>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
         </div>
       `;
 
       const list = document.getElementById('filmList');
-      list.className = 'timeline';
-      list.innerHTML = info.items.map((it, i) => {
-        if (it.type === 'header') {
-          return `<div class="timeline__divider"><span>${it.label}</span></div>`;
-        }
-        const isInvited = it.cat === 'invitado';
-        const catLabel = ({
-          '2d':         'Animación 2D',
-          '3d':         'Animación 3D',
-          'colectivo':  'Pieza colectiva',
-          'invitado':   'Invitado',
-          'evento':     'Evento',
-          'intermedio': 'Intermedio',
-          'clausura':   'Clausura',
-          'premiacion': 'Premiación',
-        })[it.cat] || it.cat;
-        return `
-          <article class="timeline__row timeline__row--${it.cat}" style="animation-delay: ${Math.min(i * 0.02, 0.5)}s">
-            <div class="timeline__time">
-              <span class="timeline__time-start">${it.time}</span>
-              ${it.end ? `<span class="timeline__time-end">${it.end}</span>` : ''}
-            </div>
-            <div class="timeline__card">
-              <div class="timeline__card-head">
-                <h3 class="timeline__title">${it.title}${it.country ? ` <span class="timeline__flag" aria-hidden="true">${it.country}</span>` : ''}</h3>
-                <span class="timeline__cat-pill">${catLabel}</span>
-              </div>
-              ${it.by || it.where ? `<div class="timeline__meta">${[it.by, it.where].filter(Boolean).join(' · ')}</div>` : ''}
-              ${it.notes ? `<div class="timeline__notes">${it.notes}</div>` : ''}
-            </div>
-          </article>`;
-      }).join('');
+      list.className = 'moments';
+      list.innerHTML = info.moments.map(renderMoment).join('');
     }
     renderDay(1);  // Chronological default — matches the .tab.active in HTML
 
